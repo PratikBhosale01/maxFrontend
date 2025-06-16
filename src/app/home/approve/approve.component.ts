@@ -108,9 +108,9 @@ export class ApproveComponent implements OnInit, OnDestroy {
     this.loadBankNotifications();
     this.loadDeviceList();
     
-    // this.notificationSubscription = interval(2000).subscribe(() => {
-    //   this.loadBankNotifications();
-    // });
+    this.notificationSubscription = interval(2000).subscribe(() => {
+      this.loadBankNotifications();
+    });
   }
 
   ngOnDestroy() {
