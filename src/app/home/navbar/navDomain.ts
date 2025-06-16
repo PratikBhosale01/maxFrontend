@@ -137,7 +137,7 @@ export const APPROVEADMIN: navDomain[] = [
     children: [
       { routerLink: 'notification', icon: "notifications", title: "Notify" },
       { routerLink: 'watti-chat', icon: "group", title: "Chat" },
-      { routerLink: 'update', icon: "key", title: "Update Password" },
+      // { routerLink: 'update', icon: "key", title: "Update Password" },
     ]
   },{
     routerLink: '',
