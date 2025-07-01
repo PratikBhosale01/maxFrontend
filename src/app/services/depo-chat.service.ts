@@ -1,59 +1,39 @@
 import { Injectable, Inject, Optional } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Observable, Subject, BehaviorSubject, Subscription, interval, throwError } from 'rxjs';
+import { Observable, Subject, BehaviorSubject,  interval, throwError } from 'rxjs';
 import { switchMap, catchError, tap, map } from 'rxjs/operators';
 import { ChatMessageDTO, ConversationDTO, PagedResponse } from '../domain/ChatMessage';
 import { AppConfigService } from './app-config.service';
 
 import { Client, Stomp, StompSubscription } from '@stomp/stompjs';
-
-
+import { Subscription } from 'stompjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WattiService {
+export class DepoChatService {
   private baseUrl: string;
   private messageSubject = new Subject<ChatMessageDTO>();
   private connectionStatus = new BehaviorSubject<boolean>(false);
   private pollingSubscription: Subscription | null = null;
   private lastMessageId: number | null = null;
-  
 
   //============================================================
   private stompClient: Client;
   private isConnected = false;
   private messagesSubject = new BehaviorSubject<any>(null);
   messages$ = this.messagesSubject.asObservable();
-  private subscription: StompSubscription | null = null;
+  private subscription: Subscription | null = null;
   //=============================================================
+
   constructor(
     private http: HttpClient,
     private config: AppConfigService,
- 
   ) {
-    this.baseUrl = `${this.config.getBaseurl()}/api/chat`;
-    
+    this.baseUrl = `${this.config.getBaseurl()}/api/dchat`;
+   }
 
- 
-  }
-
-  convertWebmToMP3(media?: any) {
-    const formData = new FormData();
-  
-      formData.append('file', media);
-   
-  
-    return this.http.post(`http://13.203.139.225:8080/convert/webm-to-mp3`, formData, {
-      responseType: 'blob' // expecting binary data (like MP3)
-    });
-  }
-
-
-
-
-  // Send message via WebSocket (actually via HTTP for simplicity)
-  sendMessageViaWebSocket(message: ChatMessageDTO): void {
+   sendMessageViaWebSocket(message: ChatMessageDTO): void {
     this.sendMessage(message).subscribe({
       next: (response) => {
         console.log('Message sent successfully');
@@ -198,10 +178,11 @@ export class WattiService {
     return this.http.patch<ConversationDTO>(`${this.baseUrl}/conversations/${watiNumber}/client-name`, { clientId });
   }
 
-  connect(watiNumber: any) {
+  connectdchat(watiNumber: any) {
     this.stompClient = new Client({
-      brokerURL: 'ws://api.approvepanel.com/ws', // Backend WebSocket endpoint
-      reconnectDelay: 5000, //http://13.200.63.62:8080 Auto-reconnect after 5 seconds
+     brokerURL: 'wss://api.zeerosports.com/dws',
+      // api.approvepanel.com/dws', // Backend WebSocket endpoint
+      reconnectDelay: 5000, // Auto-reconnect after 5 seconds
     });
   
     this.stompClient.onConnect = () => {
@@ -210,7 +191,7 @@ export class WattiService {
       this.connectionStatus.next(true);
   
       // ✅ Dynamic subscription to /topic/chat/{watiNumber}
-      this.subscription = this.stompClient.subscribe(
+     this.subscription = this.stompClient.subscribe(
         `/topic/chat/${watiNumber}`,
         (message) => {
           const data = JSON.parse(message.body);
@@ -251,4 +232,28 @@ export class WattiService {
   getConnectionStatus(): Observable<boolean> {
     return this.connectionStatus.asObservable();
   }
-} 
+
+  /**
+   * Send selected bank and conversation IDs to backend
+   * @param bankId The selected bank's ID
+   * @param conversationId The selected conversation's ID
+   * @param action Optional action type (e.g., 'message', 'qr')
+   */
+  sendSelectedBankAndConversation(bankId: number | string, conversationId: number | string, action?: string): Observable<any> {
+    console.log(bankId);
+    // TODO: Update the endpoint and payload as per backend API
+    const url = `${this.baseUrl}/send-bank-conversation`;
+    const body = { bankId, conversationId, action };
+    return this.http.post(url, body).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Stub for request deposit operation
+   */
+  requestDeposit(imageMsg: any, userIdMsg: any): void {
+    // TODO: Implement backend call
+    console.log('Request deposit:', { imageMsg, userIdMsg });
+  }
+}

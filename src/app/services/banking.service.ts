@@ -39,7 +39,7 @@ export class BankingService {
 
 
   private loadAllBotAccountData(): void {
-    this.http.get<Bank[]>(`${this.baseUrl}/bankingservice/bankinfo`)
+    this.http.get<Bank[]>(`${this.baseUrl}/Bank/getAllBanks`)
       .pipe(
         tap((accounts:Bank[]) => this.botBankAccountsSubject.next(accounts))
       )
@@ -81,8 +81,14 @@ export class BankingService {
       return this.http.post(`${this.baseUrl}/operation/bank/transactionByOpNumber`,BankAccountTransfer);
     }
   
-  updateBankAccount(BankAccount :BankAccount,Id :number): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/operation/bank/updateBank/${Id}`, BankAccount);
+  updateBankAccount(BankAccount :any,Id :number): Observable<any> {
+    // return this.http.put<any>(`${this.baseUrl}/Bank/updateBank/${Id}`, BankAccount);
+    return this.http.put<any>(`${this.baseUrl}/Bank/updateBank/${Id}`, BankAccount, {
+      headers: {
+        // Don't set Content-Type header, let the browser set it with the boundary
+        'Accept': 'application/json'
+      }
+    });
 
   }
 
@@ -113,12 +119,17 @@ getFreezList() :Observable<any> {
 } 
 
 switch (Id : number, ) : Observable<any> {
-  return this.http.put<any>(`${this.baseUrl}/operation/bank/${Id}/toggle-freeze`,null);
+  return this.http.put<any>(`${this.baseUrl}/Bank/toggleActiveStatus/${Id}`,null);
   
 }
 
-createBank(Bank:Bank ): Observable<any> {
-  return this.http.post<any>(`${this.baseUrl}/Bank/createBank`, Bank);  // bankservice comman for all
+createBank(bankData: FormData): Observable<any> {
+  return this.http.post<any>(`${this.baseUrl}/Bank/createBank`, bankData, {
+    headers: {
+      // Don't set Content-Type header, let the browser set it with the boundary
+      'Accept': 'application/json'
+    }
+  });
 }
 
 
@@ -126,6 +137,10 @@ bankUpdate(Bank:Bank ,Id :number ): Observable<any> {
   return this.http.put<any>(`${this.baseUrl}/bankingservice/bankinfo/${Id}`,  Bank);
 }
 
+
+Freez( Id :number ): Observable<any> {
+  return this.http.put<any>(`${this.baseUrl}/bankingservice/bankinfo/${Id}`,null);
+}
      
 
 getAllBankdata(): Observable<Bank[]> {
@@ -146,12 +161,20 @@ getAllBankStaticdata()
 
 getCountAllBotAccount(): Observable<any> {
   return this.http.get<any>(
-    `${this.baseUrl}/bankingservice/bankinfo/count`
+    `${this.baseUrl}/Bank/active-count`
   );
 }
 
 addSlot(slot: Slot): Observable<Slot> {
-  return this.http.post<Slot>(`${this.baseUrl}/bankingservice/slots`, slot);
+  return this.http.post<Slot>(`${this.baseUrl}/Bank/slots`, slot);
+}
+
+getAvailableBanksByTimeSorted(time: string): Observable<any[]> {
+  return this.http.post<any[]>(
+    `${this.baseUrl}/Bank/getAvailableBanksByTimeSorted`,
+    { time }
+  );
 }
 
 }
+

@@ -34,26 +34,52 @@ export const USER: navDomain[] = [
 ]
 
 export const admin: navDomain[] = [
-  { routerLink: 'dashboard', icon: "Home", title: "Home" },
   {
     routerLink: '',
     icon: "payments",
-    title: "Transactions",
+    title: "Manual",
     children: [
       { routerLink: 'deposit', icon: "download", title: "Deposit" },
-      { routerLink: 'withdraw', icon: "upload", title: "Withdraw" }
-    ]
-  },
-  {
-    routerLink: '',
-    icon: "people",
-    title: "User Management",
-    children: [
-      { routerLink: 'add', icon: "person_add", title: "Add User" },
-      { routerLink: 'Add-Old', icon: "add", title: "Add Old User" },
+      { routerLink: 'withdraw', icon: "upload", title: "Withdraw" },
+      { routerLink: 'add', icon: "person_add", title: "Add Client" },
+      { routerLink: 'Add-Old', icon: "add", title: "Add Old Client" },
       { routerLink: 'update', icon: "key", title: "Update Password" }
     ]
+  }, {
+    routerLink: '',
+    icon: "check_circle",
+    title: "Approve",
+    children: [
+      { routerLink: 'approve', icon: "List", title: "Approve" },
+      { routerLink: 'AppvDList', icon: "List", title: "A-DList" },
+      { routerLink: 'AppvWlist', icon: "List", title: "A-WList" }
+    ]
+  }, {
+    routerLink: '',
+    icon: "group",
+    title: "chat",
+    children: [
+      { routerLink: 'notification', icon: "notifications", title: "Notify" },
+      { routerLink: 'watti-chat', icon: "group", title: "Chat" },
+      { routerLink: 'Deposite-Chat', icon: "group", title: "D_Chat" },
+      { routerLink: 'update', icon: "key", title: "Update Password" },
+    ]
+  },{
+    routerLink: '',
+    icon: "Money",
+    title: "Banker",
+    children: [
+      { routerLink: 'Banking Panel', icon: "group", title: "Banking Panel" },
+      { routerLink: 'AppvDList', icon: "List", title: "A-DList" },
+      // { routerLink: 'approve', icon: "List", title: "Approve" },
+    ]
   },
+  // { routerLink: 'appv-home', icon: "home", title: "Home" },
+  // { routerLink: 'Banking Panel', icon: "group", title: "Banking Panel" },
+  // { routerLink: 'SupADeposit', icon: "download", title: "Sup ADeposit" },
+  // { routerLink: 'SupAWithdraw', icon: "upload", title: "Sup AWithdraw" },
+  // { routerLink: 'user-panel', icon: "group", title: "User panel" },
+  { routerLink: 'wati-accounts', icon: "account_circle", title: "Wati Accounts" },
   // { routerLink: 'reports', icon: "Report", title: "Report" }
   // { routerLink: 'users', icon: "group", title: "Users" },
   // { routerLink: 'add-site', icon: "web", title: "Site" },
@@ -137,6 +163,7 @@ export const APPROVEADMIN: navDomain[] = [
     children: [
       { routerLink: 'notification', icon: "notifications", title: "Notify" },
       { routerLink: 'watti-chat', icon: "group", title: "Chat" },
+      { routerLink: 'Deposite-Chat', icon: "group", title: "D_Chat" },
       // { routerLink: 'update', icon: "key", title: "Update Password" },
     ]
   },{

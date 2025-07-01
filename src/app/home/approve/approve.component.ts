@@ -71,6 +71,7 @@ export class ApproveComponent implements OnInit, OnDestroy {
   selectedDevice: string = '';
   deviceList: string[] = [];
   private draggedNotification: any = null;
+  ur: any;
 
   constructor(private ApproveService: ApproveService,
     private fb: FormBuilder,
@@ -285,6 +286,13 @@ export class ApproveComponent implements OnInit, OnDestroy {
       : ['PENDING', 'IN_PROCESS', 'FAILED', 'APPROVED'];
   }
 
+  onRejectToggle(event: any): void {
+ 
+    this.userRole = event.checked ? 'BANKER' : 'APPROVEWITHDRAW';
+      this.refresh();
+  
+  }
+
   nextPage(): void {
     if ((this.currentPage + 1) * this.itemsPerPage < this.totalItems) {
       this.currentPage++;
@@ -336,6 +344,7 @@ export class ApproveComponent implements OnInit, OnDestroy {
   refresh() {
 
     this.loadProducts();
+    this.loadBankNotifications();
     // this.resetAllFormGroups();  
   }
 
@@ -526,6 +535,7 @@ export class ApproveComponent implements OnInit, OnDestroy {
     const userData = localStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
+      this.ur=user.role_user;
       this.userRole = user.role_user;
     } else {
       console.error('User data not found in localStorage');
@@ -596,6 +606,11 @@ export class ApproveComponent implements OnInit, OnDestroy {
     event.preventDefault();
   }
 
+  private roundUpToNearest10(amount: number): number {
+    const truncated = Math.trunc(amount);          
+    return Math.ceil(truncated / 10) * 10;  
+  }
+
   onDrop(event: DragEvent, deposit: any) {
     event.preventDefault();
     if (!this.draggedNotification) return;
@@ -605,14 +620,21 @@ export class ApproveComponent implements OnInit, OnDestroy {
     if (amount) {
       // Get the form group for this deposit
       const formGroup = this.getFormGroup(deposit.id);
+      // Round up the amount to nearest 10
+      const roundedAmount = this.roundUpToNearest10(amount);
       // Patch the amount value
-      formGroup.patchValue({ amount: amount });
+      formGroup.patchValue({ amount: roundedAmount });
       
       // Store notification ID for later use in onSave
       deposit.notificationId = this.draggedNotification.id;
 
       // Close the notification after successful drop
       this.closeNotification(this.draggedNotification.id);
+
+      // Auto approve after amount is set
+      // if (!this.isApproved[deposit.id]) {
+      //   this.onSave(deposit);
+      // }
     }
 
     this.draggedNotification = null;

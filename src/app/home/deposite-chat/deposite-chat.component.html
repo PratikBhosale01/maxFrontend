@@ -1,0 +1,311 @@
+<div class="deposite-chat-container">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Deposit Chats</h2>
+      <mat-form-field class="filter-select">
+        <mat-select [(ngModel)]="selectedFilter" (selectionChange)="applyFilter()">
+          <mat-option value="all">All Conversations</mat-option>
+          <mat-option value="undone">Not Done</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="conversation-list">
+      <div *ngIf="!loading && filteredConversations.length === 0" class="no-conversations">
+        No conversations found.
+      </div>
+      <mat-card 
+        *ngFor="let conversation of filteredConversations" 
+        class="conversation-item"
+        [class.active]="activeDepositeNumber === conversation.depositeNumber"
+        (click)="loadConversationByDepositeNumber(conversation.watiNumber); markAsRead(conversation)">
+        <mat-card-content>
+          <div class="avatar">
+            <mat-icon>account_circle</mat-icon>
+            <div *ngIf="!conversation.isRead" class="notification-badge"></div>
+          </div>
+          <div class="conversation-details">
+            <h3 *ngIf="conversation.clientName">{{ conversation.clientName }}</h3>
+            <h3 *ngIf="!conversation.clientName">USER</h3>
+            <p class="lastmsg" [innerHTML]="getlastMessage(conversation.data) | lineBreaks"></p>
+            <p class="timestamp">{{ conversation.lastMessageTime | utcToLocal }}</p>
+          </div>
+          <button *ngIf="!conversation.isDone"
+            mat-icon-button 
+            class="done-button" 
+            (click)="markAsDone(conversation); $event.stopPropagation()"
+            [class.done]="conversation.isDone"
+            matTooltip="Mark as done">
+            <mat-icon>{{ conversation.isDone ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="chat-main">
+    <div class="chat-header" *ngIf="selectedConversation">
+      <div class="chat-header-user">
+        <mat-icon>account_circle</mat-icon>
+        <div class="client-name-container">
+          <h2>{{ selectedConversation.clientName || 'USER' }}</h2>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <div class="quick-reply-wrapper" *ngIf="activeDepositeNumber">
+          <button class="quick-reply-trigger" 
+                  (click)="toggleStarMessagesDropdown()"
+                  [class.active]="showStarMessagesDropdown">
+            <mat-icon>star</mat-icon>
+          </button>
+          
+          <div class="quick-reply-dropdown" *ngIf="showStarMessagesDropdown">
+            <div class="dropdown-header">
+              <span>Quick Messages</span>
+              <button class="close-btn" (click)="closeStarMessagesDropdown()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            
+            <div class="dropdown-content">
+              <div *ngFor="let reply of quickReplies" 
+                   class="quick-message-item"
+                   (click)="sendQuickReply(reply)">
+                <span class="message-text">{{ reply }}</span>
+                <button class="delete-btn" 
+                        (click)="removeQuickReply(reply); $event.stopPropagation()">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+              
+              <div *ngIf="quickReplies.length === 0 && !showQuickReplyInput" class="empty-state">
+                <p>No quick messages yet</p>
+              </div>
+              
+              <div *ngIf="showQuickReplyInput" class="add-message-section">
+                <textarea
+                  [(ngModel)]="newQuickReply"
+                  placeholder="Type your quick message..."
+                  rows="3"
+                  autofocus>
+                </textarea>
+                <div class="add-actions">
+                  <button class="btn-add" (click)="addQuickReply()">Add</button>
+                  <button class="btn-cancel" (click)="showQuickReplyInput = false; $event.stopPropagation()">Cancel</button>
+                </div>
+              </div>
+              
+              <button *ngIf="!showQuickReplyInput" 
+                      class="add-new-btn"
+                      (click)="openQuickReplyInput(); $event.stopPropagation()">
+                <mat-icon>add</mat-icon>
+                Add New Message
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-messages" #chatContainer>
+      <div *ngIf="!loading && messages.length === 0" class="no-messages">
+        No messages found. Start the conversation.
+      </div>
+      <div class="messages-container">
+        <div *ngIf="loadingMore" class="loading-more">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div *ngFor="let message of messages" 
+            class="message-bubble" 
+            [class.user-message]="message.fromUser || message.isFromUser" 
+            [class.admin-message]="!message.fromUser && !message.isFromUser"
+            [class.image-message]="message.mediaUrl && isImage(message.mediaType)"
+            [class.selected-message]="isSelectedMessage(message)"
+            (click)="toggleMessageSelection(message)">
+          <div class="message-content">
+            <!-- <mat-checkbox *ngIf="isSelectableMessage(message)" [checked]="isSelectedMessage(message)" (click)="$event.stopPropagation(); toggleMessageSelection(message)"></mat-checkbox> -->
+            <div *ngIf="message.mediaUrl" class="media-container">
+              <img *ngIf="isImage(message.mediaType)" 
+                [src]="message.mediaUrl" 
+                alt="Image" 
+                class="media-image" 
+                (click)="openImage(message.mediaUrl)">
+              <div *ngIf="selectedImageUrl" class="image-overlay" (click)="closeImage()">
+                <img [src]="selectedImageUrl" alt="Full-size Image" class="enlarged-image">
+              </div>
+              <video *ngIf="isVideo(message.mediaType)" controls class="media-video">
+                <source [src]="getFileUrl(message.mediaName)" [type]="message.mediaType">
+                Your browser does not support the video tag.
+              </video>
+              <div *ngIf="isAudio(message.mediaType)" class="audio-player">
+                <button class="play-button" (click)="toggleAudio($event, message)">
+                  <mat-icon>{{ isPlaying(message) ? 'pause' : 'play_arrow' }}</mat-icon>
+                </button>
+                <div class="audio-progress">
+                  <div class="progress-bar" [style.width.%]="getAudioProgress(message)"></div>
+                </div>
+                <span class="audio-duration">{{ getAudioDuration(message) }}</span>
+              </div>
+              <div *ngIf="!isImage(message.mediaType) && !isVideo(message.mediaType) && !isAudio(message.mediaType)" class="media-file">
+                <mat-icon>attach_file</mat-icon>
+                <a [href]="getFileUrl(message.mediaName)" target="_blank" download>
+                  {{ message.mediaName }}
+                </a>
+              </div>
+              <span class="timestamp">{{message.timestamp | utcToLocal }}</span>
+            </div>
+            <p *ngIf="message.content && message.content.trim().length> 0" [innerHTML]="message.content | lineBreaks"></p>
+            <div></div>
+            <span *ngIf="!message.mediaUrl" class="timestamp">{{message.timestamp | utcToLocal }}</span>
+          </div>
+        </div>
+        <button *ngIf="selectedImageMessage && selectedUserIdMessage" class="request-deposit-btn" (click)="requestDeposit()">Request Deposit</button>
+      </div>
+    </div>
+
+   
+
+    <div class="chat-input" *ngIf="activeDepositeNumber">
+      <form [formGroup]="messageForm" (ngSubmit)="sendMessage()">
+        <div *ngIf="loading" class="chat-loader">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div class="file-attachment" *ngIf="selectedFile">
+          <span>{{ selectedFile.name }}</span>
+          <button mat-icon-button type="button" (click)="clearSelectedFile()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="recording-preview" *ngIf="recordingPreview">
+          <div class="preview-audio">
+            <button class="play-button" (click)="togglePreviewAudio()" [disabled]="!previewAudio">
+              <mat-icon>{{ isPreviewPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
+            </button>
+            <div class="audio-progress">
+              <div class="progress-bar" [style.width.%]="previewProgress"></div>
+            </div>
+            <span class="audio-duration">{{ previewDuration | date:'mm:ss' }}</span>
+          </div>
+          <div class="preview-actions">
+            <button mat-icon-button type="button" (click)="cancelRecording()" class="btn-icon cancel">
+              <mat-icon>close</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="sendRecording()" class="btn-icon send" [disabled]="!previewAudio">
+              <mat-icon>send</mat-icon>
+            </button>
+          </div>
+        </div>
+        <div class="input-container">
+          <button mat-icon-button type="button" (click)="fileInput.click()" class="btn-icon">
+            <mat-icon>attach_file</mat-icon>
+          </button>
+          <input hidden type="file" #fileInput (change)="onFileSelected($event)">
+          <div class="recording-controls" *ngIf="isRecording">
+            <div class="recording-timer">
+              <mat-icon class="recording-icon">fiber_manual_record</mat-icon>
+              {{ recordingDuration | date:'mm:ss' }}
+            </div>
+            <button mat-icon-button type="button" (click)="cancelRecording()" class="btn-icon cancel">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <div class="message-input-container" [class.recording]="isRecording">
+            <mat-form-field class="message-input">
+              <textarea matInput 
+                        formControlName="content" 
+                        placeholder="Type a message" 
+                        (keydown.enter)="onEnter($event)"
+                        style="color: white;">
+              </textarea>
+            </mat-form-field>
+            <button mat-icon-button type="button" (click)="toggleRecording()" class="btn-icon" [class.recording]="isRecording">
+              <mat-icon>{{ isRecording ? 'stop' : 'mic' }}</mat-icon>
+            </button>
+          </div>
+          <button mat-icon-button type="submit" [disabled]="messageForm.invalid || loading" class="btn-icon">
+            <mat-icon>send</mat-icon>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="sidebar">
+   
+    <div class="allocated-bank-title mb-2 ms-2"> Current Bank</div>
+    <div class="allocated-bank-list-scroll">
+    <div *ngIf="allocatedBanks && allocatedBanks.length > 0">
+      <div class="allocated-bank-list">
+        <div *ngFor="let bank of allocatedBanks" 
+             class="allocated-bank-card mb-2 rounded shadow-sm">
+          <div class="row">
+            <div class="d-flex align-items-center mb-1 col-sm-4">
+              <i class="fa-solid fa-building-columns fa-lg me-2" style="color: #926108;"></i>
+              <span class="fw-bold fs-6">{{ bank.displayName }}</span>
+            </div>
+            <div class="col-sm-8">
+              <div>
+                <span class="fw-semibold">Amount:</span>
+                <span *ngFor="let range of bank.amountRanges; let last = last" style="color: aliceblue; font-weight: 600;">
+                  ₹{{ range.minAmount }} - ₹{{ range.maxAmount }}<span *ngIf="!last">, </span>
+                </span>
+              </div>
+              <div class="bank-actions mt-2">
+                <div class="button-group">
+                  <button class="bank-action-btn message-btn" 
+                          [class.active]="bank.sendMessage"
+                          (click)="onBankActionClick(bank, 'message')">
+                    <mat-icon>message</mat-icon>
+                   
+                  </button>
+                  <button class="bank-action-btn qr-btn" 
+                          [class.active]="bank.sendQR"
+                          (click)="onBankActionClick(bank, 'qr')">
+                    <mat-icon>qr_code</mat-icon>
+                    
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="allocatedBanks && allocatedBanks.length === 0" class="text-muted text-center mt-3">
+      No banks allocated for the current time.
+    </div>
+  </div>
+  <div class="Deposit-request">
+    <form (ngSubmit)="submitDepositRequest()" [formGroup]="depositRequestForm" class="deposit-request-form" [class.disabled]="depositRequestLoading">
+      <div *ngIf="depositRequestLoading" class="deposit-loader">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div class="drop-area"
+           [class.drag-over]="dragOver"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)"
+           (click)="utrFileInput.click()">
+        <input type="file" #utrFileInput accept="image/*" (change)="onUtrFileSelected($event)" hidden />
+        <ng-container *ngIf="utrImageUrl; else dropPlaceholder">
+          <div class="utr-image-preview">
+            <img [src]="utrImageUrl" alt="UTR Image Preview" />
+            <button type="button" class="remove-image-btn" (click)="removeUtrImage($event)"><mat-icon>close</mat-icon></button>
+          </div>
+        </ng-container>
+        <ng-template #dropPlaceholder>
+          <div class="drop-placeholder">
+            <mat-icon>cloud_upload</mat-icon>
+            <span>Drag & drop UTR image here, or click to select</span>
+          </div>
+        </ng-template>
+      </div>
+      <mat-form-field appearance="fill" class="user-id-field">
+        <mat-label style="color: aliceblue;">User ID</mat-label>
+        <input  style="color: aliceblue;" matInput formControlName="userId" placeholder="Enter user ID" />
+      </mat-form-field>
+      <button style="color: rgb(86, 86, 86);" mat-raised-button color="primary" type="submit" [disabled]="!depositRequestForm.valid || !utrImageUrl || depositRequestLoading">Deposit-request</button>
+    </form>
+  </div>
+  </div>
+</div>
+<!-- TODO: Implement the rest of the chat UI following watti-chat.component.html structure --> 

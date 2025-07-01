@@ -19,7 +19,10 @@
   font-weight: 5;
   }
   
-  
+  .mar{
+    margin-top: -10 !important;
+     margin-left: -5 !important;
+  }
   
   
   h1 {
@@ -94,12 +97,22 @@
   position: relative;
   padding: 25px;
   background: radial-gradient(78.94% 270.41% at 26.42% 160.41%, rgba(179, 155, 51, 0.962) 12%,rgb(146, 97, 8) 80.88%) /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */, #FFFFFF;
+  border-radius: 25px;
+  transition: all 0.8s cubic-bezier(0.15, 0.83, 0.66, 1);
+  margin-bottom: 10px;
+ 
+}
+.newcard3 {
+  width: auto;
+  height: 85px;
+  position: relative;
+  padding: 8px 20px ;
+  background: radial-gradient(78.94% 270.41% at 26.42% 160.41%, rgba(179, 155, 51, 0.962) 12%,rgb(146, 97, 8) 80.88%) /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */, #FFFFFF;
   border-radius: 23px;
   transition: all 0.8s cubic-bezier(0.15, 0.83, 0.66, 1);
   margin-bottom: 10px;
  
 }
-
 
 
 .temp-scale:hover {
@@ -189,4 +202,66 @@
 }
 .userName{
   cursor: pointer;
+}
+
+.allocated-bank-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #74480f;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid #f3e2c0;
+  padding-bottom: 0.2rem;
+  text-align: left;
+}
+
+.allocated-bank-list-scroll {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.allocated-bank-card {
+  background: linear-gradient(135deg, #fffbe6 0%, #f7e7c6 100%);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(116, 72, 15, 0.08);
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  transition: box-shadow 0.2s;
+  border: 1px solid #f3e2c0;
+  font-size: 0.92rem;
+}
+.allocated-bank-card:hover {
+  box-shadow: 0 4px 16px rgba(116, 72, 15, 0.16);
+}
+.allocated-bank-card .fw-bold {
+  color: #74480f;
+  font-size: 1rem;
+}
+.allocated-bank-card .fw-semibold {
+  color: #926108;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.allocated-bank-card .fa-building-columns {
+  margin-right: 0.15rem;
+  font-size: 1.1rem;
+}
+.allocated-bank-card span {
+  font-size: 0.92rem;
+}
+
+@media (max-width: 576px) {
+  .allocated-bank-card {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.85rem;
+  }
+  .allocated-bank-card .fw-bold,
+  .allocated-bank-card .fw-semibold,
+  .allocated-bank-card span {
+    font-size: 0.85rem;
+  }
+  .allocated-bank-card .fa-building-columns {
+    font-size: 1rem;
+  }
 }
