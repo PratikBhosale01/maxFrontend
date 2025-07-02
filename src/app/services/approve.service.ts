@@ -23,7 +23,7 @@ export class ApproveService {
 
 
   deposite(deposite: DepositeWithdraw): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/approveOperation/approveDeposit`, deposite);
+        return this.http.post<any>(`${this.baseUrl}/approveOperation/approveDeposit`, deposite);
   }
 
   withdraw(withdraw: appvWithdraw): Observable<any> {
@@ -105,12 +105,24 @@ export class ApproveService {
 
   Reject(Id:number,rejectReason:string ,userId:number): Observable<any> {
     const params =  new HttpParams()
-    .set('id', Id.toString())
+   .set('id', Id.toString())
    .set('rejectReason', rejectReason)
    .set('executedById', userId.toString())
 
     return this.http.put<any>(`${this.baseUrl}/approveOperation/reject`,null,{ params });
   }
+
+  RejectApproveAdmin(Id:number,rejectReason:string ,userId:number): Observable<any> {
+    const params =  new HttpParams()
+    .set('id', Id.toString())
+   .set('rejectReason', rejectReason)
+   .set('executedById', userId.toString())
+
+    return this.http.put<any>(`${this.baseUrl}/approveOperation/adminReject`,null,{ params });
+  }
+
+
+ 
 
   RejectApprove(Id:number,rejectReason:string ,userId:number): Observable<any> {
     const params =  new HttpParams()
@@ -155,7 +167,6 @@ export class ApproveService {
     return this.http.get<any>(`${this.baseUrl}/approveOperation/getApproveDepositsByStatusesAndUnderReview`,{params});
 
   }
-
 
   get200appvd(): Observable<any>{
  
@@ -237,6 +248,7 @@ sendWithdrawMsg(
   bankId: number,
   chatid: number,
   utr: string,
+  neftPayment: any,
   file?: File
 ) {
   const formData = new FormData();
@@ -244,7 +256,7 @@ sendWithdrawMsg(
   formData.append('bankId', bankId.toString());
   formData.append('utr', utr);
   formData.append('executedById', userId.toString());
-  
+  formData.append('neftPayment',neftPayment.toString())
   if (file) {
     formData.append('bankUtrImage', file);
   }
@@ -254,9 +266,6 @@ sendWithdrawMsg(
     formData
   );
 }
-
-
-
 
 getWithdrawObjById(Id:Number){
      

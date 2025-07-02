@@ -79,9 +79,9 @@
             <p><strong>💳 Account No:</strong> {{ user.bank.accountNumber }}</p>
             <p><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
           
-            <!-- <p><strong>🖥️ Site:</strong> 
+            <p><strong>🖥️ Site:</strong> 
               <a [href]="user.site.url" target="_blank">{{ user.site.name }}</a>
-            </p> -->
+            </p>
             
             <p><strong>📷 UTR Image:</strong> 
               <a [href]="user.bankUtrImageLink" target="_blank">Download Image</a>
@@ -222,10 +222,11 @@
           <p><strong>🆔 User ID:</strong> {{ user.userId }}</p>
           <p><strong>💸 Amount:</strong> ₹{{ user.amount }}</p>
           <p><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
-          <!-- <p><strong>🖥️ Site:</strong> 
+          <p><strong>🖥️ Site:</strong> 
             <a [href]="user.site.url" target="_blank">{{ user.site.name }}</a>
-          </p> -->
-           <div class="status" [ngClass]="user.approveWithdrawStatus.toLowerCase()">
+          </p>
+        
+          <div class="status" [ngClass]="user.approveWithdrawStatus.toLowerCase()">
             <strong>Status:</strong> {{ status}}
           </div>
         </div>
@@ -263,18 +264,22 @@
       </div>
       }@else{
       <div style="margin-top: 10px">
-        <h4 class="mat-h4" style="color: gold">With
-          
-          
-          draw Message :</h4>
+        <h4 class="mat-h4" style="color: gold">Withdraw Message :</h4>
         <mat-card
           class="scrollable-card"
-          style="padding: 2px; margin-left: 20px"
+          style="padding: 2px; "
         >
           <span
             [innerHTML]="formatWithdrawMessage(user?.withdrawMessage)"
           ></span>
         </mat-card>
+        <div class="nft-verification">
+          <mat-checkbox class="example-margin"
+          [(ngModel)]="isNeftPayment" color="primary" > NEFT Payment</mat-checkbox>
+          <!-- <mat-checkbox [(ngModel)]="isNftPayment" color="primary">
+            Verify as NFT Payment
+          </mat-checkbox> -->
+        </div>
       </div>
 
       }
@@ -331,8 +336,7 @@
     <i class="fas fa-exclamation-triangle"></i>
     <!-- <span><strong>Rejection Reason:</strong> {{ obj.rejectReason }}</span> -->
   </div>
-  
-  }@else{
+  } @else{
   <button
     mat-button
     *ngIf="status === 'PENDING'"
@@ -383,6 +387,7 @@
     <i class="fas fa-exclamation-triangle"></i>
     <!-- <span><strong>Rejection Reason:</strong> {{ obj.rejectReason }}</span> -->
   </div>
+  }
   
   <button *ngIf="status === 'FAILED'" 
   (click)="retryW(obj.id)"
@@ -394,5 +399,5 @@
   <span *ngIf="status === 'INSUFFICIENT_BALANCE'" style="color: #ffcc00">
     Insufficient Balance !!!</span
   >
-  }
+  
 </mat-dialog-actions>

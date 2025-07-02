@@ -838,19 +838,19 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   onDragOver(event: DragEvent): void {
-    console.log('Drag over event');
+    // console.log('Drag over event');
     event.preventDefault();
     event.stopPropagation();
     this.dragOver = true;
   }
 
   async onDrop(event: DragEvent): Promise<void> {
-    console.log('Drop event fired');
+    // console.log('Drop event fired');
     event.preventDefault();
     event.stopPropagation();
     this.dragOver = false;
     if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-      console.log('File dropped:', event.dataTransfer.files[0]);
+      // console.log('File dropped:', event.dataTransfer.files[0]);
       this.handleUtrFile(event.dataTransfer.files[0]);
     } else if (event.dataTransfer) {
       // Try to get image URL from dragged content
@@ -884,14 +884,14 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   handleUtrFile(file: File): void {
     if (!file.type.startsWith('image/')) {
       this.snackbarService.snackbar('Only image files are allowed.', 'error');
-      console.log('Rejected non-image file:', file);
+      // console.log('Rejected non-image file:', file);
       return;
     }
     this.utrImageFile = file;
     const reader = new FileReader();
     reader.onload = (e: any) => {
       this.utrImageUrl = e.target.result;
-      console.log('Image loaded:', this.utrImageUrl);
+      // console.log('Image loaded:', this.utrImageUrl);
     };
     reader.readAsDataURL(file);
   }
@@ -948,6 +948,9 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
         this.depositRequestLoading = false;
       },
       error: (err) => {
+        // debugger;
+        console.log("error");
+        console.log(err);
         if (err.status === 404) {
           this.snackbarService.snackbar('User ID not found.', 'error');
         } else {
