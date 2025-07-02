@@ -70,6 +70,8 @@ export class ApproveComponent implements OnInit, OnDestroy {
   private notificationSubscription: Subscription;
   selectedDevice: string = '';
   deviceList: string[] = [];
+  private draggedNotification: any = null;
+  ur: any;
 
   constructor(private ApproveService: ApproveService,
     private fb: FormBuilder,
@@ -284,6 +286,13 @@ export class ApproveComponent implements OnInit, OnDestroy {
       : ['PENDING', 'IN_PROCESS', 'FAILED', 'APPROVED'];
   }
 
+  onRejectToggle(event: any): void {
+ 
+    this.userRole = event.checked ? 'BANKER' : 'APPROVEWITHDRAW';
+      this.refresh();
+  
+  }
+
   nextPage(): void {
     if ((this.currentPage + 1) * this.itemsPerPage < this.totalItems) {
       this.currentPage++;
@@ -335,26 +344,21 @@ export class ApproveComponent implements OnInit, OnDestroy {
   refresh() {
 
     this.loadProducts();
+    this.loadBankNotifications();
     // this.resetAllFormGroups();  
   }
 
 
   onSave(deposite: any): void {
-
-
-    // console.log('Current form value:', this.formGroup.value);
-    // console.log('deposit.newId:', deposite.isNewId);
-
-    // this.formGroup.patchValue({ newId: deposite.isNewId });
-    // console.log('Updated form value:', this.formGroup.value);
     this.isApproved[deposite.id] = true;
     const formGroup = this.getFormGroup(deposite.id);
     formGroup.patchValue({ newId: deposite.isNewId });
-    // console.log('onSave - FormGroup:', formGroup);
 
     if (formGroup) {
       const formValue = formGroup.value;
-
+      if (deposite.notificationId) {
+        formValue.notificationId = deposite.notificationId;
+      }
 
       this.loader = true;
       this.ApproveService
@@ -364,21 +368,17 @@ export class ApproveComponent implements OnInit, OnDestroy {
             console.log('Update successful', response);
             this.snackbarService.snackbar('Update successfully!', 'success');
             this.loadProducts();
-            // this.isApproved[deposite.id] = true;
             this.loader = false;
-            this.resetFormGroup(deposite.id); // Reset the form group after successful update
+            this.resetFormGroup(deposite.id);
           },
           error: (error) => {
             this.loadProducts();
             this.loader = false;
             this.resetFormGroup(deposite.id);
             alert(error.message || 'Something went wrong!');
-            // Handle error if necessary
           },
         });
     }
-
-
   }
   resetFormGroup(depositId: string) {
     const formGroup = this.getFormGroup(depositId);
@@ -535,6 +535,7 @@ export class ApproveComponent implements OnInit, OnDestroy {
     const userData = localStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
+      this.ur=user.role_user;
       this.userRole = user.role_user;
     } else {
       console.error('User data not found in localStorage');
@@ -594,6 +595,71 @@ export class ApproveComponent implements OnInit, OnDestroy {
   onDeviceChange(deviceName: string) {
     this.selectedDevice = deviceName;
     this.loadBankNotifications();
+  }
+
+  onDragStart(event: DragEvent, notification: any) {
+    this.draggedNotification = notification;
+    event.dataTransfer.setData('text/plain', JSON.stringify(notification));
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  private roundUpToNearest10(amount: number): number {
+    const truncated = Math.trunc(amount);          
+    return Math.ceil(truncated / 10) * 10;  
+  }
+
+  onDrop(event: DragEvent, deposit: any) {
+    event.preventDefault();
+    if (!this.draggedNotification) return;
+
+    // Extract amount from notification text/title
+    const amount = this.extractAmount(this.draggedNotification);
+    if (amount) {
+      // Get the form group for this deposit
+      const formGroup = this.getFormGroup(deposit.id);
+      // Round up the amount to nearest 10
+      const roundedAmount = this.roundUpToNearest10(amount);
+      // Patch the amount value
+      formGroup.patchValue({ amount: roundedAmount });
+      
+      // Store notification ID for later use in onSave
+      deposit.notificationId = this.draggedNotification.id;
+
+      // Close the notification after successful drop
+      this.closeNotification(this.draggedNotification.id);
+
+      // Auto approve after amount is set
+      // if (!this.isApproved[deposit.id]) {
+      //   this.onSave(deposit);
+      // }
+    }
+
+    this.draggedNotification = null;
+  }
+
+  private extractAmount(notification: any): number | null {
+    // Try to extract amount from title first
+    const titleMatch = notification.title.match(/₹([\d,]+)/);
+    if (titleMatch) {
+      return parseInt(titleMatch[1].replace(/,/g, ''));
+    }
+
+    // Try to extract from text
+    const textMatch = notification.text.match(/₹([\d,]+)/);
+    if (textMatch) {
+      return parseInt(textMatch[1].replace(/,/g, ''));
+    }
+
+    // Try to extract from text with "received" pattern
+    const receivedMatch = notification.text.match(/Received\s+([\d,.]+)\s+Rupees/);
+    if (receivedMatch) {
+      return parseInt(receivedMatch[1].replace(/,/g, ''));
+    }
+
+    return null;
   }
 
 }

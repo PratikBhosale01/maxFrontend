@@ -16,58 +16,66 @@ export class SlotService {
   constructor(private http: HttpClient , private config :AppConfigService) {}
 
   getSlots(): Observable<Slot[]> {
-    return this.http.get<Slot[]>(`${this.baseUrl}/bankingservice/slots`);
+    return this.http.get<Slot[]>(`${this.baseUrl}/Bank/slots`);
   }
 
 
   addSlot(slot: Slot): Observable<Slot> {
     
-    return this.http.post<Slot>(`${this.baseUrl}/bankingservice/slots`,slot);
+    return this.http.post<Slot>(`${this.baseUrl}/Bank/slots`,slot);
   }
+
   updateSlot(slot: Slot): Observable<Slot> {
-    return this.http.put<Slot>(`${this.baseUrl}/bankingservice/slots/${slot.id}`, slot);
+    return this.http.put<Slot>(`${this.baseUrl}/Bank/slots/${slot.id}`, slot);
   }
  
   getAmountRanges(): Observable<amountRange[]> {
 
     
-    return this.http.get<amountRange[]>(`${this.baseUrl}/bankingservice/amount-ranges`);
+    return this.http.get<amountRange[]>(`${this.baseUrl}/Bank/amount-ranges`);
+  }
+
+  getdeviceNames(): Observable<amountRange[]> {
+
+    
+    return this.http.get<amountRange[]>(`${this.baseUrl}/bankWebhook/device-names`);
   }
 
   updateAmountRange(amountRange: amountRange): Observable<amountRange> {
-    return this.http.put<amountRange>(`${this.baseUrl}/bankingservice/amount-ranges/${amountRange.id}`, amountRange);
+    return this.http.put<amountRange>(`${this.baseUrl}/Bank/amount-ranges/${amountRange.id}`, amountRange);
   }
 
   addAmountRange(amountRange:amountRange): Observable<amountRange> {
     
-    return this.http.post<amountRange>(`${this.baseUrl}/bankingservice/amount-ranges`,amountRange);
+    return this.http.post<amountRange>(`${this.baseUrl}/Bank/amount-ranges`,amountRange);
   }
 
   attachToBankInfo(bankInfoId: number, slotId: number,amountRangeId:number): Observable<any> {
     const params =  new HttpParams()
-    .set('bankInfoId', bankInfoId.toString())
+    .set('bankId', bankInfoId.toString())
     .set('slotId', slotId.toString())
     .set('amountRangeId', amountRangeId.toString())
 
-    const url = `${this.baseUrl}/bankingservice/bankinfo/attachSlotAndAmountRange`;
+    const url = `${this.baseUrl}/Bank/attachSlotAndAmountRange`;
    
     return this.http.put(url,  null, { params } );
   }
 
   // Attach Amount Range to BankInfo
-  attachAmountRangeToBankInfo(bankInfoId: number, amountRangeId: number): Observable<any> {
-    const url = `${this.baseUrl}/bankingservice/bankinfo/${bankInfoId}/attach-amount-range/${amountRangeId}`;
+  // attachAmountRangeToBankInfo(bankInfoId: number, amountRangeId: number): Observable<any> {
+  //   const url = `${this.baseUrl}/Bank/bankinfo/${bankInfoId}/attach-amount-range/${amountRangeId}`;
   
-    return this.http.put(url, {},);
-  }
+  //   return this.http.put(url, {},);
+  // }
 
   CheckBankAccount(amountslot:any): Observable<any> {
     
-    return this.http.post<any>(`${this.baseUrl}/bankingservice/BankRegulator/getAllBanksBySlot`,amountslot);
+    return this.http.post<any>(`${this.baseUrl}/Bank/BankRegulator/getAllBanksBySlot`,amountslot);
   }
 
   unlinkSlotAmount(id:number): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/bankingservice/bankinfo/unlinkSlotAndAmountRange/${id}`, amountRange);
+    return this.http.put<any>(`${this.baseUrl}/Bank/bankinfo/unlinkSlotAndAmountRange/${id}`, amountRange);
+    //revise
   }
 
    

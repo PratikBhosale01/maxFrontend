@@ -30,6 +30,7 @@
     "ngx-bootstrap": "^12.0.0",
     "ngx-popperjs": "^17.0.0",
     "rxjs": "~7.8.0",
+    "stompjs": "^2.3.3",
     "tesseract.js": "^5.0.4",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5",

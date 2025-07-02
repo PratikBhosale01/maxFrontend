@@ -27,6 +27,8 @@ import { UserPanelComponent } from './user-panel/user-panel.component';
 import { ApproveComponent } from './approve/approve.component';
 import { NotificationComponent } from './notification/notification.component';
 import { WattiChatComponent } from './watti-chat/watti-chat.component';
+import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
+import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
 
 
 
@@ -145,7 +147,14 @@ const routes: Routes = [
       {
         path: "watti-chat",
         component: WattiChatComponent,
-      }
+      },
+      {
+        path: "Deposite-Chat",
+        component: DepositeChatComponent,
+      }, {
+        path: "wati-accounts",
+        component: WatiAccountsComponent,
+      },
      
     
       

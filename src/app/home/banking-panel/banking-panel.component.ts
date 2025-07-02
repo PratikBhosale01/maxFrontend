@@ -44,9 +44,10 @@ import { SlotService } from '../../services/slot.service';
 })
 export class BankingPanelComponent {
 
-  displayedColumns = ['position', 'bankName', 'accId','bankHolderName','ifscCode','status','Operation' ];
+  displayedColumns = ['position', 'bankName', 'accId','status','Operation' ];
   dataSource : any[];
   banks: any[] = [];
+  allocatedBanks: any[] = [];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -74,79 +75,91 @@ export class BankingPanelComponent {
   
     
   ngOnInit(): void {
+    this.refreshAllData();
+    this.titleService.changeTitle('Banking');
+    this.refreshInterval = setInterval(() => this.refreshAllData(), 10000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+  }
+
+  refreshInterval: any;
+
+  refreshAllData(): void {
+    this.BankingService.getAllBankdata();
     this.fetchBanks();
-    this.titleService.changeTitle('Banking panel');
-    
-    this.fetchActiveBanksCount()
-  
+ 
+    this.fetchActiveBanksCount();
+    this.fetchAllocatedBanksByCurrentTime();
+
   
   }
 
+  getCurrentTimeString(): string {
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  }
+
+  fetchAllocatedBanksByCurrentTime(): void {
+    const time = this.getCurrentTimeString();
+    this.BankingService.getAvailableBanksByTimeSorted(time).subscribe(
+      (data) => {
+        this.allocatedBanks = data;
+      },
+      (error) => {
+        console.error('Error fetching allocated banks by time:', error);
+      }
+    );
+  }
 
   openDialog() {
     const dialogConfig = new MatDialogConfig();
-    dialogConfig.width = '50%';
-   
+    dialogConfig.width = '80%';
     dialogConfig.data = {
-      initialData: "Deposit",
+      initialData: "ADD",
       userId: null,
-  };
-    
+    };
     const dialogRef = this.dialog.open(AddBankingDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe((result) => {
-     
+      this.refreshAllData();
     });
   }
 
-
-
-  openUpdateBank(){
+  openUpdateBank(bank: any) {
     const dialogConfig = new MatDialogConfig();
-    dialogConfig.width = '50%';
-   
+    dialogConfig.width = '80%';
     dialogConfig.data = {
-      initialData: "Deposit",
-      bankList:this.banks ,
-  };
-    
-    const dialogRef = this.dialog.open(BotbankingupdateComponent, dialogConfig);
+      initialData: "UPDATE",
+      operation: bank,
+      bankList: this.banks,
+    };
+    const dialogRef = this.dialog.open(AddBankingDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe((result) => {
-     
+      this.refreshAllData();
     });
-
-
   }
 
-
-  openBankSlots(){
+  openBankSlots() {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.width = '50%';
-   
-   
-    
     const dialogRef = this.dialog.open(AddslotdailogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe((result) => {
-     
+      this.refreshAllData();
     });
-
-
   }
 
-  openAmountRange(){
+  openAmountRange() {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.width = '50%';
-   
-   
-    
     const dialogRef = this.dialog.open(AmountRangeDailogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe((result) => {
-     
+      this.refreshAllData();
     });
-
-
   }
-
-
 
   fetchBanks(): void {
     this.loader=true;
@@ -197,73 +210,46 @@ export class BankingPanelComponent {
   openCheckBank() {
     const dialogRef = this.dialog.open(CheckbankAccountComponent, {
       width: '800px',
-      
     });
-
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        console.log('Dialog result:', result);
-        // Handle the result here (slot and amountRange)
-      }
+      this.refreshAllData();
     });
   }
 
- 
-
-
-
-
-
-
-  
   filterData(searchTerm: string) {
     this.dataSource = this.bankingTableArray.filter(item =>
       item.bankName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.bankHolderName.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }
-   toggleStatus(id: number) {
-    // Show a confirmation dialog
+  
+  toggleStatus(id: number) {
     const isConfirmed = confirm('Do you really want change status ?');
     this.loader = true;
     if (isConfirmed) {
-      
-
       this.BankingService.switch(id).subscribe(
         (data) => {
           this.loader = false;
           this.snackbarService.snackbar('Success: status changed', 'success');
-          
+          this.refreshAllData();
         },
         (error) => {
           console.log(error);
           this.loader = false;
-        
         }
       );
     } else {
-      // If the user cancels the confirmation, do nothing
       console.log('Deletion canceled by the user.');
     }
   }
-
 
   openDialogAttach(bank): void {
     const dialogRef = this.dialog.open(AttachedslotrangeComponent, {
       width: '400px',
       data: bank,
     });
-
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        console.log('Dialog result:', result);
-        // Handle the result here (slot and amountRange)
-      }
+      this.refreshAllData();
     });
   }
-
-   
-
-
-
 }

@@ -62,6 +62,9 @@ import { LineBreaksPipe } from '../services/line-breaks.pipe';
 import { WattiChatComponent } from './watti-chat/watti-chat.component';
 import { WattiService } from '../services/watti.service';
 import { MatListModule } from '@angular/material/list';
+import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
 
 @NgModule({
   declarations: [
@@ -99,7 +102,9 @@ import { MatListModule } from '@angular/material/list';
     NotificationComponent,
     UtcToLocalPipe,
     LineBreaksPipe,
-    WattiChatComponent
+    WattiChatComponent,
+    DepositeChatComponent,
+    WatiAccountsComponent,
   ],
   imports: [
     CommonModule,
@@ -130,6 +135,8 @@ import { MatListModule } from '@angular/material/list';
     MatProgressSpinnerModule,
     MatListModule,
     MatGridListModule,
+    MatCheckboxModule,
+    
   ],
   providers: [WattiService]
 })

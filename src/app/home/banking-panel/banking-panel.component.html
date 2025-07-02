@@ -7,70 +7,51 @@
           <h5 class="card-title">Total Accounts</h5>
           <p class="card-text">{{ activeAccount }}</p>
         </div>
-        
       </div>
-    </div>
-    <div class="col-sm-4">
-      <div class="newcard2">
-        <div class="card-body">
-          <h5 class="card-title">Slots</h5>
-        
-        </div>
-        <div class="temp-scale" (click)="openBankSlots()" >
-          <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
-        </div>
-      </div>
-      <div class="newcard2">
-        <div class="card-body">
-          <h5 class="card-title">Amount Range</h5>
-          
-        </div>
-        <div class="temp-scale" (click)="openAmountRange()" >
-          <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-4">
-      <button
-        class="col-sm-4 mb-3 b1"
-        id="b2"
-        style="background-color: #e2bd01"
-        (click)="openDialog()"
-      >
-        Add Bank
-      </button>
-      <button
-        class="col-sm-4 mb-3 b1"
-        id="b3"
-        style="background: linear-gradient(to right, #cb9900, #ab7702)"
-        (click)="openCheckBank()"
-      >
-        Check Accounts
-      </button>
-      <button
-        class="col-sm-4 b1"
-        id="b4"
-        style="background: linear-gradient(to right, #a67102, #89580a)"
-        (click)="openUpdateBank()"
-      >
-        Update Bank Details
-      </button>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-sm-8">
-    <input
+      <input
       class="inp"
       matInput
       placeholder="Username"
       #input
       (input)="filterData(input.value)"
     />
-  </div>
-  <div class="col-sm-4">
-    <button
+    </div>
+    <div class="col-sm-4">
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="newcard3">
+            <div class="card-body">
+              <h5 class="card-title">Slots</h5>
+            </div>
+            <div class="temp-scale" (click)="openBankSlots()" >
+              <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="newcard3">
+           
+              <h5 class="card-title ">Amount</h5>
+              
+     
+            <div class="temp-scale" (click)="openAmountRange()" >
+              <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
+            </div>
+          </div>
+        </div>
+
+      </div>
+   
+      <div class="newcard2">
+        <div class="card-body">
+          <h5 class="card-title">Add Bank</h5>
+          
+        </div>
+        <div class="temp-scale"      (click)="openDialog()" >
+          <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
+        </div>
+      </div>
+      <button
       class="inp"
       id="s1"
       style="
@@ -82,6 +63,61 @@
     >
       Search
     </button>
+
+    </div>
+    <div class="col-sm-4">
+      <div class="allocated-bank-title mb-2">Current Bank</div>
+      <div *ngIf="allocatedBanks && allocatedBanks.length > 0">
+        <div class="allocated-bank-list-scroll">
+          <div *ngFor="let bank of allocatedBanks" class="allocated-bank-card mb-2 rounded shadow-sm ">
+            <div class="row">
+              <div class="d-flex align-items-center mb-1 col-sm-4">
+                <i class="fa-solid fa-building-columns fa-lg me-2" style="color: #926108;"></i>
+                <span class="fw-bold fs-6">{{ bank.displayName }}</span>
+              </div>
+              <div class="col-sm-6">
+                <div>
+                  <span class="fw-semibold">Amount Ranges:</span>
+                  <span *ngFor="let range of bank.amountRanges; let last = last">
+                    ₹{{ range.minAmount }} - ₹{{ range.maxAmount }}<span *ngIf="!last">, </span>
+                  </span>
+                </div>
+                <div>
+                  <span class="fw-semibold">Slots:</span>
+                  <span *ngFor="let slot of bank.slots; let last = last">
+                    {{ slot.startTime }} - {{ slot.endTime }}<span *ngIf="!last">, </span>
+                  </span>
+                </div>
+              </div>
+              <div class="col-sm-2">
+                <i
+                (click)="toggleStatus(bank.id)"
+                class="fa-solid fa-exchange-alt userName"
+                [style.color]="bank.active ?   '#00ff00' :'#f90808'"
+                style="margin-left: 10px"
+              ></i>
+          
+              <span class="material-symbols-outlined" style="color: #fa670c;  cursor: pointer; margin-left: 5px;"  (click)="openUpdateBank(bank)" matTooltip="Edit Bank" >
+                edit
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="allocatedBanks && allocatedBanks.length === 0" class="text-muted text-center mt-3">
+        No banks allocated for the current time.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-8">
+  
+  </div>
+  <div class="col-sm-4">
+  
   </div>
 </div>
 
@@ -106,39 +142,39 @@
 
     <ng-container matColumnDef="bankName">
       <mat-header-cell *matHeaderCellDef style="color: #ffd700">
-        BankName
+       Display
       </mat-header-cell>
       <mat-cell *matCellDef="let element" style="color: white">
-        {{ element.bankName }}
+        {{ element.displayName }}
       </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="accId">
       <mat-header-cell *matHeaderCellDef style="color: #ffd700">
-        AccNum
+        UPIID
       </mat-header-cell>
       <mat-cell *matCellDef="let element" style="color: white">
-        {{ element.accountNumber }}
+        {{ element.upiId }}
       </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="bankHolderName">
+    <!-- <ng-container matColumnDef="bankHolderName">
       <mat-header-cell *matHeaderCellDef style="color: #ffd700">
         bankHolderName
       </mat-header-cell>
       <mat-cell *matCellDef="let element" style="color: white">
         {{ element.bankHolderName }}
       </mat-cell>
-    </ng-container>
+    </ng-container> -->
 
-    <ng-container matColumnDef="ifscCode">
+    <!-- <ng-container matColumnDef="ifscCode">
       <mat-header-cell *matHeaderCellDef style="color: #ffd700">
         IfscCode
       </mat-header-cell>
       <mat-cell *matCellDef="let element" style="color: white">
         {{ element.ifscode }}
       </mat-cell>
-    </ng-container>
+    </ng-container> -->
 
     <!-- <ng-container matColumnDef="balance">
       <mat-header-cell *matHeaderCellDef style="color: #ffd700">
@@ -154,7 +190,7 @@
         Status
       </mat-header-cell>
       <mat-cell *matCellDef="let element" style="color: white ; ">
-        {{ element.freeze ? "Freeze" : "Active" }}
+        {{ element.active ? "Active" : "Freeze"}}
       </mat-cell>
     </ng-container>
     <ng-container matColumnDef="Operation" [sticky]="true">
@@ -162,12 +198,23 @@
         Operations
       </mat-header-cell>
       <mat-cell *matCellDef="let element">
-        <span style="color: #fffbfb;  cursor: pointer;" class="material-symbols-outlined" (click)="openDialogAttach(element)"  matTooltip="Add Slot & AmountRange" >
+        <!-- <span style="color: #fffbfb;  cursor: pointer;" class="material-symbols-outlined" (click)="openDialogAttach(element)"  matTooltip="Add Slot & AmountRange" >
           library_add
           </span>
           <span class="material-symbols-outlined" style="color: #f9c0c0;  cursor: pointer;" (click)="unlinked(element.id)" matTooltip="Unlink Slot & AmountRange" >
             tab_close
-            </span>
+            </span> -->
+         
+              <i
+              (click)="toggleStatus(element.id)"
+              class="fa-solid fa-exchange-alt userName"
+              [style.color]="element.active ?   '#00ff00' :'#f90808'"
+              style="margin-left: 10px"
+            ></i>
+        
+            <span class="material-symbols-outlined" style="color: #fadf70;  cursor: pointer; margin-left: 5px;"  (click)="openUpdateBank(element)" matTooltip="Edit Bank" >
+              edit
+              </span>
       </mat-cell>
     </ng-container>
 
