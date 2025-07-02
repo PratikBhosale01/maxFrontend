@@ -1,148 +1,132 @@
 <app-loader *ngIf="loader"></app-loader>
-<h2 mat-dialog-title style="color: gold;">Please Fill Details:-</h2>
+<h2 mat-dialog-title style="color: gold;">{{operation === 'ADD' ? 'Add New Bank Account' : 'Update Bank Account'}}</h2>
 <mat-dialog-content>
-  <form [formGroup]="bankFormGroup" (ngSubmit)="onBankSubmit()" class="row">
-    <div class="container">        
-      <div class="row ">
-        <div class="col-md-6">
-          <!-- Bank Holder Name -->
-          <mat-form-field appearance="fill" class="w-100">
-            <mat-label>Bank Holder Name</mat-label>
-            <input matInput formControlName="bankHolderName" placeholder="Enter Bank Holder Name" />
-            <mat-error *ngIf="bankFormGroup.get('bankHolderName').invalid && (bankFormGroup.get('bankHolderName').dirty || bankFormGroup.get('bankHolderName').touched)">
-              <!-- <span *ngIf="bankFormGroup.get('bankHolderName').errors['required']">Bank Holder Name is required.</span> -->
-            </mat-error>
-          </mat-form-field>
+  <form [formGroup]="bankFormGroup" (ngSubmit)="operation === 'ADD' ? onBankSubmit() : onUpdate()" class="row">
+    <div class="container">  
+      <div class="row">
+        <div class="col-md-4 QR">
+          <div class="qr-upload-section">
+            <div class="qr-image-upload">
+              <h4 style="color: gold;">QR Image Upload</h4>
+              <input type="file" (change)="onFileSelected($event)" accept="image/*" #fileInput style="display: none;">
+              <div class="drop-zone" 
+                   *ngIf="!qrImagePreview"
+                   (dragover)="onDragOver($event)"
+                   (dragleave)="onDragLeave($event)"
+                   (drop)="onDrop($event)"
+                   [class.dragover]="isDragging"
+                   (click)="onDropZoneClick($event)">
+                <div class="drop-zone-content">
+                  <mat-icon>cloud_upload</mat-icon>
+                  <p>Drag & Drop QR Image here</p>
+                  <p class="or-text">or</p>
+                  <button mat-raised-button type="button" (click)="onChooseFileClick($event)">Choose File</button>
+                </div>
+              </div>
+              <div *ngIf="qrImagePreview" class="image-preview">
+                <img [src]="qrImagePreview" alt="QR Preview"  (click)="openImage(qrImagePreview)" style="max-width: 200px; max-height: 200px;">
+                <button mat-icon-button (click)="removeQRImage()" style="position: absolute; top: 0; right: 0; color: #f90a0a;">
+                  <mat-icon>close</mat-icon>
+                </button>
+                <div *ngIf="selectedImageUrl" class="image-overlay" (click)="closeImage()">
+                  <img [src]="selectedImageUrl" alt="Full-size Image" class="enlarged-image">
+                </div>
+              </div>
+            </div>
+            
+            <div class="qr-message-section">
+              <h4 style="color: gold;">Bank Message</h4>
+              <mat-form-field appearance="fill" class="w-100">
+                <mat-label>Enter Bank Message</mat-label>
+                <textarea matInput formControlName="bankMessage" rows="4" placeholder="Enter bank message"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
         </div>
-
-        <!-- Bank Name -->
-        <div class="col-md-6">
+        <div class="col-md-4">
           <mat-form-field appearance="fill" class="w-100">
-            <mat-label>Bank Name</mat-label>
-            <input matInput formControlName="bankName" placeholder="Enter Bank Name" />
-            <mat-error *ngIf="bankFormGroup.get('bankName').invalid && (bankFormGroup.get('bankName').dirty || bankFormGroup.get('bankName').touched)">
-              <!-- <span *ngIf="bankFormGroup.get('bankName').errors['required']">Bank Name is required.</span> -->
-            </mat-error>
+            <mat-label>Display Name</mat-label>
+            <input matInput formControlName="displayName" placeholder="Enter Display Name" />
+            <mat-error *ngIf="bankFormGroup.get('displayName').invalid && (bankFormGroup.get('displayName').dirty || bankFormGroup.get('displayName').touched)">
+            </mat-error>  
           </mat-form-field>
-        </div>
-      </div>
-      <div class="row ">
-        <!-- Account Number -->
-        <div class="col-md-6">
-          <mat-form-field appearance="fill" class="w-100">
+          <mat-form-field appearance="fill" class="w-100" *ngIf="operation === 'UPDATE'">
             <mat-label>Account Number</mat-label>
             <input matInput formControlName="accountNumber" placeholder="Enter Account Number" />
             <mat-error *ngIf="bankFormGroup.get('accountNumber').invalid && (bankFormGroup.get('accountNumber').dirty || bankFormGroup.get('accountNumber').touched)">
-              <!-- <span *ngIf="bankFormGroup.get('accountNumber').errors['required']">Account Number is required.</span> -->
             </mat-error>
           </mat-form-field>
-        </div>
-
-        <!-- IFSC Code -->
-        <div class="col-md-6">
-          <mat-form-field appearance="fill" class="w-100">
-            <mat-label>IFSC Code</mat-label>
-            <input matInput formControlName="ifscCode" placeholder="Enter IFSC Code" />
-            <mat-error *ngIf="bankFormGroup.get('ifscCode').invalid && (bankFormGroup.get('ifscCode').dirty || bankFormGroup.get('ifscCode').touched)">
-              <!-- <span *ngIf="bankFormGroup.get('ifscCode').errors['required']">IFSC Code is required.</span> -->
-            </mat-error>
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="row ">
-        <!-- GPay UPI -->
-        <div class="col-md-6">
-          <mat-form-field appearance="fill" class="w-100">
+          <mat-form-field appearance="fill" class="w-100" *ngIf="operation === 'UPDATE'">
             <mat-label>GPay UPI</mat-label>
             <input matInput formControlName="gpayUPI" placeholder="Enter GPay UPI" />
           </mat-form-field>
-        </div>
-
-        <!-- PhonePe UPI -->
-        <div class="col-md-6">
-          <mat-form-field appearance="fill" class="w-100">
-            <mat-label>PhonePe UPI</mat-label>
-            <input matInput formControlName="phonePeUPI" placeholder="Enter PhonePe UPI" />
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="row ">
-
-        <!-- UPI ID -->
-        <div class="col-md-6">
           <mat-form-field appearance="fill" class="w-100">
             <mat-label>UPI ID</mat-label>
             <input matInput formControlName="upiId" placeholder="Enter UPI ID" />
           </mat-form-field>
+          <mat-form-field appearance="fill" class="w-100" *ngIf="operation === 'UPDATE'">
+            <mat-label>Branch Name</mat-label>
+            <input matInput formControlName="branchName" placeholder="Enter Branch Name" />
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-100" style="color: wheat !important;"> 
+            <mat-label>Select Slot</mat-label>
+            <mat-select formControlName="slotId" >
+              <mat-option [value]="0">NA</mat-option>
+              <mat-option *ngFor="let slot of slots" [value]="slot.id">{{ slot.startTime }} - {{ slot.endTime }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
-
-        <!-- Active -->
-        <div class="col-md-6">
+        <div class="col-md-4">
+          <mat-form-field appearance="fill" class="w-100" *ngIf="operation === 'UPDATE'">
+            <mat-label>Bank Name</mat-label>
+            <input matInput formControlName="bankName" placeholder="Enter Bank Name" />
+            <mat-error *ngIf="bankFormGroup.get('bankName').invalid && (bankFormGroup.get('bankName').dirty || bankFormGroup.get('bankName').touched)">
+            </mat-error>
+          </mat-form-field>
+        
+          <mat-form-field appearance="fill" class="w-100" *ngIf="operation === 'UPDATE'">
+            <mat-label>IFSC Code</mat-label>
+            <input matInput formControlName="ifscCode" placeholder="Enter IFSC Code" />
+            <mat-error *ngIf="bankFormGroup.get('ifscCode').invalid && (bankFormGroup.get('ifscCode').dirty || bankFormGroup.get('ifscCode').touched)">
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-100" *ngIf="operation === 'UPDATE'">
+            <mat-label>PhonePe UPI</mat-label>
+            <input matInput formControlName="phonePeUPI" placeholder="Enter PhonePe UPI" />
+          </mat-form-field>
           <mat-form-field appearance="fill" class="w-100">
-              <mat-label>Balance</mat-label>
-              <input matInput formControlName="balance" type="number" placeholder="Enter Balance" />
-            </mat-form-field>
+            <mat-label>Balance</mat-label>
+            <input matInput formControlName="balance" type="number" placeholder="Enter Balance" />
+          </mat-form-field>
+          <mat-form-field appearance="fill"  class="w-100">
+            <mat-label>Select Device Named </mat-label>
+            <mat-select  formControlName="deviceName">
+            
+              <mat-option *ngFor="let range of deviceName" [value]="range">{{range}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="fill"  class="w-100">
+            <mat-label>Select Amount Range</mat-label>
+            <mat-select  formControlName="amountRangeId"   >
+              <mat-option [value]="0">NA</mat-option>
+              <mat-option *ngFor="let range of amountRanges" [value]="range.id">{{ range.minAmount }} - {{ range.maxAmount }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
-      <div class="row ">
-
-      <!-- UPI ID -->
-      <div class="col-md-6">
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Scanner Name</mat-label>
-          <input matInput formControlName="scannerName" placeholder="Enter Scanner Name" />
-        </mat-form-field>
-      </div>
-
-      <!-- Active -->
-      <div class="col-md-6">
-        <mat-form-field appearance="fill" class="w-100">
-            <mat-label>Qr Link-1</mat-label>
-            <input matInput formControlName="qrLink1"  placeholder="Enter Qr Link-1" />
-          </mat-form-field>
-      </div>
-     </div>
-     <div class="row ">
-
-      <!-- UPI ID -->
-      <div class="col-md-6">
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Branch Name</mat-label>
-          <input matInput formControlName="branchName" placeholder="Enter Branch Name" />
-        </mat-form-field>
-      </div>
-
-      <!-- Active -->
-      <div class="col-md-6">
-        <mat-form-field appearance="fill" class="w-100">
-            <mat-label>Qr Link-2</mat-label>
-            <input matInput formControlName="qrLink2"  placeholder="Enter Qr Link-2" />
-          </mat-form-field>
-      </div>
-    </div>
-
-     
-    </div>
-    
-    
-    <div class="row justify-content-center">
-      
     </div>
     <input type="hidden" formControlName="id" />
   </form>
-  
-  
 
-
-      <button mat-icon-button mat-dialog-close class="close-button" >
-        <mat-icon style="color: gold;">close</mat-icon>
-      </button>
-
+  <button mat-icon-button mat-dialog-close class="close-button" >
+    <mat-icon style="color: gold;">close</mat-icon>
+  </button>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <div class="col-md-12 d-flex justify-content-center">
-    <button  [disabled]="!bankFormGroup.valid" (click)="onBankSubmit()">Submit</button>
+  <div class="col-md-12 d-flex justify-content-center butn">
+    <button mat-raised-button type="button" [disabled]="!bankFormGroup.valid" (click)="operation === 'ADD' ? onBankSubmit() : onUpdate()">
+      {{operation === 'ADD' ? 'Submit' : 'Update'}}
+    </button>
   </div>
-
 </mat-dialog-actions>

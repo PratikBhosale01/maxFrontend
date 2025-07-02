@@ -508,6 +508,163 @@ a {
   }
 }
 
+.audio-player {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  border-radius: 8px;
+  min-width: 200px;
+  max-width: 300px;
+  
+  .play-button {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 4px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+  
+  .audio-progress {
+    flex: 1;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin: 0 12px;
+    position: relative;
+    cursor: pointer;
+    
+    .progress-bar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background-color: var(--primary-color);
+      border-radius: 2px;
+      transition: width 0.1s linear;
+}
+  }
+  
+  .audio-duration {
+    color: var(--text-secondary);
+    font-size: 12px;
+    min-width: 40px;
+    text-align: right;
+  }
+}
+
+.recording-preview {
+  background-color: #2a3942;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  
+  .preview-audio {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    
+    .play-button {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 4px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+      
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+    
+    .audio-progress {
+      flex: 1;
+      height: 4px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin: 0 12px;
+      position: relative;
+      cursor: pointer;
+      
+      .progress-bar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        background-color: var(--primary-color);
+        border-radius: 2px;
+        transition: width 0.1s linear;
+      }
+    }
+    
+    .audio-duration {
+      color: var(--text-secondary);
+      font-size: 12px;
+      min-width: 40px;
+      text-align: right;
+    }
+  }
+  
+  .preview-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    
+    .btn-icon {
+      &.cancel {
+        color: #f44336;
+      }
+      
+      &.send {
+        color: var(--primary-color);
+      }
+    }
+  }
+  
+}
+.recording-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  
+  .recording-timer {
+    display: flex;
+    align-items: center;
+    color: #f44336;
+    font-size: 14px;
+    
+    .recording-icon {
+      font-size: 16px;
+      margin-right: 4px;
+      animation: blink 1s infinite;
+    }
+  }
+}
+
 // Remove all old quick reply styles
 .quick-reply-container,
 .star-messages-dropdown,

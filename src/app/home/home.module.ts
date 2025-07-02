@@ -64,6 +64,7 @@ import { WattiService } from '../services/watti.service';
 import { MatListModule } from '@angular/material/list';
 import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
 
 @NgModule({
   declarations: [
@@ -103,6 +104,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     LineBreaksPipe,
     WattiChatComponent,
     DepositeChatComponent,
+    WatiAccountsComponent,
   ],
   imports: [
     CommonModule,
