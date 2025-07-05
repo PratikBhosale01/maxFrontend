@@ -75,6 +75,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   utrImageFile: File | null = null;
   dragOver: boolean = false;
   depositRequestLoading = false; // New loader for deposit request
+  messagesreverse: any[];
 
   constructor(
     private wattiService: WattiService,
@@ -252,9 +253,21 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
 
     this.depoChat.getPagedMessagesByWatiNumber(depositeNumber, this.pageIndex, this.pageSize).subscribe({
       next: (response) => {
-        this.messages = [...response.content].reverse();
+        this.messages = [...response.content].reverse(); // reverse the messages
+        this.messagesreverse = [...response.content]; 
         this.totalMessages = response.totalElements;
         this.loading = false;
+
+        // Patch: Set latest image message's URL to utrImageUrl
+        // debugger
+        const latestImageMsg = this.messagesreverse.find(msg =>  msg.mediaUrl && msg.fromUser
+        );
+        if (latestImageMsg) {
+          this.utrImageUrl = latestImageMsg.mediaUrl;
+          this.utrImageFile = null; // Clear file if url is set
+        } else {
+          this.utrImageUrl = null;
+        }
 
         setTimeout(() => this.scrollToBottom(), 0);
 
@@ -937,9 +950,9 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       siteId: 0,
       newId: false,
       bankUtrImageLink: bankUtrImageLink,
-      chatID: '',
+      chatID: this.activeDepositeNumber,
     };
-    this.approveService.deposite(payload).subscribe({
+    this.approveService.depositeChatId(payload).subscribe({
       next: () => {
         this.snackbarService.snackbar('Deposit request submitted!', 'success');
         this.depositRequestForm.reset();
@@ -970,5 +983,15 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       reader.onload = (e: any) => resolve(e.target.result);
       reader.readAsDataURL(file);
     });
+  }
+
+  selectImageForDeposit(imageUrl: string): void {
+    this.utrImageUrl = imageUrl;
+    this.utrImageFile = null;
+    this.snackbarService.snackbar('Image selected for deposit request.', 'info');
+  }
+
+  selectMsgForDeposit(msg: string): void {
+    this.depositRequestForm.get('userId')?.setValue(msg);
   }
 } 

@@ -226,8 +226,8 @@
             <a [href]="user.site.url" target="_blank">{{ user.site.name }}</a>
           </p>
         
-          <div class="status" [ngClass]="user.approveWithdrawStatus.toLowerCase()">
-            <strong>Status:</strong> {{ status}}
+          <div class="status" [ngClass]="user.approveStatus.toLowerCase()">
+            <strong>Status:</strong> {{status}}
           </div>
         </div>
       }
@@ -276,9 +276,6 @@
         <div class="nft-verification">
           <mat-checkbox class="example-margin"
           [(ngModel)]="isNeftPayment" color="primary" > NEFT Payment</mat-checkbox>
-          <!-- <mat-checkbox [(ngModel)]="isNftPayment" color="primary">
-            Verify as NFT Payment
-          </mat-checkbox> -->
         </div>
       </div>
 

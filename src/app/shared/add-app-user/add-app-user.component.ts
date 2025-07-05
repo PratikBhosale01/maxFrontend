@@ -19,7 +19,7 @@ import { SiteMaster } from '../../domain/SiteMaster';
 })
 export class AddAppUserComponent {
   formGroup: FormGroup;
-  roles: string[] = ['USER','ADMIN','SUPERADMIN','APPROVEADMIN', 'DEPOSIT','APPROVEDEPOSIT'];
+  roles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT','ADMIN','SUPERADMIN','APPROVEADMIN', 'DEPOSIT','APPROVEDEPOSIT'];
 
   ocrResult: string = '';
   imagePath: string = '';

@@ -98,6 +98,11 @@ a {
     font-size: 16px;
   }
 
+  ::ng-deep .mat-mdc-form-field-infix {
+    padding: 0px 0 !important;
+    height: 40px !important;
+  }
+
   .filter-select {
     width: 150px;
     
@@ -105,9 +110,7 @@ a {
       display: none;
     }
     
-    ::ng-deep .mat-mdc-form-field-infix {
-      padding: 0px 0 !important;
-    }
+  
     
     ::ng-deep .mat-mdc-select-value {
       color: var(--text-primary);
@@ -1317,13 +1320,23 @@ a {
     height: 18px;
   }
 }
+.no-messages{
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  margin-top: 20px;
+}
 
 // Bank button styles
 .bank-actions {
   .button-group {
     display: flex;
+    margin-right: 30px;
+    flex-direction: row-reverse;
     gap: 8px;
     flex-wrap: wrap;
+    
   }
   
   .bank-action-btn {
@@ -1497,3 +1510,4 @@ a {
     letter-spacing: 0.5px;
   }
 } 
+

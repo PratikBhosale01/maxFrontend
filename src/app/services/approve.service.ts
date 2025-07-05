@@ -26,6 +26,10 @@ export class ApproveService {
         return this.http.post<any>(`${this.baseUrl}/approveOperation/approveDeposit`, deposite);
   }
 
+  depositeChatId(deposite: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/approveOperation/approveDepositWithUtrExtraction`, deposite);
+  }
+
   withdraw(withdraw: appvWithdraw): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/approveOperation/withdraw/approveWithdraw`, withdraw);
   }
