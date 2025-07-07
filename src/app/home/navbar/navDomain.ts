@@ -5,10 +5,39 @@ export interface navDomain {
   children?: navDomain[]  // Optional array of child navigation items
 }
 
-export const USER: navDomain[] = [
+export const WITHDRAWCHAT: navDomain[] = [
   { routerLink: 'dashboard', icon: "Home", title: "Home" },
   // { routerLink: 'deposit', icon: "download", title: "Deposit" },
   { routerLink: 'watti-chat', icon: "group", title: "Chat" },
+  // {
+  //   routerLink: '',
+  //   icon: "settings",
+  //   title: "Settings",
+  //   children: [
+  //     { routerLink: 'profile', icon: "person", title: "Profile" },
+  //     { routerLink: 'update', icon: "key", title: "Update Password" }
+  //   ]
+  // },
+  // { routerLink: 'withdraw', icon: "upload", title: "Withdraw" },
+  // { routerLink: 'reports', icon: "Report", title: "Report" },
+  // { routerLink: 'add', icon: "person_add", title: "Add User" },
+  // { routerLink: 'Add-Old', icon: "person_add", title: "Add Old User" },
+  // { routerLink: 'update', icon: "key", title: "Update Password" },
+  // { routerLink: 'users', icon: "group", title: "Users" },
+  // { routerLink: 'add-site', icon: "web", title: "Site" },
+  // { routerLink: 'site-master', icon: "web", title: "Site Master" },
+  // { routerLink: 'site-user', icon: "web", title: "Site User" },
+  // { routerLink: 'AppvDeposit', icon: "Download", title: "App-Deposit" },
+  // { routerLink: 'AppvDList', icon: "List", title: "A-DList" },
+  // { routerLink: 'Bank', icon: "Money", title: "Add-Bank" },
+
+]
+
+export const DEPOSITCHAT: navDomain[] = [
+  { routerLink: 'dashboard', icon: "Home", title: "Home" },
+  // { routerLink: 'deposit', icon: "download", title: "Deposit" },
+  // { routerLink: 'watti-chat', icon: "group", title: "Chat" },
+  { routerLink: 'Deposite-Chat', icon: "group", title: "D_Chat" },
   // {
   //   routerLink: '',
   //   icon: "settings",

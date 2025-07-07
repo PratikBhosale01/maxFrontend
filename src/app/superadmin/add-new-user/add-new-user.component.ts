@@ -32,7 +32,7 @@ import { NotificationService } from '../../services/notification.service';
 export class AddNewUserComponent {
   formGroup: FormGroup;
   // roles: string[] = ['USER','ADMIN','SUPERADMIN','APPROVEADMIN', 'DEPOSIT','APPROVEDEPOSIT'];
-  roles: string[] = ['USER','ADMIN','SUPERADMIN','APPROVEADMIN','APPROVEDEPOSIT','APPROVEWITHDRAW','SUPPORT','BANKER'];
+  roles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT','ADMIN','SUPERADMIN','APPROVEADMIN','APPROVEDEPOSIT','APPROVEWITHDRAW','SUPPORT','BANKER'];
   chatOptions: string[] = []; // Array to hold unique chat IDs
 
   ocrResult: string = '';

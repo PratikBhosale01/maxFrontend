@@ -75,6 +75,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   utrImageFile: File | null = null;
   dragOver: boolean = false;
   depositRequestLoading = false; // New loader for deposit request
+  messagesreverse: any[];
 
   constructor(
     private wattiService: WattiService,
@@ -252,9 +253,21 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
 
     this.depoChat.getPagedMessagesByWatiNumber(depositeNumber, this.pageIndex, this.pageSize).subscribe({
       next: (response) => {
-        this.messages = [...response.content].reverse();
+        this.messages = [...response.content].reverse(); // reverse the messages
+        this.messagesreverse = [...response.content]; 
         this.totalMessages = response.totalElements;
         this.loading = false;
+
+        // Patch: Set latest image message's URL to utrImageUrl
+        // debugger
+        const latestImageMsg = this.messagesreverse.find(msg =>  msg.mediaUrl && msg.fromUser
+        );
+        if (latestImageMsg) {
+          this.utrImageUrl = latestImageMsg.mediaUrl;
+          this.utrImageFile = null; // Clear file if url is set
+        } else {
+          this.utrImageUrl = null;
+        }
 
         setTimeout(() => this.scrollToBottom(), 0);
 
@@ -838,19 +851,19 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   onDragOver(event: DragEvent): void {
-    console.log('Drag over event');
+    // console.log('Drag over event');
     event.preventDefault();
     event.stopPropagation();
     this.dragOver = true;
   }
 
   async onDrop(event: DragEvent): Promise<void> {
-    console.log('Drop event fired');
+    // console.log('Drop event fired');
     event.preventDefault();
     event.stopPropagation();
     this.dragOver = false;
     if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-      console.log('File dropped:', event.dataTransfer.files[0]);
+      // console.log('File dropped:', event.dataTransfer.files[0]);
       this.handleUtrFile(event.dataTransfer.files[0]);
     } else if (event.dataTransfer) {
       // Try to get image URL from dragged content
@@ -884,14 +897,14 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   handleUtrFile(file: File): void {
     if (!file.type.startsWith('image/')) {
       this.snackbarService.snackbar('Only image files are allowed.', 'error');
-      console.log('Rejected non-image file:', file);
+      // console.log('Rejected non-image file:', file);
       return;
     }
     this.utrImageFile = file;
     const reader = new FileReader();
     reader.onload = (e: any) => {
       this.utrImageUrl = e.target.result;
-      console.log('Image loaded:', this.utrImageUrl);
+      // console.log('Image loaded:', this.utrImageUrl);
     };
     reader.readAsDataURL(file);
   }
@@ -937,17 +950,20 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       siteId: 0,
       newId: false,
       bankUtrImageLink: bankUtrImageLink,
-      chatID: '',
+      chatID: this.activeDepositeNumber,
     };
-    this.approveService.deposite(payload).subscribe({
+    this.approveService.depositeChatId(payload).subscribe({
       next: () => {
         this.snackbarService.snackbar('Deposit request submitted!', 'success');
-        this.depositRequestForm.reset();
+        this.depositRequestForm.get('userId')?.reset();
         this.utrImageUrl = null;
         this.utrImageFile = null;
         this.depositRequestLoading = false;
       },
       error: (err) => {
+        // debugger;
+        console.log("error");
+        console.log(err);
         if (err.status === 404) {
           this.snackbarService.snackbar('User ID not found.', 'error');
         } else {
@@ -967,5 +983,16 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       reader.onload = (e: any) => resolve(e.target.result);
       reader.readAsDataURL(file);
     });
+  }
+
+  selectImageForDeposit(imageUrl: string): void {
+    this.utrImageUrl = imageUrl;
+    this.utrImageFile = null;
+    this.snackbarService.snackbar('Image selected for deposit request.', 'info');
+  }
+
+  selectMsgForDeposit(msg: string): void {
+    this.depositRequestForm.get('userId')?.reset();
+    this.depositRequestForm.get('userId')?.setValue(msg);
   }
 } 

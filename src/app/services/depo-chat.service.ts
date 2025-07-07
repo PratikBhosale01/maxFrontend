@@ -180,7 +180,7 @@ export class DepoChatService {
 
   connectdchat(watiNumber: any) {
     this.stompClient = new Client({
-     brokerURL: 'wss://api.zeerosports.com/dws',
+     brokerURL: 'wss://api.approvepanel.com/dws',
       // api.approvepanel.com/dws', // Backend WebSocket endpoint
       reconnectDelay: 5000, // Auto-reconnect after 5 seconds
     });

@@ -48,6 +48,7 @@ import { WithdrawConfirmComponent } from './withdraw-confirm/withdraw-confirm.co
 import { DepoDailogComponent } from './depo-dailog/depo-dailog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { WithDailogComponent } from './with-dailog/with-dailog.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
 @NgModule({
@@ -110,6 +111,8 @@ import { WithDailogComponent } from './with-dailog/with-dailog.component';
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatCheckboxModule,
+
   ],exports:[LoaderComponent,DialogComponent]
 })
 export class SharedModule { }

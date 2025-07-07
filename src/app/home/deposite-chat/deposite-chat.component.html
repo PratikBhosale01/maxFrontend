@@ -128,7 +128,7 @@
                 [src]="message.mediaUrl" 
                 alt="Image" 
                 class="media-image" 
-                (click)="openImage(message.mediaUrl)">
+                (click)="openImage(message.mediaUrl); selectImageForDeposit(message.mediaUrl)">
               <div *ngIf="selectedImageUrl" class="image-overlay" (click)="closeImage()">
                 <img [src]="selectedImageUrl" alt="Full-size Image" class="enlarged-image">
               </div>
@@ -153,7 +153,7 @@
               </div>
               <span class="timestamp">{{message.timestamp | utcToLocal }}</span>
             </div>
-            <p *ngIf="message.content && message.content.trim().length> 0" [innerHTML]="message.content | lineBreaks"></p>
+            <p  style=" cursor: pointer ; " *ngIf="message.content && message.content.trim().length> 0" [innerHTML]="message.content | lineBreaks" (click)="selectMsgForDeposit(message.content)"  ></p>
             <div></div>
             <span *ngIf="!message.mediaUrl" class="timestamp">{{message.timestamp | utcToLocal }}</span>
           </div>

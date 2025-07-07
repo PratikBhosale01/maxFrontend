@@ -408,14 +408,27 @@ mat-form-field.mat-form-field.mat-white {
 ::ng-deep .mat-mdc-card {
   background-color: rgb(238, 232, 196) !important;
 
-  margin-left: 20px !important;
+  // margin-left: 20px !important;
 }
 .scrollable-card {
   padding: 10px;
-  margin-left: 20px;
+  // margin-left: 20px;
   max-height: 380px; /* Set a fixed height for the card */
   overflow-y: auto; /* Enable vertical scroll */
 }
+::ng-deep .mdc-form-field>label {
+  color: wheat
+}
+::ng-deep .mdc-checkbox .mdc-checkbox__native-control{
+  color: wheat
+}
+::ng-deep .mdc-checkbox .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background
+
+ {
+    border-color:wheat !important;
+    background-color: transparent;
+}
+
 .utr-image-container {
   position: relative;
   // width: 300px; /* Adjust container size */
@@ -439,7 +452,7 @@ mat-form-field.mat-form-field.mat-white {
   object-fit: cover;
   visibility: hidden;
   z-index: 100;
-  pointer-events: none; /* Make sure the zoomed image doesn’t interfere with the cursor */
+  pointer-events: none; /* Make sure the zoomed image doesn't interfere with the cursor */
 }
 
 .magnifier {
@@ -648,5 +661,31 @@ mat-form-field.mat-form-field.mat-white {
   background: #e2e3e5;
   color: #383d41;
   border: 1px solid #d6d8db;
+}
+
+.nft-verification {
+  margin: 15px 0;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  
+  ::ng-deep .mat-mdc-checkbox {
+    .mdc-checkbox {
+      .mdc-checkbox__background {
+        border-color: #ecf316;
+      }
+      
+      &.mdc-checkbox--checked {
+        .mdc-checkbox__background {
+          background-color: #ecf316;
+          border-color: #ecf316;
+        }
+      }
+    }
+    
+    .mdc-checkbox__label {
+      color: #ecf316;
+    }
+  }
 }
 

@@ -52,6 +52,7 @@ export class CheckAppvDailogComponent {
   imagePreview: string | null = null;
   selectedFile: File | null = null;
   banks: Bank[] = [];
+  isNeftPayment: boolean = false;
   
   constructor(
     private fb: FormBuilder,
@@ -411,12 +412,13 @@ export class CheckAppvDailogComponent {
       const chatId = this.user.chatID;
       const utr = this.formGroup.get('utrNumber')?.value;
       const fileData = this.formGroup.get('utrImage')?.value;
+      const neftPayment=this.isNeftPayment;
       
       this.loader = true;
       console.log(fileData);
 
       this.apprvservice
-        .sendWithdrawMsg(id, userId, bankId, chatId, utr, fileData)
+        .sendWithdrawMsg(id, userId, bankId, chatId, utr,neftPayment, fileData)
         .subscribe(
           (data) => {
             console.log(data);
