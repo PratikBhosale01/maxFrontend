@@ -955,7 +955,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     this.approveService.depositeChatId(payload).subscribe({
       next: () => {
         this.snackbarService.snackbar('Deposit request submitted!', 'success');
-        this.depositRequestForm.reset();
+        this.depositRequestForm.get('userId')?.reset();
         this.utrImageUrl = null;
         this.utrImageFile = null;
         this.depositRequestLoading = false;
@@ -992,6 +992,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   selectMsgForDeposit(msg: string): void {
+    this.depositRequestForm.get('userId')?.reset();
     this.depositRequestForm.get('userId')?.setValue(msg);
   }
 } 

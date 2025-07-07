@@ -19,6 +19,7 @@ export class RejectconfirmationComponent {
   userId: number;
   user: any;
   type: string;
+  role: string;
   
   constructor(
     public dialogRef: MatDialogRef<RejectconfirmationComponent>,
@@ -28,7 +29,8 @@ export class RejectconfirmationComponent {
   ) {
     this.Id = data.id;
     this.type = data.type; 
-    console.log('Received ID:', data.id); 
+    this.role = data.role;
+    // console.log('Received ID:', data.id); 
   }
 
   // Updates the custom reason input when a chip is clicked
@@ -66,9 +68,19 @@ export class RejectconfirmationComponent {
       console.error('User data not found in localStorage');
       return;
     }
-    console.log(this.type);
-    if(this.type==="Deposit"){
-    this.loader = true;
+
+    if(this.role==="BANKER"){
+      this.apprvserv.RejectApproveAdmin(this.Id,reasonsAsString,this.userId).subscribe(
+        (data) => {
+          this.snackbarService.snackbar('Successfull', 'success');
+          this.loader = false;
+          this.dialogRef.close(rejectionData);
+        }
+      )
+    }else{
+      // console.log(this.type);
+      if(this.type==="Deposit"){
+      this.loader = true;
 
     this.apprvserv.Reject(this.Id,reasonsAsString,this.userId).subscribe(
       (data) => {
@@ -113,6 +125,7 @@ export class RejectconfirmationComponent {
         }
       );
 
+      }
     }
 
 
