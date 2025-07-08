@@ -91,7 +91,7 @@ export const admin: navDomain[] = [
       { routerLink: 'notification', icon: "notifications", title: "Notify" },
       { routerLink: 'watti-chat', icon: "group", title: "Chat" },
       { routerLink: 'Deposite-Chat', icon: "group", title: "D_Chat" },
-      { routerLink: 'update', icon: "key", title: "Update Password" },
+    
     ]
   },{
     routerLink: '',

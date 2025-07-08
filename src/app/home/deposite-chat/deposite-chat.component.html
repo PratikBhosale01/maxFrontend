@@ -2,12 +2,15 @@
   <div class="sidebar">
     <div class="sidebar-header">
       <h2>Deposit Chats</h2>
-      <mat-form-field class="filter-select">
-        <mat-select [(ngModel)]="selectedFilter" (selectionChange)="applyFilter()">
-          <mat-option value="all">All Conversations</mat-option>
-          <mat-option value="undone">Not Done</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <div class="filter-select dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          {{ selectedFilter === 'all' ? 'All Conversations' : (selectedFilter === 'undone' ? 'Not Done' : 'Select Filter') }}
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+          <li><a class="dropdown-item" href="#" (click)="selectedFilter = 'all'; applyFilter(); $event.preventDefault()">All Conversations</a></li>
+          <li><a class="dropdown-item" href="#" (click)="selectedFilter = 'undone'; applyFilter(); $event.preventDefault()">Not Done</a></li>
+        </ul>
+      </div>
     </div>
     <div class="conversation-list">
       <div *ngIf="!loading && filteredConversations.length === 0" class="no-conversations">

@@ -162,8 +162,8 @@ export class BankingPanelComponent {
   }
 
   fetchBanks(): void {
-    this.loader=true;
-    this.BankingService.getAllBotAccountdata().subscribe(
+    // this.loader=true;
+    this.BankingService.getAllBankdata().subscribe(
       data => {
         this.dataSource = data;
         this.bankingTableArray=data;
