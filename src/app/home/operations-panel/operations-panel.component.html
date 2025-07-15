@@ -1,0 +1,49 @@
+<div class="operations-panel">
+  <h2 style="color: gold;">
+    <span class="icon">⚙️</span> Microservices Health Dashboard
+  </h2>
+  <p class="description">Monitor and manage backend microservices. Health status updates live like Eureka.</p>
+
+  <div class="health-section">
+    <div class="health-header">
+      <span class="health-title">Service Health</span>
+      <button class="refresh-btn" (click)="fetchServicesHealth()" [disabled]="healthLoading">
+        <span *ngIf="!healthLoading">🔄 Refresh</span>
+        <span *ngIf="healthLoading" class="spinner"></span>
+      </button>
+    </div>
+    <ul class="health-list">
+      <li *ngFor="let svc of servicesHealth" [ngClass]="svc.status.toLowerCase()">
+        <span class="svc-name">{{ svc.name }}</span>
+        <span class="svc-status">
+          <span *ngIf="svc.status === 'UP'" class="status-dot up"></span>
+          <span *ngIf="svc.status === 'DOWN'" class="status-dot down"></span>
+          <span *ngIf="svc.status !== 'UP' && svc.status !== 'DOWN'" class="status-dot unknown"></span>
+          {{ svc.status }}
+        </span>
+        <span class="svc-desc">{{ svc.description || '' }}</span>
+      </li>
+      <li *ngIf="!healthLoading && servicesHealth.length === 0" class="no-services">No services found or failed to load.</li>
+    </ul>
+  </div>
+
+  <div class="ops-section">
+    <h3>Operations</h3>
+    <ul class="ops-list">
+      <li>
+        <span class="op-icon restart">🔄</span>
+        <span class="op-title">Restart Backend</span>
+        <button (click)="restartBackend()" [disabled]="loading">Restart</button>
+      </li>
+      <li>
+        <span class="op-icon shutdown">⏻</span>
+        <span class="op-title">Shutdown Backend</span>
+        <button (click)="shutdownBackend()" [disabled]="loading">Shutdown</button>
+      </li>
+    </ul>
+    <div *ngIf="loading" class="loading">
+      <span class="spinner"></span> Processing...
+    </div>
+    <div *ngIf="statusMessage" class="status">{{ statusMessage }}</div>
+  </div>
+</div>

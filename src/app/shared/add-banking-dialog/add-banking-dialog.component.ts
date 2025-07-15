@@ -4,6 +4,7 @@ import {
   MAT_DIALOG_DATA,
   MatDialogTitle,
   MatDialogContent,
+  MatDialogRef,
 } from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import { Operation, Operations } from '../../domain/operation';
@@ -38,7 +39,9 @@ export class AddBankingDialogComponent {
   selectedAmountRange: any;
   deviceName:any;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data:any,
+  constructor(
+    public dialogRef: MatDialogRef<AddBankingDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data:any,
     private retryserv : RetryService,
     private snackbarService:SnackbarService,
     private fb: FormBuilder,
@@ -202,17 +205,17 @@ export class AddBankingDialogComponent {
       formData.append('qrImage', this.selectedFile);
     }
 
-    console.log(formData);
+
     this.bank.createBank(formData).subscribe(response => {
       this.snackbarService.snackbar('Account created successfully!', 'success');
+      this.dialogRef.close(true);
       this.loader = false;
       this.resetForm();
     }, error => {
       this.snackbarService.snackbar('failed!', 'error');
+      this.dialogRef.close(true);
       this.resetForm();
       this.loader = false;
-      console.error('Error creating account:', error);
-      confirm(error.error.message);
     });
   }
 }
@@ -241,11 +244,13 @@ export class AddBankingDialogComponent {
         (response) => {
           this.snackbarService.snackbar('Bank details updated successfully!', 'success');
           this.loader = false;
+          this.dialogRef.close(true);
         },
         (error) => {
           console.error('Error updating bank details:', error);
           this.snackbarService.snackbar('Update failed!', 'error');
           this.loader = false;
+          this.dialogRef.close(true);
         }
       );
     }

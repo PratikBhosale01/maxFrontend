@@ -25,6 +25,13 @@ export class AuthService {
     );
   }
 
+  // OTP generation method
+  public generateOtp( username: string ): Observable<any> {
+    const baseUrl = this.config.getBaseurl();
+    const url = `${baseUrl}/auth/generate-otp/${username}`;
+    return this.http.post<any>(url, null);
+  }
+
   logout() {
     localStorage.setItem('user', '');
     localStorage.setItem('token', '');

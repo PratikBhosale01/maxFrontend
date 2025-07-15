@@ -46,6 +46,8 @@ export class BankingService {
       .subscribe();
   }
 
+  
+
   private loadBankList(): void {
     this.http.get<Bank[]>(`${this.baseUrl}/Bank/getAllBanks`)
       .pipe(

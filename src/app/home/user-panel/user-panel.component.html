@@ -72,95 +72,47 @@
     </div>
   </div>
   
-  <div class="example-container mat-elevation-z8 tbl"  [hidden]="false">
-    <mat-table style="background-color: rgb(5, 5, 5);" #table [dataSource]="dataSource" matSort>
-      
-      <ng-container matColumnDef="position">
-        <mat-header-cell
-          *matHeaderCellDef
-          style=" color: #ffd700;  "
-        >
-          No.
-        </mat-header-cell>
-        <mat-cell
-          *matCellDef="let element; let i = index"
-          style=" color: rgb(241, 237, 237)"
-        >
-          {{ i + 1 }}</mat-cell
-        >
+  <!-- User Hierarchy Table -->
+<table class="table table-bordered user-tree-table mt-3">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Role</th>
+      <th>ID</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <ng-container *ngIf="dataSource && dataSource.length">
+      <ng-container *ngFor="let user of dataSource">
+        <ng-container *ngTemplateOutlet="recursiveRows; context: { $implicit: user, level: 0 }"></ng-container>
       </ng-container>
-  
-      <!-- Name Column -->
-      <ng-container matColumnDef="userId">
-        <mat-header-cell
-          *matHeaderCellDef
-          style=" color: #ffd700"
-        >
-          Username
-        </mat-header-cell>
-        <mat-cell
-          *matCellDef="let element"
-          style="color: white"
-        >
-          {{ element.username }}
-        </mat-cell>
-      </ng-container>
-  
-      <!-- Weight Column -->
-      <ng-container matColumnDef="count">
-        <mat-header-cell
-          *matHeaderCellDef
-          style=" color: #ffd700"
-        >
-          count
-        </mat-header-cell>
-        <mat-cell
-          *matCellDef="let element"
-          style=" color: white; cursor: pointer;"
-          (click)="openDialogdetail(element.id)"
-        >
-          {{ element.role }}
-        </mat-cell>
-      </ng-container>
+    </ng-container>
+  </tbody>
+</table>
 
-      <ng-container matColumnDef="operation">
-        <mat-header-cell
-          *matHeaderCellDef
-          style=" color: #ffd700"
-        >
-          operation
-        </mat-header-cell>
-        <mat-cell
-          *matCellDef="let element"
-        
-        >
-          
-            <span class="material-symbols-outlined" style=" color: #ffd700 ; cursor: pointer; justify-content: center;" (click)="blockUser(element.id)">
-              block
-            </span>
-        
-        </mat-cell>
-      </ng-container>
-  
-      <!-- Symbol Column -->
-      <!-- <ng-container matColumnDef="symbol" [hidden]="false">
-          <mat-header-cell *matHeaderCellDef style="background-color: rgb(53, 51, 51);color:#ffd700"> Symbol </mat-header-cell>
-          <mat-cell *matCellDef="let element" style="background-color: rgb(53, 51, 51);color: white"> {{element.symbol}} </mat-cell>
-        </ng-container> -->
-  
-      <mat-header-row  class="rowheader"  *matHeaderRowDef="displayedColumns" ></mat-header-row>
-      <mat-row class="rowheader" *matRowDef="let row; columns: displayedColumns"></mat-row>
-  
-      <!-- <tr class="mat-row" *matNoDataRow style="background-color: rgb(53, 51, 51)">
-          <td class="mat-cell" style="background-color: rgb(53, 51, 51);color: white" colspan="4">No data matching the filter "{{input.value}}"</td>
-        </tr> -->
-    </mat-table>
-  
-    <!-- <mat-paginator #paginator (page)="nextPage($event)"
-       style="background-color: rgb(53, 51, 51);color: white"
-                     [pageSize]="10"
-                    
-                     [showFirstLastButtons]="true"
-                     >
-      </mat-paginator> -->
-  </div>
+<ng-template #recursiveRows let-user let-level="level">
+  <tr>
+    <td>
+      <span [style.paddingLeft.px]="level * 24">
+        <ng-container *ngIf="user.children && user.children.length > 0">
+          <button class="btn btn-link btn-sm p-0" (click)="user.expanded = !user.expanded">
+            <i class="fa" [ngClass]="user.expanded ? 'fa-caret-down' : 'fa-caret-right'"></i>
+          </button>
+        </ng-container>
+        {{ user.username }}
+      </span>
+    </td>
+    <td>{{ user.role }}</td>
+    <td>{{ user.id }}</td>
+    <td>
+      <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-warning btn-sm" (click)="openOtpDialog(user.username)">Get OTP</button>
+    </td>
+  </tr>
+  <ng-container *ngIf="user.children && user.children.length > 0 && user.expanded">
+    <ng-container *ngFor="let child of user.children">
+      <ng-container *ngTemplateOutlet="recursiveRows; context: { $implicit: child, level: level + 1 }"></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>
+ 

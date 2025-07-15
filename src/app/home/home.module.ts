@@ -65,6 +65,7 @@ import { MatListModule } from '@angular/material/list';
 import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
+import { OperationsPanelComponent } from './operations-panel/operations-panel.component';
 
 @NgModule({
   declarations: [
@@ -105,6 +106,7 @@ import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
     WattiChatComponent,
     DepositeChatComponent,
     WatiAccountsComponent,
+    OperationsPanelComponent,
   ],
   imports: [
     CommonModule,

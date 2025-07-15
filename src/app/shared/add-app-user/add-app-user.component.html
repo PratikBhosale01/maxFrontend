@@ -8,6 +8,18 @@
       <form [formGroup]="formGroup" class="row">
       
 
+        <div class="row">
+          <div class="col-md-6">
+            <mat-form-field appearance="fill" class="w-100">
+              <mat-label>Role</mat-label>
+              <mat-select formControlName="role">
+                <mat-option *ngFor="let role of availableRoles" [value]="role">
+                  {{ role }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
         <!-- Top Row -->
         <div class="row">
           <div class="col-md-6">

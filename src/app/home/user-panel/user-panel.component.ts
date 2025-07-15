@@ -4,6 +4,7 @@ import { DialogComponent } from '../../shared/dialog/dialog.component';
 import { AddAppUserComponent } from '../../shared/add-app-user/add-app-user.component';
 import { AppUserService } from '../../services/app-user.service';
 import { UpAppvlistComponent } from '../../shared/up-appvlist/up-appvlist.component';
+import { OtpDialogComponent } from '../../shared/otp-dialog/otp-dialog.component';
 
 @Component({
   selector: 'app-user-panel',
@@ -11,9 +12,9 @@ import { UpAppvlistComponent } from '../../shared/up-appvlist/up-appvlist.compon
   styleUrl: './user-panel.component.scss'
 })
 export class UserPanelComponent {
-ActiveUser: any;
-BlockUser: any;
-displayedColumns = ['position', 'userId', 'count','operation' ];
+ActiveUser: Number =0;
+BlockUser: Number=0;
+// displayedColumns = ['position', 'userId', 'count','operation' ];
 dataSource : any[];
 depositTableArray:any[];
   loader: boolean;
@@ -22,6 +23,7 @@ constructor(public dialog: MatDialog, private appuserserv :AppUserService) {}
 ngOnInit(): void{
   this.getuserID()
   this.fetchUser();
+  this.fetchActiveUserCount();
 }
 
 openDialogdetail(userId:number): void {
@@ -54,6 +56,13 @@ openDialog() {
   });
 }
 
+openOtpDialog(username: string): void {
+  this.dialog.open(OtpDialogComponent, {
+    width: '350px',
+    data: { username }
+  });
+}
+
 getuserID() {
   const userString = localStorage.getItem('user');
   if (userString) {
@@ -62,6 +71,33 @@ getuserID() {
     this.Operator = user.user_id;
   }
 }
+
+fetchActiveUserCount() {
+  this.appuserserv.getActiveUserCount(this.Operator).subscribe(
+    (response) => {
+    this.ActiveUser=response;
+      // Example response: { activeUsers: 50 }
+    },
+    (error) => {
+      console.error('Error fetching user count:', error);
+    }
+  );
+}
+
+fetchBlockUserCount() {
+  this.appuserserv.getBlockUserCount(this.Operator).subscribe(
+    (response) => {
+    this.ActiveUser=response;
+      // Example response: { activeUsers: 50 }
+    },
+    (error) => {
+      console.error('Error fetching user count:', error);
+    }
+  );
+}
+
+
+
 
 filterData(searchTerm: string) {
       
@@ -103,4 +139,5 @@ blockUser(userId: number): void {
   );
 
 }
+
 }

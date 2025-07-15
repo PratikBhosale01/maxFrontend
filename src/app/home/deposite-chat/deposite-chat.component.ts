@@ -967,7 +967,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
         if (err.status === 404) {
           this.snackbarService.snackbar('User ID not found.', 'error');
         } else {
-          this.snackbarService.snackbar('Failed to submit deposit request.', 'error');
+          this.snackbarService.snackbar(err.message, 'error');
         }
         this.depositRequestLoading = false;
       }
