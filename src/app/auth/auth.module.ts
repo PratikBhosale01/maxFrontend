@@ -8,9 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SharedModule } from '../shared/shared.module';
+import { LoginUserComponent } from './loginuser/loginuser.component';
 
 @NgModule({
-  declarations: [LoginComponent],
+  declarations: [LoginComponent, LoginUserComponent],
   imports: [
     CommonModule,
     HttpClientModule,
@@ -21,6 +22,6 @@ import { SharedModule } from '../shared/shared.module';
     MatSnackBarModule,
     SharedModule,
   ],
-  exports: [LoginComponent],
+  exports: [LoginComponent, LoginUserComponent],
 })
 export class AuthModule {}

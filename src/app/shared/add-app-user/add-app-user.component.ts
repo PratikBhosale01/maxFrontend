@@ -19,8 +19,9 @@ import { SiteMaster } from '../../domain/SiteMaster';
 })
 export class AddAppUserComponent {
   formGroup: FormGroup;
-  roles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT','ADMIN','SUPERADMIN','APPROVEADMIN', 'DEPOSIT','APPROVEDEPOSIT'];
-
+  SuperadminRoles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT','ADMIN','SUPERADMIN','APPROVEADMIN','APPROVEDEPOSIT','APPROVEWITHDRAW','SUPPORT','BANKER'];
+  approveadminRoles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT','APPROVEDEPOSIT','APPROVEWITHDRAW','SUPPORT'];
+  adminRoles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT',,'APPROVEADMIN', 'DEPOSIT','APPROVEDEPOSIT','BANKER'];
   ocrResult: string = '';
   imagePath: string = '';
   imageStatus: string = 'Select or drag UTR Image';
@@ -37,7 +38,8 @@ export class AddAppUserComponent {
   formValid = false;
   loader1 = false;
   loader2 = false;
-
+  Operator: any;
+  loggedInRole :string;
 
   constructor(
     private site: SiteService,
@@ -51,20 +53,44 @@ export class AddAppUserComponent {
     private snackbarService: SnackbarService,
     private   titleService:ComponettitleService
 
-  ) {}
+  ) {
+    this.getuserID();
+  
+  }
 
   @ViewChild('fileInput') fileInput: ElementRef;
 
-
+  get availableRoles(): string[] {
+    if (this.loggedInRole === 'SUPERADMIN') {
+      return this.SuperadminRoles;
+    } else if (this.loggedInRole === 'APPROVEADMIN') {
+      return this.approveadminRoles;
+    } else if (this.loggedInRole === 'ADMIN') {
+      return this.adminRoles;
+    } else {
+      return [];
+    }
+  }
  
   ngOnInit(): void {
+    this.getuserID();
     this.titleService.changeTitle('Add user panel');
     this.myFormValues();
     const currentDate = new Date();
     // this.formGroup.get('date').setValue(currentDate);
    
   }
-
+  getuserID() {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      // Step 2: Access user_role attribute
+      const user = JSON.parse(userString);
+      this.Operator = user.user_id;
+   
+      this.loggedInRole = user.role_user;
+      
+    }
+  }
   openFileInput(): void {
     this.fileInput.nativeElement.click();
   }
@@ -98,7 +124,7 @@ export class AddAppUserComponent {
     if (this.formGroup.valid) {
    
       this.formGroup.patchValue({ zuserId: id });
-      this.formGroup.patchValue({ role:"APPROVEDEPOSIT" });
+   
       
       this.superAdmin.saveUser(this.formGroup.value).subscribe(
         (data) => {

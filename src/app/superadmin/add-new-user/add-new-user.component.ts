@@ -90,7 +90,7 @@ export class AddNewUserComponent {
       // name: ['', Validators.required],
       // site_id: ['', Validators.required],
       id: ['0'],
-      // zuserId: [''],
+      zuserId: [''],
       // date: [new Date()],
       waIds: [[]]
     });

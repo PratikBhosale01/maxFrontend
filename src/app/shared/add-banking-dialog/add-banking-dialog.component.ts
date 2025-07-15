@@ -244,11 +244,13 @@ export class AddBankingDialogComponent {
         (response) => {
           this.snackbarService.snackbar('Bank details updated successfully!', 'success');
           this.loader = false;
+          this.dialogRef.close(true);
         },
         (error) => {
           console.error('Error updating bank details:', error);
           this.snackbarService.snackbar('Update failed!', 'error');
           this.loader = false;
+          this.dialogRef.close(true);
         }
       );
     }

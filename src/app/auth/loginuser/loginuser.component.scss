@@ -1,0 +1,32 @@
+.bg-loginuser {
+  background: url('/assets/bg.png') no-repeat center center;
+  background-size: cover;
+}
+.text-gradient {
+  background-image: linear-gradient(to right, #74a4fd, #4c689b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.card {
+  background: rgba(0, 0, 0, 0.271);
+  color: #fff;
+ width: 540px;
+  max-width: 100%;
+}
+
+@media (max-width: 576px) {
+  .card {
+    width: 95vw;
+    min-width: unset;
+  }
+}
+.form-label {
+  color: #fff;
+}
+.invalid-feedback {
+  color: #ffc107;
+}
+.btn-primary, .btn-success {
+  min-width: 80px;
+} 

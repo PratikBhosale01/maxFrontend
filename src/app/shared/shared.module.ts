@@ -49,6 +49,7 @@ import { DepoDailogComponent } from './depo-dailog/depo-dailog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { WithDailogComponent } from './with-dailog/with-dailog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { OtpDialogComponent } from './otp-dialog/otp-dialog.component';
 
 
 @NgModule({
@@ -81,8 +82,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     WithdrawConfirmComponent,
     DialogComponent,
     DepoDailogComponent,
-    WithDailogComponent
-   
+    WithDailogComponent,
+    OtpDialogComponent
   ],
   imports: [
     CommonModule,
@@ -113,6 +114,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatTooltipModule,
     MatCheckboxModule,
 
-  ],exports:[LoaderComponent,DialogComponent]
+  ],exports:[LoaderComponent,DialogComponent,OtpDialogComponent]
 })
 export class SharedModule { }

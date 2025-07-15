@@ -103,6 +103,7 @@ export const admin: navDomain[] = [
       // { routerLink: 'approve', icon: "List", title: "Approve" },
     ]
   },
+  { routerLink: 'user-panel', icon: "group", title: "User panel" },
   // { routerLink: 'appv-home', icon: "home", title: "Home" },
   // { routerLink: 'Banking Panel', icon: "group", title: "Banking Panel" },
   // { routerLink: 'SupADeposit', icon: "download", title: "Sup ADeposit" },
@@ -209,7 +210,7 @@ export const APPROVEADMIN: navDomain[] = [
   // { routerLink: 'Banking Panel', icon: "group", title: "Banking Panel" },
   // { routerLink: 'SupADeposit', icon: "download", title: "Sup ADeposit" },
   // { routerLink: 'SupAWithdraw', icon: "upload", title: "Sup AWithdraw" },
-  // { routerLink: 'user-panel', icon: "group", title: "User panel" },
+  { routerLink: 'user-panel', icon: "group", title: "User panel" },
   { routerLink: 'wati-accounts', icon: "account_circle", title: "Wati Accounts" },
-
+  { routerLink: 'operations-panel', icon: "manufacturing", title: "operations-panel" },
 ]

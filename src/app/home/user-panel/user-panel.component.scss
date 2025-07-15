@@ -162,3 +162,66 @@
   color: #fffbfb; 
   border: none !important;
 }
+
+.user-tree, .user-tree ul {
+  list-style: none;
+  padding-left: 20px;
+  position: relative;
+}
+.user-tree ul::before {
+  content: '';
+  border-left: 2px solid #ffd700;
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+}
+.tree-node {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.tree-dot {
+  width: 10px; height: 10px;
+  background: #ffd700;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.tree-label {
+  color: #ffd700;
+}
+.user-id {
+  color: #bfa100;
+  font-size: 0.9em;
+  margin-left: 8px;
+}
+
+.user-tree-table {
+  background-color: #111 !important;
+  color: #fff !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.user-tree-table th {
+  background-color: #222 !important;
+  color: #ffd700 !important;
+  font-weight: 600;
+  border: 1px solid #444 !important;
+}
+.user-tree-table td {
+  background-color: #111 !important;
+  color: #fff !important;
+  border: 1px solid #333 !important;
+}
+.user-tree-table tr {
+  transition: background 0.2s;
+}
+.user-tree-table tr:hover {
+  background-color: #222 !important;
+}
+.user-tree-table .btn-link, .user-tree-table .fa {
+  color: #ffd700 !important;
+}
+.user-tree-table .btn-warning {
+  background-color: #ffd700 !important;
+  color: #111 !important;
+  border: none;
+}

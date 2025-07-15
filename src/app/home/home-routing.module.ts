@@ -29,7 +29,7 @@ import { NotificationComponent } from './notification/notification.component';
 import { WattiChatComponent } from './watti-chat/watti-chat.component';
 import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
 import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
-
+import { OperationsPanelComponent } from './operations-panel/operations-panel.component';
 
 
 // Components
@@ -155,7 +155,10 @@ const routes: Routes = [
         path: "wati-accounts",
         component: WatiAccountsComponent,
       },
-     
+      {
+        path: 'operations-panel',
+        component: OperationsPanelComponent,
+      },
     
       
 
