@@ -21,8 +21,11 @@ export class TokenInterceptor implements HttpInterceptor {
    user :any;
   constructor(private authService: AuthService) {
      this.token = localStorage.getItem('token');
-     this.user = JSON.parse(localStorage.getItem('user'));;    
-
+     let userString = localStorage.getItem('user');
+     if (!userString) {
+       userString = sessionStorage.getItem('user');
+     }
+     this.user = userString ? JSON.parse(userString) : null;
    }
 
   isRefreshingToken: boolean = false;

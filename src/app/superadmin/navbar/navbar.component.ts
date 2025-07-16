@@ -30,9 +30,11 @@ export class NavbarComponent implements AfterViewInit ,OnInit {
   handleSidebarToggle = () => this.toggleSidebar.emit(!this.isExpanded);
   constructor(public route: Router, private renderer: Renderer2,public dialog: MatDialog, private   titleService:ComponettitleService) {}
   ngOnInit(): void {
-  
     this.titleService.currentTitle.subscribe((title) => (this.title = title));
-    const userString = localStorage.getItem('user');
+    let userString = localStorage.getItem('user');
+    if (!userString) {
+      userString = sessionStorage.getItem('user');
+    }
     if (userString) {
       // Step 2: Access user_role attribute
       const user = JSON.parse(userString);
@@ -40,7 +42,6 @@ export class NavbarComponent implements AfterViewInit ,OnInit {
       this.userName = user.user_email;
       console.log(user)
     }
-   
   }
 
   ngAfterViewInit() {

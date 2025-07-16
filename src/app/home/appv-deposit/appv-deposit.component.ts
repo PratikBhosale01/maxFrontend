@@ -127,18 +127,18 @@ export class AppvDepositComponent {
   }
 
   getUserId() {
-    const userData = localStorage.getItem('user');
+    let userData = localStorage.getItem('user');
+    if (!userData) {
+      userData = sessionStorage.getItem('user');
+    }
     if (userData) {
       this.user = JSON.parse(userData);
     } else {
       // Handle the case when user data is not available
-      this.snackbarService.snackbar('User data not found in localStorage!', 'error');
-      
+      this.snackbarService.snackbar('User data not found in localStorage or sessionStorage!', 'error');
       return;
     }
-
-     this.userId = this.user.user_id;
-
+    this.userId = this.user.user_id;
   }
   getDeposite() {
     

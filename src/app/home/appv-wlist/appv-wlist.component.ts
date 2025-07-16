@@ -204,15 +204,16 @@ deleteReport(Id: number) {
  
 
 getUserId(){
-  const userData = localStorage.getItem('user');
-
-
+  let userData = localStorage.getItem('user');
+  if (!userData) {
+    userData = sessionStorage.getItem('user');
+  }
   if (userData) {
     this.user = JSON.parse(userData);
-    this.userId = this.user.user_id;  // Get the user ID from localStorage
+    this.userId = this.user.user_id;  // Get the user ID from storage
   } else {
     // Handle the case when user data is not available
-    console.error('User data not found in localStorage');
+    console.error('User data not found in localStorage or sessionStorage');
     return;
   }
 }
