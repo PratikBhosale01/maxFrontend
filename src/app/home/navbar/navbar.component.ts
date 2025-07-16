@@ -11,24 +11,24 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ComponettitleService } from '../../services/componenttitle.service';
-import { admin, APPROVEADMIN, APPROVEDEPOSIT, APPROVEWITHDRAW, BANKER, DEPOSIT, navDomain, SUPPORT, WITHDRAWCHAT ,DEPOSITCHAT } from './navDomain';
+import { admin, APPROVEADMIN, APPROVEDEPOSIT, APPROVEWITHDRAW, BANKER, DEPOSIT, navDomain, SUPPORT, WITHDRAWCHAT, DEPOSITCHAT } from './navDomain';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
-export class NavbarComponent implements AfterViewInit ,OnInit {
+export class NavbarComponent implements AfterViewInit, OnInit {
   @ViewChild('navbarToggler') navbarToggler!: ElementRef;
   @Input() isExpanded: boolean = false;
   @Output() toggleSidebar: EventEmitter<boolean> = new EventEmitter<boolean>();
   handleSidebarToggle = () => this.toggleSidebar.emit(!this.isExpanded);
   title: string = 'Default Title';
   userRole: string;
-  userName: string ="Username";
-  navDomains:navDomain[] = [];
-  constructor(public route: Router, private renderer: Renderer2,private   titleService:ComponettitleService,
-  ) {}
+  userName: string = "Username";
+  navDomains: navDomain[] = [];
+  constructor(public route: Router, private renderer: Renderer2, private titleService: ComponettitleService,
+  ) { }
   ngOnInit(): void {
     this.titleService.currentTitle.subscribe((title) => (this.title = title));
     this.getrole();
@@ -44,75 +44,90 @@ export class NavbarComponent implements AfterViewInit ,OnInit {
   }
 
   logout() {
+    debugger
+    let userString = localStorage.getItem('user');
+    if (userString) {
+      // Step 2: Access user_role attribute
+      const user = JSON.parse(userString);
+      this.userRole = user.role_user;
+      this.userName = user.user_email;
+    }
+
+
     localStorage.setItem('user', '');
     localStorage.clear();
-    this.route.navigateByUrl('');
+    if (this.userRole === 'ADMIN' || this.userRole === 'APPROVEADMIN' || this.userRole === 'SUPERADMIN') 
+      { this.route.navigateByUrl('/admin'); }
+     else {
+      this.route.navigateByUrl('');
+    }
+
   }
 
   setRoleData() {
-    
-  
+
+
     switch (this.userRole) {
 
       case 'WITHDRAWCHAT':
         this.navDomains = WITHDRAWCHAT;
-  
+
         break;
 
       case 'ADMIN':
         this.navDomains = admin;
-       
-        break;
-  
-      case 'APPROVEDEPOSIT':
-        this.navDomains = APPROVEDEPOSIT;
-   
+
         break;
 
-    case 'APPROVEWITHDRAW':
-          this.navDomains = APPROVEWITHDRAW;
-       
-          break;  
-  
+      case 'APPROVEDEPOSIT':
+        this.navDomains = APPROVEDEPOSIT;
+
+        break;
+
+      case 'APPROVEWITHDRAW':
+        this.navDomains = APPROVEWITHDRAW;
+
+        break;
+
       case 'DEPOSIT':
         this.navDomains = DEPOSIT;
-     
+
         break;
-  
+
       case 'APPROVEADMIN':
         this.navDomains = APPROVEADMIN;
-       
+
         break;
 
       case 'SUPPORT':
         this.navDomains = SUPPORT;
-       
+
         break;
 
       case 'BANKER':
         this.navDomains = BANKER;
-       
+
         break;
 
       case 'DEPOSITCHAT':
-          this.navDomains = DEPOSITCHAT;
-         
-        break;   
-  
+        this.navDomains = DEPOSITCHAT;
+
+        break;
+
       default:
         console.log('No matching role found, setting default role data');
         // You can handle any default case here if needed
         break;
     }
-  
+
     // Use the `roleNavData` array as per your needs in your component
     // console.log('Navigation Data:', this.navDomains);
   }
-  
-  
 
 
-  getrole(){
+
+
+  getrole() {
     let userString = localStorage.getItem('user');
     if (!userString) {
       userString = sessionStorage.getItem('user');
@@ -128,7 +143,7 @@ export class NavbarComponent implements AfterViewInit ,OnInit {
   toggleDropdown(event: Event) {
     const dropdownItem = (event.currentTarget as HTMLElement);
     dropdownItem.classList.toggle('expanded');
-    
+
     // Close other dropdowns
     const allDropdowns = document.querySelectorAll('.dropdown-item');
     allDropdowns.forEach(dropdown => {
@@ -160,16 +175,16 @@ export class NavbarComponent implements AfterViewInit ,OnInit {
   // }
   expandedMenus = new Set<string>(); // or number, depending on your navDomain key
 
-toggleSubmenu(navTitle: string): void {
-  if (this.expandedMenus.has(navTitle)) {
-    this.expandedMenus.delete(navTitle);
-  } else {
-    this.expandedMenus.add(navTitle);
+  toggleSubmenu(navTitle: string): void {
+    if (this.expandedMenus.has(navTitle)) {
+      this.expandedMenus.delete(navTitle);
+    } else {
+      this.expandedMenus.add(navTitle);
+    }
   }
-}
 
-isSubmenuExpanded(navTitle: string): boolean {
-  return this.expandedMenus.has(navTitle);
-}
+  isSubmenuExpanded(navTitle: string): boolean {
+    return this.expandedMenus.has(navTitle);
+  }
 
 }
