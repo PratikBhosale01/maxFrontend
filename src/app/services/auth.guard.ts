@@ -3,8 +3,12 @@ import { CanActivateFn } from '@angular/router';
 export const authGuard: CanActivateFn = (route, state) => {
   // Assuming AuthService has a method isAuthenticated() to check if the user is authenticated
   // const isAuthenticated = AuthService.isAuthenticated();
-  const userData = localStorage.getItem('user');
+  var userData = localStorage.getItem('user');
 
+  if (!userData) {
+    userData = sessionStorage.getItem('user');
+  }
+ 
   if (userData) {
     return true;
   } else {

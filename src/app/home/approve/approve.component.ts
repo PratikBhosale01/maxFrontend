@@ -330,14 +330,16 @@ export class ApproveComponent implements OnInit, OnDestroy {
   }
 
   getUserId() {
-    const userData = localStorage.getItem('user');
-
+    let userData = localStorage.getItem('user');
+    if (!userData) {
+      userData = sessionStorage.getItem('user');
+    }
     if (userData) {
       const zuser = JSON.parse(userData);
-      this.userId = zuser.user_id; // Get the user ID from localStorage
+      this.userId = zuser.user_id; // Get the user ID from storage
     } else {
       // Handle the case when user data is not available
-      console.error('User data not found in localStorage');
+      console.error('User data not found in localStorage or sessionStorage');
       return;
     }
   }
@@ -532,13 +534,16 @@ export class ApproveComponent implements OnInit, OnDestroy {
   }
 
   getUserRole() {
-    const userData = localStorage.getItem('user');
+    let userData = localStorage.getItem('user');
+    if (!userData) {
+      userData = sessionStorage.getItem('user');
+    }
     if (userData) {
       const user = JSON.parse(userData);
-      this.ur=user.role_user;
+      this.ur = user.role_user;
       this.userRole = user.role_user;
     } else {
-      console.error('User data not found in localStorage');
+      console.error('User data not found in localStorage or sessionStorage');
     }
   }
 

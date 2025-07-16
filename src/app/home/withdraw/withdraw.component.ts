@@ -295,7 +295,10 @@ export class WithdrawComponent implements OnInit, OnDestroy {
     );
   }
   getuserID() {
-    const userString = localStorage.getItem('user');
+    let userString = localStorage.getItem('user');
+    if (!userString) {
+      userString = sessionStorage.getItem('user');
+    }
     if (userString) {
       // Step 2: Access user_role attribute
       const user = JSON.parse(userString);

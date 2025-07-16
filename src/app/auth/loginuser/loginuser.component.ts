@@ -72,8 +72,8 @@ export class LoginUserComponent implements OnInit {
           localStorage.setItem('token', response.token);
           this.snackbarService.snackbar('Login successful', 'success');
           this.loader = false;
-          this.decryptJwtToken(response.token);
-          const userData = JSON.parse(localStorage.getItem('user') || '{}');
+          this.decryptJwtToken(response.token); // userData will be set in storage inside this function
+          const userData = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
           const userRole = userData.role_user || '';
           if(localStorage.getItem('token') != null){
           if (userRole != 'SUPERADMIN') {
@@ -116,8 +116,16 @@ export class LoginUserComponent implements OnInit {
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const decodedPayload = JSON.parse(atob(base64));
       this.decodedToken = decodedPayload;
-      
-      localStorage.setItem('user', JSON.stringify(this.decodedToken));
+      const userRole = this.decodedToken.role_user || '';
+      if (userRole !== 'ADMIN' && userRole !== 'SUPERADMIN' && userRole !== 'APPROVEADMIN') {
+        sessionStorage.setItem('user', JSON.stringify(this.decodedToken));
+        // Remove from localStorage if present
+        localStorage.removeItem('user');
+      } else {
+        localStorage.setItem('user', JSON.stringify(this.decodedToken));
+        // Remove from sessionStorage if present
+        sessionStorage.removeItem('user');
+      }
     } catch (error) {
       console.error('Error decoding JWT token:', error);
     }
