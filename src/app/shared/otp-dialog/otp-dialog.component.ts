@@ -13,18 +13,34 @@ export class OtpDialogComponent implements OnInit {
   loading = true;
   error: string | null = null;
 
-  constructor(
-    public dialogRef: MatDialogRef<OtpDialogComponent>,
+  constructor(public dialogRef: MatDialogRef<OtpDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { username: string },
     private appUserService: AppUserService
-  ) {}
+  ) {
+
+  }
 
 ngOnInit(): void {
   this.loading = true;
 
-  timer(500).pipe(
-    switchMap(() => this.appUserService.getOtpByUsername(this.data.username))
-  ).subscribe({
+  if (!this.data?.username) {
+  console.error('Username is undefined');
+  this.error = 'Username is missing.';
+  this.loading = false;
+  return;
+}
+
+timer(500)
+  .pipe(
+    switchMap(() => {
+      const observable = this.appUserService.getOtpByUsername(this.data.username);
+      if (!observable) {
+        throw new Error('getOtpByUsername returned undefined');
+      }
+      return observable;
+    })
+  )
+  .subscribe({
     next: (response) => {
       this.otp = response;
       this.loading = false;

@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AppConfigService } from './app-config.service';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { zIndex } from 'html2canvas/dist/types/css/property-descriptors/z-index';
-import { map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -36,8 +36,9 @@ constructor(public http: HttpClient, private config: AppConfigService) {}
    );
   }
 
-  getOtpByUsername(username: string): Observable<string> {
-    return this.http.get<any>(`${this.baseUrl}/auth/show-otp/${encodeURIComponent(username)}`
-  )
-  }
+getOtpByUsername(username: string): Observable<string> {
+  return this.http.get<any>(`${this.baseUrl}/auth/show-otp/${encodeURIComponent(username)}`).pipe(
+    tap((res) => console.log('OTP API response:', res))
+  );
+}
 }
