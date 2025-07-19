@@ -44,7 +44,7 @@ export class NavbarComponent implements AfterViewInit, OnInit {
   }
 
   logout() {
-    debugger
+  
     let userString = localStorage.getItem('user');
     if (userString) {
       // Step 2: Access user_role attribute

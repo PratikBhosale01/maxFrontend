@@ -17,8 +17,7 @@ import { AuthService } from './services/auth.service';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
-   token :any;
-   user :any;
+
   constructor(private authService: AuthService) {
      this.token = localStorage.getItem('token');
      let userString = localStorage.getItem('user');
@@ -27,6 +26,8 @@ export class TokenInterceptor implements HttpInterceptor {
      }
      this.user = userString ? JSON.parse(userString) : null;
    }
+   token :any;
+   user :any;
 
   isRefreshingToken: boolean = false;
   tokenSubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -45,12 +46,13 @@ export class TokenInterceptor implements HttpInterceptor {
     return next.handle(request);
   }else{
      
-        return next.handle(this.addTokenToRequest(request, this.token))
+        return next.handle(this.addTokenToRequest(request,localStorage.getItem('token')))
           .pipe(
             catchError(err => {
               if (err instanceof HttpErrorResponse) {
                 switch ((<HttpErrorResponse>err).status) {
                   case 400:
+                  // case 401: // Unauthorized - logout user
                     return <any>this.authService.logout();
                 }
               } else {
@@ -78,4 +80,7 @@ export class TokenInterceptor implements HttpInterceptor {
     // console.log('Modified Request Headers:', modifiedRequest.headers);
     return modifiedRequest;
   }
+
+  
 }
+// unauth response will 401 logout 
