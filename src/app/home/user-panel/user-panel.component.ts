@@ -20,10 +20,13 @@ depositTableArray:any[];
   loader: boolean;
   Operator: any;
   operatorName:string;
+  
+  refreshInterval: any;
 constructor(public dialog: MatDialog, private appuserserv :AppUserService) {}
 ngOnInit(): void{
   this.getuserID()
   this.fetchUser();
+  this.refreshInterval = setInterval(() => this.fetchUser(), 5000);
   this.fetchActiveUserCount();
 }
 

@@ -7,7 +7,7 @@ var appConfig = {
   mainbackendUrl: "https://api.approvepanel.com",
   // mainbackendUrl:"http://0djs0mh1-8080.inc1.devtunnels.ms",
   // mainbackendUrl:"http://vinayahire-23413.portmap.host:23413",
-  //  mainbackendUrl:"https://painted-enemies-scales-gb.trycloudflare.com",
+  //  mainbackendUrl:"https://copy-harmful-mw-needed.trycloudflare.com",
 };
 // var appConfigWs = {};
 

@@ -225,8 +225,9 @@ export class BankingPanelComponent {
   
   toggleStatus(id: number) {
     const isConfirmed = confirm('Do you really want change status ?');
-    this.loader = true;
+  
     if (isConfirmed) {
+      this.loader = true;
       this.BankingService.switch(id).subscribe(
         (data) => {
           this.loader = false;
@@ -241,6 +242,7 @@ export class BankingPanelComponent {
     } else {
       console.log('Deletion canceled by the user.');
     }
+    
   }
 
   openDialogAttach(bank): void {
