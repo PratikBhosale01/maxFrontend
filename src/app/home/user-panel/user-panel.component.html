@@ -78,6 +78,7 @@
     <tr>
       <th>Username</th>
       <th>Role</th>
+      <th>Status</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -104,8 +105,20 @@
     </td>
     <td>{{ user.role }}</td>
     <td>
-      <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-warning btn-sm" (click)="openOtpDialog(user.username)">Get OTP</button>
-      <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-danger btn-sm ms-2" (click)="logoutUser(user.username)">Logout</button>
+      <i 
+        class="fa fa-circle"
+        [ngStyle]="{'color': user.logged ? 'green' : 'red'}"
+        aria-label="Status"
+      ></i>
+      <span [ngStyle]="{'color': user.logged ? 'green' : 'red', 'margin-left': '4px'}">
+        {{ user.logged ? 'Online' : 'Offline' }}
+      </span>
+    </td>
+    <td>
+      <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-warning btn-sm" (click)="openOtpDialog(user.username)"> OTP</button>
+      <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-danger btn-sm ms-2" (click)="logoutUser(user.username)">
+        <i class="fa fa-sign-out-alt"></i> 
+      </button>
     </td>
   </tr>
   <ng-container *ngIf="user.children && user.children.length > 0 && user.expanded">
