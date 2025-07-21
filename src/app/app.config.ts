@@ -6,6 +6,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { TokenInterceptor } from './tokenInterceptor';
+import { UnauthorizedInterceptor } from './unauthorized.interceptor';
 
 // WebSocket provider token
 
@@ -20,6 +21,11 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: UnauthorizedInterceptor,
       multi: true,
     },
     

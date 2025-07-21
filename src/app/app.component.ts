@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.tokenCheckService.startTokenRotation();
     // this.tokenCheckService.startTokenCheck();
     // console.log(" in oninit");
     // this.statusMessage = "true";
@@ -51,8 +52,8 @@ export class AppComponent implements OnInit {
 
     
   }
-  // ngOnDestroy(): void {
-  //   this.tokenCheckService.stopTokenCheck();
-  // }
+  ngOnDestroy(): void {
+    this.tokenCheckService.stopTokenRotation();
+  }
 
 }

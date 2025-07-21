@@ -35,26 +35,39 @@ export class LoginComponent implements OnInit {
       this.loader = true;
       this.auth.loginUser(this.loginForm.value).subscribe(
         (response) => {
-          localStorage.setItem('token', response.token);
+          // Try to set token in localStorage
+          try {
+            localStorage.setItem('token', response.token);
+          } catch (e) {
+            this.snackbarService.snackbar('Unable to store token', 'error');
+            this.loader = false;
+            return;
+          }
+  
+          // Double-check if successfully stored 
+          const token = localStorage.getItem('token');
+          if (!token) {
+            this.snackbarService.snackbar('Token not stored. Login failed.', 'error');
+            this.loader = false;
+            return;
+          }
+  
           this.snackbarService.snackbar('Login successful', 'success');
           this.loader = false;
-  
-          // Save the token to localStorage
-        
-  
+          
+          // Token is definitely set, now process ahead
           this.decryptJwtToken(response.token);
           const userData = JSON.parse(localStorage.getItem('user') || '{}');
           const userRole = userData.role_user || '';
-          if(localStorage.getItem('token') != null){
-          if (userRole != 'SUPERADMIN') {
+  
+          if (userRole !== 'SUPERADMIN') {
             if (userRole === 'approvedeposit' || userRole === 'approvewithdraw') {
               this.fetchPendingTransactions(userRole);
             }
             this.router.navigate(['/home']);
-          }
-          if (userRole === 'SUPERADMIN') {
+          } else if (userRole === 'SUPERADMIN') {
             this.router.navigate(['/SA']);
-          } }
+          }
         },
         (error) => {
           this.snackbarService.snackbar('Login Failed', 'error');

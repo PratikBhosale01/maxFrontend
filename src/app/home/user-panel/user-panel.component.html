@@ -78,7 +78,6 @@
     <tr>
       <th>Username</th>
       <th>Role</th>
-      <th>ID</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -104,9 +103,9 @@
       </span>
     </td>
     <td>{{ user.role }}</td>
-    <td>{{ user.id }}</td>
     <td>
       <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-warning btn-sm" (click)="openOtpDialog(user.username)">Get OTP</button>
+      <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-danger btn-sm ms-2" (click)="logoutUser(user.username)">Logout</button>
     </td>
   </tr>
   <ng-container *ngIf="user.children && user.children.length > 0 && user.expanded">

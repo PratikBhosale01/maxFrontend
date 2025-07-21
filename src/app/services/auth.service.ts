@@ -10,6 +10,8 @@ declare var appConfig;
   providedIn: 'root',
 })
 export class AuthService {
+  userRole: any;
+  userName: any;
   constructor(public route: Router,public http: HttpClient, public config: AppConfigService) {}
 
   public loginUser(user: USER): Observable<USER> {
@@ -32,10 +34,33 @@ export class AuthService {
     return this.http.post<any>(url, null);
   }
 
+  // Refresh/rotate token method
+  public refreshToken(): Observable<any> {
+    const baseUrl = this.config.getBaseurl();
+    const url = `${baseUrl}/auth/refresh-token`;
+    const token = localStorage.getItem('token');
+    return this.http.post<any>(url, { token });
+  }
+
   logout() {
+  
+    let userString = localStorage.getItem('user');
+    if (userString) {
+      // Step 2: Access user_role attribute
+      const user = JSON.parse(userString);
+      this.userRole = user.role_user;
+      this.userName = user.user_email;
+    }
+
+
     localStorage.setItem('user', '');
-    localStorage.setItem('token', '');
-    this.route.navigateByUrl('');
+    localStorage.clear();
+    if (this.userRole === 'ADMIN' || this.userRole === 'APPROVEADMIN' || this.userRole === 'SUPERADMIN') 
+      { this.route.navigateByUrl('/admin'); }
+     else {
+      this.route.navigateByUrl('');
+    }
+
   }
 
   // validateToken(token: string): Observable<boolean> {

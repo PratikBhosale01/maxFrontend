@@ -21,12 +21,12 @@ constructor(public http: HttpClient, private config: AppConfigService) {}
 
   getActiveUserCount(Zuser:Number):Observable<any> {
     return this.http.get<any>(
-`${this.baseUrl}/auth/active-users/count`);
+`${this.baseUrl}/auth/active-users/count/${Zuser}`);
   } 
 
   getBlockUserCount(Zuser:Number):Observable<any> {
     return this.http.get<any>(
-`${this.baseUrl}/auth/blocked-users/count`);
+`${this.baseUrl}/auth/blocked-users/count/${Zuser}`);
   }
 
    blockUser(userId: number): Observable<any> {
@@ -40,5 +40,9 @@ getOtpByUsername(username: string): Observable<string> {
   return this.http.get<any>(`${this.baseUrl}/auth/show-otp/${encodeURIComponent(username)}`).pipe(
     tap((res) => console.log('OTP API response:', res))
   );
+}
+
+logoutUser(superadmin: string, username: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/auth/admin/force-logout`, { superadmin, username });
 }
 }
