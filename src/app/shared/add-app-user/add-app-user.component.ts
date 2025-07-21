@@ -21,7 +21,7 @@ export class AddAppUserComponent {
   formGroup: FormGroup;
   SuperadminRoles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT','ADMIN','SUPERADMIN','APPROVEADMIN','APPROVEDEPOSIT','APPROVEWITHDRAW','SUPPORT','BANKER'];
   approveadminRoles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT','APPROVEDEPOSIT','APPROVEWITHDRAW','SUPPORT'];
-  adminRoles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT','APPROVEADMIN', 'DEPOSIT','APPROVEDEPOSIT','APPROVEWITHDRAW','BANKER'];
+  adminRoles: string[] = ['DEPOSITCHAT','WITHDRAWCHAT','APPROVEADMIN', 'DEPOSIT','APPROVEDEPOSIT','APPROVEWITHDRAW','BANKER','SUPPORT'];
   ocrResult: string = '';
   imagePath: string = '';
   imageStatus: string = 'Select or drag UTR Image';
