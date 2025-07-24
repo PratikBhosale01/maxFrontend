@@ -45,4 +45,11 @@ getOtpByUsername(username: string): Observable<string> {
 logoutUser(superadmin: string, username: string): Observable<any> {
   return this.http.post(`${this.baseUrl}/auth/admin/force-logout`, { superadmin, username });
 }
+
+  /**
+   * Fetch user activity list by userId
+   */
+  getUserActivity(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/auth/activity/${userId}`);
+  }
 }
