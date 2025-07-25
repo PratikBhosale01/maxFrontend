@@ -47,4 +47,8 @@ logoutUser(superadmin: string, username: string): Observable<any> {
 }
 
 
+  getUserActivity(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/auth/activity/${userId}`);
+  }
+
 }

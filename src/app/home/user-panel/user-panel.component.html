@@ -113,6 +113,10 @@
       <span [ngStyle]="{'color': user.logged ? 'green' : 'red', 'margin-left': '4px'}">
         {{ user.logged ? 'Online' : 'Offline' }}
       </span>
+      &nbsp;
+      <button class="btn btn-link btn-sm p-0" title="View Activity" (click)="showUserActivity(user)">
+        <i class="fa fa-eye" style="color: #E2BD01;"></i>
+      </button>
     </td>
     <td>
       <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-warning btn-sm" (click)="openOtpDialog(user.username)"> OTP</button>
@@ -127,4 +131,44 @@
     </ng-container>
   </ng-container>
 </ng-template>
+
+<!-- Activity Modal -->
+<div *ngIf="showActivityModal" class="modal fade show d-block custom-activity-modal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content activity-modal-content">
+      <div class="modal-header activity-modal-header">
+        <h5 class="modal-title">Activity for <span style="color:#E2BD01">{{ selectedUserForActivity }}</span></h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeActivityModal()"></button>
+      </div>
+      <div class="modal-body activity-modal-body">
+        <table class="table table-bordered user-tree-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Activity Type</th>
+              <th>Timestamp</th>
+              <th>IP Address</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let activity of activityData">
+              <td>{{ activity.id }}</td>
+              <td>{{ activity.activityType }}</td>
+              <td>{{ formatLocalTime(activity.activityTimestamp) }}</td>
+              <td>{{ activity.ipAddress }}</td>
+              <td>{{ activity.details || '-' }}</td>
+            </tr>
+            <tr *ngIf="activityData.length === 0">
+              <td colspan="5" class="text-center">No activity found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer activity-modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeActivityModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
  

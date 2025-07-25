@@ -72,22 +72,22 @@
             <h3>💰 Deposit Details</h3>
             
             <p><strong>🆔 User ID:</strong> {{ user.userId }}</p>
-            <p><strong>💸 Amount:</strong> ₹{{ user.amount }}</p>
-            <p><strong>🔢 UTR Number:</strong> {{ user.utrNumber }}</p>
+            <p class="d-none d-md-block"><strong>💸 Amount:</strong> ₹{{ user.amount }}</p>
+            <p class="d-none d-md-block"><strong>🔢 UTR Number:</strong> {{ user.utrNumber }}</p>
             
             <p><strong>🏦 Bank:</strong> {{ user.bank.bankName }} ({{ user.bank.bankHolderName }})</p>
-            <p><strong>💳 Account No:</strong> {{ user.bank.accountNumber }}</p>
-            <p><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
+            <p class="d-none d-md-block"><strong>💳 Account No:</strong> {{ user.bank.accountNumber }}</p>
+            <p class="d-none d-md-block"><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
           
             <p><strong>🖥️ Site:</strong> 
               <a [href]="user.site.url" target="_blank">{{ user.site.name }}</a>
             </p>
             
-            <p><strong>📷 UTR Image:</strong> 
+            <p class="d-none d-md-block"><strong>�� UTR Image:</strong> 
               <a [href]="user.bankUtrImageLink" target="_blank">Download Image</a>
             </p>
           
-            <div class="status" [ngClass]="user.approveStatus.toLowerCase()">
+            <div class="status d-none d-md-block" [ngClass]="user.approveStatus.toLowerCase()">
               <strong>Status:</strong> {{status}}
             </div>
           </div>
@@ -220,13 +220,12 @@
         <div class="transaction-card">
           <h3>💰 Withdraw Details</h3>
           <p><strong>🆔 User ID:</strong> {{ user.userId }}</p>
-          <p><strong>💸 Amount:</strong> ₹{{ user.amount }}</p>
-          <p><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
+          <p class="d-none d-md-block"><strong>💸 Amount:</strong> ₹{{ user.amount }}</p>
+          <p class="d-none d-md-block"><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
           <p><strong>🖥️ Site:</strong> 
             <a [href]="user.site.url" target="_blank">{{ user.site.name }}</a>
           </p>
-        
-          <div class="status" [ngClass]="user.approveStatus.toLowerCase()">
+          <div class="status d-none d-md-block" [ngClass]="user.approveStatus.toLowerCase()">
             <strong>Status:</strong> {{status}}
           </div>
         </div>
@@ -267,10 +266,11 @@
         <h4 class="mat-h4" style="color: gold">Withdraw Message :</h4>
         <mat-card
           class="scrollable-card"
-          style="padding: 2px; "
+          style="padding: 12px; background: #23272b; color: #fff; border-radius: 8px; min-height: 60px; font-size: 1rem; word-break: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 10px;"
         >
           <span
             [innerHTML]="formatWithdrawMessage(user?.withdrawMessage)"
+            style="white-space: pre-line; display: block;"
           ></span>
         </mat-card>
         <div class="nft-verification">

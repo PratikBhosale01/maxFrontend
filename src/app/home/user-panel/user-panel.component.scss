@@ -225,3 +225,38 @@
   color: #111 !important;
   border: none;
 }
+
+/* Custom Activity Modal Styles */
+.custom-activity-modal {
+  background: rgba(0,0,0,0.85) !important;
+  z-index: 1050;
+}
+.activity-modal-content {
+  background: rgba(35, 30, 9, 0.98) !important;
+  color: #e9e9e9 !important;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
+}
+.activity-modal-header {
+  background: transparent;
+  color: #ffd700;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+.activity-modal-body {
+  background: transparent;
+}
+.activity-modal-footer {
+  background: transparent;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+/* Eye icon color and hover */
+.fa-eye {
+  color: #E2BD01 !important;
+  transition: color 0.2s;
+}
+.fa-eye:hover {
+  color: #ab7702 !important;
+}
