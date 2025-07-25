@@ -12,6 +12,7 @@ import { DepoChatService } from '../../services/depo-chat.service';
 // TODO: Replace with actual deposite chat service and models
 // import { DepositeChatService } from '../../services/deposite-chat.service';
 // import { DepositeChatMessageDTO, DepositeConversationDTO } from '../../domain/DepositeChatMessage';
+import { WatiAccountService, WatiAccount } from '../../services/wati-account.service';
 
 @Component({
   selector: 'app-deposite-chat',
@@ -20,13 +21,11 @@ import { DepoChatService } from '../../services/depo-chat.service';
 })
 export class DepositeChatComponent implements OnInit, OnDestroy {
   quickReplies: string[] = [];
-   
   newQuickReply: string = '';
   showQuickReplyInput = false;
   showStarMessagesDropdown = false;
   @ViewChild('chatContainer') chatContainer: ElementRef;
   @ViewChild(MatPaginator) paginator: MatPaginator;
-
   conversations: any[] = []; // TODO: Use DepositeConversationDTO[]
   filteredConversations: any[] = [];
   selectedFilter: string = 'undone';
@@ -76,6 +75,10 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   dragOver: boolean = false;
   depositRequestLoading = false; // New loader for deposit request
   messagesreverse: any[];
+  watiAccountsList: WatiAccount[] = [];
+  selectedWattiAccounts: number[] = [];
+  userId: any;
+  userRole: any;
 
   constructor(
     private wattiService: WattiService,
@@ -87,6 +90,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     private  BankingService :BankingService,
     private snackbarService: SnackbarService,
     private approveService: ApproveService,
+    private watiAccountService: WatiAccountService // <-- Injected
   ) {
     this.messageForm = this.formBuilder.group({
       content: ['']
@@ -97,14 +101,16 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.getuserId();
+    this.fetchWattiAccounts();
     this.loadConversations();
-    this.fetchAllocatedBanksByCurrentTime()
+    this.fetchAllocatedBanksByCurrentTime();
     this.subscription = interval(5000).subscribe(() => {
       this.loadConversations();
       this.fetchAllocatedBanksByCurrentTime();
     });
-    this.loadQuickReplies();// TODO: Subscribe to WebSocket connection status if available
-    
+    this.loadQuickReplies();
+   
   }
   selectConversation(watiNumber: string) {
     
@@ -172,8 +178,13 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   loadConversations(): void {
-    this.loadConversationsByFilter(this.selectedFilter);
+    if (this.userRole === 'ADMIN' || this.userRole === 'SUPERADMIN' || this.userRole === 'APPROVEADMIN') {
+      this.loadConversationsByFilter(this.selectedFilter);
+    } else {
+      this.loadConversationsByFilterWatiAccounts(this.selectedFilter);
+    }
   }
+
   toggleStatus(id: number) {
     const isConfirmed = confirm('Do you really want change status ?');
     this.loader = true;
@@ -227,7 +238,40 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       }
     });
   }
+ 
+  loadConversationsByFilterWatiAccounts(filter: string): void {
+    let observable: Observable<ConversationDTO[]>;
 
+    switch (filter) {
+      case 'unread':
+        observable = this.depoChat.getUnreadConversationsByUserId(this.userId);
+        break;
+      case 'done':
+        observable = this.depoChat.getDoneConversationsByUserId(this.userId);
+        break;
+      case 'all':
+        observable = this.depoChat.getAllConversationsByUserId(this.userId);
+        break;
+      default:
+        observable = this.depoChat.getUndoneConversationsByUserId(this.userId);
+    }
+
+    observable.subscribe({
+      next: (data) => {
+        this.ngZone.run(() => {
+          this.conversations = data;
+          this.filteredConversations = data;
+          this.loading = false;
+        });
+      },
+      error: (error) => {
+        this.ngZone.run(() => {
+          console.error('Error loading conversations:', error);
+          this.loading = false;
+        });
+      }
+    });
+  }
   onEnter(event: any): void {
     if (event.key === 'Enter') {
       if (event.shiftKey) return;
@@ -994,5 +1038,48 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   selectMsgForDeposit(msg: string): void {
     this.depositRequestForm.get('userId')?.reset();
     this.depositRequestForm.get('userId')?.setValue(msg);
+  }
+
+  getuserId() {
+    let userData = localStorage.getItem('user');
+    if (!userData) {
+      userData = sessionStorage.getItem('user');
+    }
+    if (userData) {
+      const zuser = JSON.parse(userData);
+      this.userId = zuser.user_id; 
+      this.userRole = zuser.role_user; // Get the user ID from storage
+    } else {
+      // Handle the case when user data is not available
+      console.error('User data not found in localStorage or sessionStorage');
+      return;
+    }
+  }
+
+  fetchWattiAccounts(): void {
+    this.watiAccountService.getAllAccounts().subscribe({
+      next: (accounts) => {
+        this.watiAccountsList = accounts.filter(acc => acc.isActive);
+      },
+      error: (err) => {
+        this.snackbarService.snackbar('Failed to load Watti accounts', 'error');
+      }
+    });
+  }
+
+  onWattiAccountsChange(selected: number[]): void {
+    this.selectedWattiAccounts = selected;
+    this.loadConversations(); // For now, just reload (no filtering yet)
+  }
+
+  toggleWattiAccount(id: number): void {
+    const idx = this.selectedWattiAccounts.indexOf(id);
+    if (idx > -1) {
+      this.selectedWattiAccounts.splice(idx, 1);
+    } else {
+      this.selectedWattiAccounts.push(id);
+    }
+    // If you want to reload conversations or do something else, call it here:
+    this.loadConversations();
   }
 } 

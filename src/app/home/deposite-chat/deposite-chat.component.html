@@ -46,14 +46,27 @@
   </div>
 
   <div class="chat-main">
-    <div class="chat-header" *ngIf="selectedConversation">
+    <div class="chat-header" >
       <div class="chat-header-user">
         <mat-icon>account_circle</mat-icon>
-        <div class="client-name-container">
+        <div class="client-name-container"*ngIf="selectedConversation">
           <h2>{{ selectedConversation.clientName || 'USER' }}</h2>
         </div>
       </div>
       <div class="chat-header-actions">
+        <div class="dropdown" style="min-width: 200px; margin-right: 12px;" *ngIf="userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'APPROVEADMIN'">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="watiAccountsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Select Watti Accounts
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="watiAccountsDropdown" style="max-height: 300px; overflow-y: auto;">
+            <li *ngFor="let acc of watiAccountsList">
+              <a class="dropdown-item" href="#" (click)="toggleWattiAccount(acc.id); $event.preventDefault()">
+                <input type="checkbox" [checked]="selectedWattiAccounts.includes(acc.id)" (change)="toggleWattiAccount(acc.id)" />
+                {{ acc.watiName }}
+              </a>
+            </li>
+          </ul>
+        </div>
         <div class="quick-reply-wrapper" *ngIf="activeDepositeNumber">
           <button class="quick-reply-trigger" 
                   (click)="toggleStarMessagesDropdown()"

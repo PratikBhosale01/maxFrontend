@@ -12,6 +12,7 @@ declare var appConfig;
 export class AuthService {
   userRole: any;
   userName: any;
+  baseUrl: String = this.config.getBaseurl();
   constructor(public route: Router,public http: HttpClient, public config: AppConfigService) {}
 
   public loginUser(user: USER): Observable<USER> {
@@ -55,6 +56,7 @@ export class AuthService {
 
     localStorage.setItem('user', '');
     localStorage.clear();
+    this.http.post(`${this.baseUrl}/auth/logout`, { username: this.userName });
     if (this.userRole === 'ADMIN' || this.userRole === 'APPROVEADMIN' || this.userRole === 'SUPERADMIN') 
       { this.route.navigateByUrl('/admin'); }
      else {

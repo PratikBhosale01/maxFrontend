@@ -71,6 +71,20 @@ export class DepoChatService {
     return this.http.get<ConversationDTO[]>(`${this.baseUrl}/active-conversations`);
   }
 
+  getAllConversationsByUserId(userId: number): Observable<ConversationDTO[]> {
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/user/${userId}`);
+  }
+
+  getUnreadConversationsByUserId(userId: number): Observable<ConversationDTO[]> {
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/unread/user/${userId}`);
+  }
+  getDoneConversationsByUserId(userId: number): Observable<ConversationDTO[]> {
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/done/user/${userId}`);
+  }
+  getUndoneConversationsByUserId(userId: number): Observable<ConversationDTO[]> { 
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/active-conversations/user/${userId}`);
+  }
+
   // Get conversation by watiNumber
   getConversationByWatiNumber(watiNumber: string): Observable<ConversationDTO> {
     return this.http.get<ConversationDTO>(`${this.baseUrl}/conversations/${watiNumber}`);

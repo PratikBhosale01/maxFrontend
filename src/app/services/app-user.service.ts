@@ -45,4 +45,6 @@ getOtpByUsername(username: string): Observable<string> {
 logoutUser(superadmin: string, username: string): Observable<any> {
   return this.http.post(`${this.baseUrl}/auth/admin/force-logout`, { superadmin, username });
 }
+
+
 }
