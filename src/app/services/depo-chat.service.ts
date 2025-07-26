@@ -52,27 +52,31 @@ export class DepoChatService {
   }
 
   // Get all conversations
-  getAllConversations(): Observable<ConversationDTO[]> {
-    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations`);
+  getAllConversations(watiIds: number[] = [0]): Observable<ConversationDTO[]> {
+    const params = new HttpParams().set('watiIds', watiIds.join(','));
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations`, { params });
   }
 
   // Get unread conversations
-  getUnreadConversations(): Observable<ConversationDTO[]> {
-    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/unread`);
+  getUnreadConversations(watiIds: number[] = [0]): Observable<ConversationDTO[]> {
+    const params = new HttpParams().set('watiIds', watiIds.join(','));
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/unread`, { params });
   }
 
   // Get done conversations
-  getDoneConversations(): Observable<ConversationDTO[]> {
-    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/done`);
+  getDoneConversations(watiIds: number[] = [0]): Observable<ConversationDTO[]> {
+    const params = new HttpParams().set('watiIds', watiIds.join(','));
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/done`, { params });
   }
 
   // Get undone conversations
-  getUndoneConversations(): Observable<ConversationDTO[]> {
-    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/active-conversations`);
+  getUndoneConversations(watiIds: number[] = [0]): Observable<ConversationDTO[]> {
+    const params = new HttpParams().set('watiIds', watiIds.join(','));
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/active-conversations`, { params });
   }
 
   getAllConversationsByUserId(userId: number): Observable<ConversationDTO[]> {
-    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/user/${userId}`);
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/by-zuser/${userId}`);
   }
 
   getUnreadConversationsByUserId(userId: number): Observable<ConversationDTO[]> {
@@ -82,7 +86,7 @@ export class DepoChatService {
     return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/done/user/${userId}`);
   }
   getUndoneConversationsByUserId(userId: number): Observable<ConversationDTO[]> { 
-    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/active-conversations/user/${userId}`);
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/active-conversations/by-zuser/${userId}`);
   }
 
   // Get conversation by watiNumber

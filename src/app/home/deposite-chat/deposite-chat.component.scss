@@ -322,40 +322,54 @@ a {
   overflow: hidden;
 }
 
-.dropdown-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: var(--chat-bg);
-  border-bottom: 1px solid var(--border-color);
+// Watti Accounts Dropdown Styles
+.dropdown-item-checkbox {
+  padding: 0;
   
-  span {
-    color: var(--text-primary);
-    font-weight: 500;
-    font-size: 14px;
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  label {
+    margin: 0;
+    transition: background-color 0.2s ease;
     
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-primary);
+      background-color: rgba(0, 168, 132, 0.1);
+    }
+  }
+  
+  .form-check-input {
+    margin: 0;
+    cursor: pointer;
+    
+    &:checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
     }
     
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(0, 168, 132, 0.25);
+    }
+  }
+}
+
+.dropdown-header {
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 600;
+  color: #495057;
+  
+  .btn-outline-secondary {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+  }
+}
+
+.dropdown-menu {
+  border: 1px solid #dee2e6;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  
+  .dropdown-item {
+    &:hover {
+      background-color: rgba(0, 168, 132, 0.1);
     }
   }
 }
@@ -1508,6 +1522,58 @@ a {
     margin-top: 8px;
     font-weight: 600;
     letter-spacing: 0.5px;
+  }
+} 
+
+// Watti Accounts Dropdown Styles
+.dropdown-item-checkbox {
+  padding: 0;
+  
+  label {
+    margin: 0;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(0, 168, 132, 0.1);
+    }
+  }
+  
+  .form-check-input {
+    margin: 0;
+    cursor: pointer;
+    
+    &:checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(0, 168, 132, 0.25);
+    }
+  }
+}
+
+.dropdown-header {
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 600;
+  color: #495057;
+  
+  .btn-outline-secondary {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+  }
+}
+
+.dropdown-menu {
+  border: 1px solid #dee2e6;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  
+  .dropdown-item {
+    &:hover {
+      background-color: rgba(0, 168, 132, 0.1);
+    }
   }
 } 
 

@@ -77,6 +77,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   messagesreverse: any[];
   watiAccountsList: WatiAccount[] = [];
   selectedWattiAccounts: number[] = [];
+  wattiAccountsLoading: boolean = false;
   userId: any;
   userRole: any;
 
@@ -110,7 +111,6 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       this.fetchAllocatedBanksByCurrentTime();
     });
     this.loadQuickReplies();
-   
   }
   selectConversation(watiNumber: string) {
     
@@ -178,7 +178,8 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   loadConversations(): void {
-    if (this.userRole === 'ADMIN' || this.userRole === 'SUPERADMIN' || this.userRole === 'APPROVEADMIN') {
+    // If userRole is not set yet, default to admin behavior
+    if (!this.userRole || this.userRole === 'ADMIN' || this.userRole === 'SUPERADMIN' || this.userRole === 'APPROVEADMIN') {
       this.loadConversationsByFilter(this.selectedFilter);
     } else {
       this.loadConversationsByFilterWatiAccounts(this.selectedFilter);
@@ -207,19 +208,20 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
 
   loadConversationsByFilter(filter: string): void {
     let observable: Observable<ConversationDTO[]>;
+    const watiIds = this.selectedWattiAccounts.length > 0 ? this.selectedWattiAccounts : [0];
 
     switch (filter) {
       case 'unread':
-        observable = this.depoChat.getUnreadConversations();
+        observable = this.depoChat.getUnreadConversations(watiIds);
         break;
       case 'done':
-        observable = this.depoChat.getDoneConversations();
+        observable = this.depoChat.getDoneConversations(watiIds);
         break;
       case 'all':
-        observable = this.depoChat.getAllConversations();
+        observable = this.depoChat.getAllConversations(watiIds);
         break;
       default:
-        observable = this.depoChat.getUndoneConversations();
+        observable = this.depoChat.getUndoneConversations(watiIds);
     }
 
     observable.subscribe({
@@ -240,6 +242,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
  
   loadConversationsByFilterWatiAccounts(filter: string): void {
+
     let observable: Observable<ConversationDTO[]>;
 
     switch (filter) {
@@ -281,7 +284,11 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   applyFilter(): void {
-    this.loadConversationsByFilter(this.selectedFilter);
+    if (!this.userRole || this.userRole === 'ADMIN' || this.userRole === 'SUPERADMIN' || this.userRole === 'APPROVEADMIN') {
+      this.loadConversationsByFilter(this.selectedFilter);
+    } else {
+      this.loadConversationsByFilterWatiAccounts(this.selectedFilter);
+    }
   }
 
   loadConversationByDepositeNumber(depositeNumber: string): void {
@@ -677,7 +684,11 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       next: () => {
         conversation.isDone = !conversation.isDone;
         // Refresh the conversation list to reflect the change
-        this.loadConversationsByFilter(this.selectedFilter);
+        if (!this.userRole || this.userRole === 'ADMIN' || this.userRole === 'SUPERADMIN' || this.userRole === 'APPROVEADMIN') {
+          this.loadConversationsByFilter(this.selectedFilter);
+        } else {
+          this.loadConversationsByFilterWatiAccounts(this.selectedFilter);
+        }
       },
       error: (error) => {
         console.error('Error marking conversation as done:', error);
@@ -690,7 +701,11 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       next: () => {
         conversation.isRead = true;
         // Refresh the conversation list to reflect the change
-        this.loadConversationsByFilter(this.selectedFilter);
+        if (!this.userRole || this.userRole === 'ADMIN' || this.userRole === 'SUPERADMIN' || this.userRole === 'APPROVEADMIN') {
+          this.loadConversationsByFilter(this.selectedFilter);
+        } else {
+          this.loadConversationsByFilterWatiAccounts(this.selectedFilter);
+        }
       },
       error: (error) => {
         console.error('Error marking conversation as read:', error);
@@ -1048,7 +1063,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     if (userData) {
       const zuser = JSON.parse(userData);
       this.userId = zuser.user_id; 
-      this.userRole = zuser.role_user; // Get the user ID from storage
+      this.userRole = zuser.role_user;// Get the user ID from storage
     } else {
       // Handle the case when user data is not available
       console.error('User data not found in localStorage or sessionStorage');
@@ -1057,19 +1072,26 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   fetchWattiAccounts(): void {
+    this.wattiAccountsLoading = true;
     this.watiAccountService.getAllAccounts().subscribe({
       next: (accounts) => {
         this.watiAccountsList = accounts.filter(acc => acc.isActive);
+        // Auto-select all active accounts by default
+        if (this.watiAccountsList.length > 0 && this.selectedWattiAccounts.length === 0) {
+          this.selectedWattiAccounts = this.watiAccountsList.map(acc => acc.id);
+        }
+        this.wattiAccountsLoading = false;
       },
       error: (err) => {
         this.snackbarService.snackbar('Failed to load Watti accounts', 'error');
+        this.wattiAccountsLoading = false;
       }
     });
   }
 
   onWattiAccountsChange(selected: number[]): void {
     this.selectedWattiAccounts = selected;
-    this.loadConversations(); // For now, just reload (no filtering yet)
+    this.loadConversations(); // Reload conversations with new wati account selection
   }
 
   toggleWattiAccount(id: number): void {
@@ -1079,7 +1101,44 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     } else {
       this.selectedWattiAccounts.push(id);
     }
-    // If you want to reload conversations or do something else, call it here:
+    // Reload conversations with updated wati account selection
     this.loadConversations();
+  }
+
+  selectAllWattiAccounts(): void {
+    if (this.selectedWattiAccounts.length === this.watiAccountsList.length) {
+      // If all are selected, deselect all
+      this.selectedWattiAccounts = [];
+    } else {
+      // Select all
+      this.selectedWattiAccounts = this.watiAccountsList.map(acc => acc.id);
+    }
+    // Reload conversations with updated wati account selection
+    this.loadConversations();
+  }
+
+  getSelectedAccountNames(): string {
+    if (this.selectedWattiAccounts.length === 0) {
+      return 'Select Watti Accounts';
+    }
+    
+    if (this.selectedWattiAccounts.length === this.watiAccountsList.length) {
+      return 'All Accounts Selected';
+    }
+    
+    const selectedNames = this.watiAccountsList
+      .filter(acc => this.selectedWattiAccounts.includes(acc.id))
+      .map(acc => acc.watiName);
+    
+    if (selectedNames.length <= 2) {
+      return selectedNames.join(', ');
+    }
+    
+    return `${selectedNames.length} Accounts Selected`;
+  }
+
+  onDropdownClick(event: Event): void {
+    // Prevent the dropdown from closing when clicking inside
+    event.stopPropagation();
   }
 } 
