@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DepositeWithdraw } from '../../domain/Deposite';
@@ -19,7 +19,7 @@ import { ReportService } from '../../services/report.service';
   templateUrl: './update-password.component.html',
   styleUrl: './update-password.component.scss',
 })
-export class UpdatePasswordComponent {
+export class UpdatePasswordComponent implements OnDestroy {
   formGroup: FormGroup;
   ocrResult: string = '';
   imagePath: string = '';
@@ -225,5 +225,11 @@ export class UpdatePasswordComponent {
       data: element,
     };
     const dialogRef = this.dialog.open(SlipComponent, dialogConfig);
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 }

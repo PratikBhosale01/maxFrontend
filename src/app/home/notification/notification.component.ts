@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ApproveService } from '../../services/approve.service';
 import { debounceTime, distinctUntilChanged, interval, Subscription } from 'rxjs';
 import { FormControl } from '@angular/forms';
@@ -18,7 +18,7 @@ export enum AlertType {
   styleUrl: './notification.component.scss'
 })
 
-export class NotificationComponent implements OnInit {
+export class NotificationComponent implements OnInit, OnDestroy {
 
   AlertStatus = AlertStatus;
   chatOptions: string[] = []; // Array to hold unique waIds

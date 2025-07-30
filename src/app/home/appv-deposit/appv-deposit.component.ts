@@ -40,7 +40,7 @@ import { AddUserDialogComponent } from '../../shared/add-user-dialog/add-user-di
   templateUrl: './appv-deposit.component.html',
   styleUrl: './appv-deposit.component.scss'
 })
-export class AppvDepositComponent {
+export class AppvDepositComponent implements OnDestroy {
   formGroup: FormGroup;
   banksList: any[]; // Replace with your actual bank names
   filteredBanks: Observable<Bank[]>;

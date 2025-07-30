@@ -46,22 +46,22 @@ export class NavbarComponent implements AfterViewInit, OnInit {
 
   logout() {
 
-    let userString = localStorage.getItem('user');
-    if (userString) {
-      // Step 2: Access user_role attribute
-      const user = JSON.parse(userString);
-      this.userRole = user.role_user;
-      this.userName = user.user_email;
-    }
+    // let userString = localStorage.getItem('user');
+    // if (userString) {
+    //   // Step 2: Access user_role attribute
+    //   const user = JSON.parse(userString);
+    //   this.userRole = user.role_user;
+    //   this.userName = user.user_email;
+    // }
 
 
-    localStorage.setItem('user', '');
-    localStorage.clear();
+    // localStorage.setItem('user', '');
+    // localStorage.clear();
     this.authService.logout();
-    if (this.userRole === 'ADMIN' || this.userRole === 'APPROVEADMIN' || this.userRole === 'SUPERADMIN') { this.route.navigateByUrl('/admin'); }
-    else {
-      this.route.navigateByUrl('');
-    }
+    // if (this.userRole === 'ADMIN' || this.userRole === 'APPROVEADMIN' || this.userRole === 'SUPERADMIN') { this.route.navigateByUrl('/admin'); }
+    // else {
+    //   this.route.navigateByUrl('');
+    // }
 
   }
 

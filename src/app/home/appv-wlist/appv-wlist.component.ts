@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { SearchsuperadminService } from '../../services/searchsuperadmin.service';
@@ -19,7 +19,7 @@ import { DepoDailogComponent } from '../../shared/depo-dailog/depo-dailog.compon
   templateUrl: './appv-wlist.component.html',
   styleUrl: './appv-wlist.component.scss'
 })
-export class AppvWlistComponent {
+export class AppvWlistComponent implements OnDestroy {
   searchText: string = '';
   waNum: number = 0; // Default to 0 (All)
   
@@ -274,6 +274,12 @@ onWaNumChange(value: number): void {
   this.waNum = value; // Update the waNum property with the selected value
   this.getWithdraws(); // Call the method to fetch data based on the selected WA number
 }
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
 
  }
 

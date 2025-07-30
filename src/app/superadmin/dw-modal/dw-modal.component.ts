@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import Tesseract from 'tesseract.js';
 import { DepositeWithdraw } from '../../domain/Deposite';
@@ -22,7 +22,7 @@ import { RetryService } from '../../services/retry.service';
   templateUrl: './dw-modal.component.html',
   styleUrl: './dw-modal.component.scss',
 })
-export class DWModalComponent {
+export class DWModalComponent implements OnDestroy {
   sites: SITE[];
   formGroup: FormGroup;
   masters: SiteMaster[];
@@ -453,4 +453,10 @@ export class DWModalComponent {
     console.log('Deletion canceled by the user.');
   }
 }
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
 }

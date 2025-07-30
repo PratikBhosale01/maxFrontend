@@ -44,25 +44,48 @@ export class AuthService {
   }
 
   logout() {
-  
     let userString = localStorage.getItem('user');
+    let userName = '';
+    let userRole = '';
+    
     if (userString) {
-      // Step 2: Access user_role attribute
-      const user = JSON.parse(userString);
-      this.userRole = user.role_user;
-      this.userName = user.user_email;
+      try {
+        const user = JSON.parse(userString);
+        userRole = user.role_user;
+        userName = user.user_email;
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
     }
 
-
-    localStorage.setItem('user', '');
+    // Clear local storage first
     localStorage.clear();
-    this.http.post(`${this.baseUrl}/auth/logout`, { username: this.userName });
-    if (this.userRole === 'ADMIN' || this.userRole === 'APPROVEADMIN' || this.userRole === 'SUPERADMIN') 
-      { this.route.navigateByUrl('/admin'); }
-     else {
+    
+    // Make logout request to server
+    if (userName) {
+      this.http.post(`${this.baseUrl}/auth/logout`, { username: userName }).subscribe({
+        next: (response) => {
+          console.log('Logout successful:', response);
+          this.navigateAfterLogout(userRole);
+        },
+        error: (error) => {
+          console.error('Logout error:', error);
+          // Still navigate even if server logout fails
+          this.navigateAfterLogout(userRole);
+        }
+      });
+    } else {
+      // No user data, just navigate
+      this.navigateAfterLogout(userRole);
+    }
+  }
+
+  private navigateAfterLogout(userRole: string) {
+    if (userRole === 'ADMIN' || userRole === 'APPROVEADMIN' || userRole === 'SUPERADMIN') {
+      this.route.navigateByUrl('/admin');
+    } else {
       this.route.navigateByUrl('');
     }
-
   }
 
   // validateToken(token: string): Observable<boolean> {

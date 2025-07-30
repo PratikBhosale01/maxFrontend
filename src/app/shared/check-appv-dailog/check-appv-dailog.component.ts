@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild, OnDestroy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -30,7 +30,7 @@ import Tesseract from 'tesseract.js';
   templateUrl: './check-appv-dailog.component.html',
   styleUrl: './check-appv-dailog.component.scss',
 })
-export class CheckAppvDailogComponent {
+export class CheckAppvDailogComponent implements OnDestroy {
   formGroup: FormGroup;
   bankIdControl!: FormControl;
   banksList: Bank[];
