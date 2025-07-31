@@ -42,7 +42,7 @@ timer(500)
   )
   .subscribe({
     next: (response) => {
-      this.otp = response;
+      this.otp = response.otp;
       this.loading = false;
     },
     error: (err) => {

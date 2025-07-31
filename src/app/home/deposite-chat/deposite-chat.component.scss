@@ -84,11 +84,15 @@ a {
 }
 
 .sidebar-header {
-  padding: 16px;
-  background-color: var(--secondary-color);
-  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  background: rgba(30, 30, 40, 0.55);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+  padding: 24px 18px 18px 18px;
+  margin: 12px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
   
   h2 {
@@ -683,19 +687,19 @@ a {
 }
 
 // Remove all old quick reply styles
-.quick-reply-container,
-.star-messages-dropdown,
-.star-button,
-.star-messages-menu,
-.star-messages-header,
-.star-messages-list,
-.star-message-item,
-.no-messages,
-.add-message-input,
-.add-message-actions,
-.add-message-btn {
-  // These styles are now replaced by the new design above
-}
+// .quick-reply-container,
+// .star-messages-dropdown,
+// .star-button,
+// .star-messages-menu,
+// .star-messages-header,
+// .star-messages-list,
+// .star-message-item,
+// .no-messages,
+// .add-message-input,
+// .add-message-actions,
+// .add-message-btn {
+//   // These styles are now replaced by the new design above
+// }
 
 // Chat Messages Styles
 .chat-messages {
@@ -723,11 +727,13 @@ a {
 }
 
 .message-bubble {
+  display: flex;
+  align-items: center;
+  position: relative;
   max-width: 65%;
   margin-bottom: 8px;
   padding: 8px 12px 8px 12px;
   border-radius: 8px;
-  position: relative;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
   
   &.user-message {
@@ -765,6 +771,7 @@ a {
   }
   
   .message-content {
+    flex: 1;
     word-break: break-word;
     
     p {
@@ -1525,55 +1532,145 @@ a {
   }
 } 
 
-// Watti Accounts Dropdown Styles
-.dropdown-item-checkbox {
-  padding: 0;
-  
-  label {
+.whatsapp-style-header {
+  background:  #3d4d579f;
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 16px 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  .whatsapp-title {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 200;
+    letter-spacing: 0.5px;
     margin: 0;
-    transition: background-color 0.2s ease;
-    
-    &:hover {
-      background-color: rgba(0, 168, 132, 0.1);
+  }
+
+  .sidebar-actions {
+    gap: 8px;
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: #b1b3b5;
+      font-size: 22px;
+      padding: 4px;
+      border-radius: 50%;
+      transition: background 0.2s;
+      &:hover {
+        background: rgba(186, 73, 73, 0.08);
+        color: #fff;
+      }
+      mat-icon {
+        font-size: 22px;
+      }
     }
   }
-  
-  .form-check-input {
-    margin: 0;
-    cursor: pointer;
-    
-    &:checked {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
+
+  .search-bar {
+    width: 100%;
+    margin-top: 18px;
+   
+    form {
+      width: 100%;
+      position: relative;
     }
-    
-    &:focus {
-      box-shadow: 0 0 0 0.2rem rgba(0, 168, 132, 0.25);
+    .search-input {
+      padding-left: 40px !important;
+      text-align: center;
+      background-color:  #4c5e6893;
+     color: #fffefe !important;
+    }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      font-size: 1.4rem;
+      pointer-events: none;
+    }
+  }
+  .search-input::placeholder {
+  color: #a9a8a8e3;
+  opacity: 1;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+  .filter-chips {
+    // display: flex;
+    gap: 8px;
+    margin-bottom: 2px;
+    .chip {
+      padding: 3px 18px;
+      border-radius: 20px;
+      background: transparent;
+      color: #b1b3b5;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, color 0.2s;
+      &:hover {
+        background: rgba(0,168,132,0.08);
+        color: var(--primary-color, #00a884fe);
+      }
+      &.active {
+        background: #00a88478;
+        color: #fff;
+      }
     }
   }
 }
 
-.dropdown-header {
-  padding: 8px 12px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  font-weight: 600;
-  color: #495057;
-  
-  .btn-outline-secondary {
-    font-size: 0.75rem;
-    padding: 2px 8px;
-  }
+.message-bubble {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.message-content {
+  flex: 1;
+}
+.add-image-btn {
+  margin-left: 8px;
+  align-self: center;
+  background: #ffffff00;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  color: #1976d2;
+  z-index: 2;
+}
+.date-separator {
+  text-align: center;
+  margin: 16px 0 8px 0;
+  position: relative;
+}
+.date-separator span {
+  background: #222;
+  color: #fff;
+  padding: 2px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
-.dropdown-menu {
-  border: 1px solid #dee2e6;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  
-  .dropdown-item {
-    &:hover {
-      background-color: rgba(0, 168, 132, 0.1);
-    }
-  }
-} 
+.sidebar-title-icon {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  z-index: 2;
+  // background: rgba(255,255,255,0.10);
+  border-radius: 50%;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sidebar-title-icon mat-icon {
+  font-size: 24px;
+  color: #fff;
+}
 

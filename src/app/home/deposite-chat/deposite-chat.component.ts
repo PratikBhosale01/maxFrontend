@@ -31,6 +31,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   selectedFilter: string = 'undone';
   selectedConversation: any | null = null; // TODO: Use DepositeConversationDTO | null
   messages: any[] = [];
+  groupedMessages: any[] = [];
   messageForm: FormGroup;
   loading = false;
   selectedFile: File | null = null;
@@ -80,15 +81,17 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   wattiAccountsLoading: boolean = false;
   userId: any;
   userRole: any;
+  searchTerm: string = '';
+  private searchTimeout: any;
 
   constructor(
     private wattiService: WattiService,
     // private depositeChatService: DepositeChatService,
-    private depoChat : DepoChatService,
+    private depoChat: DepoChatService,
     private formBuilder: FormBuilder,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
-    private  BankingService :BankingService,
+    private BankingService: BankingService,
     private snackbarService: SnackbarService,
     private approveService: ApproveService,
     private watiAccountService: WatiAccountService // <-- Injected
@@ -104,6 +107,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.getuserId();
     this.fetchWattiAccounts();
+    this.groupMessagesByDate();
     this.loadConversations();
     this.fetchAllocatedBanksByCurrentTime();
     this.subscription = interval(5000).subscribe(() => {
@@ -113,7 +117,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     this.loadQuickReplies();
   }
   selectConversation(watiNumber: string) {
-    
+
     this.depoChat.disconnect();
     this.messages = [];
     this.depoChat.connectdchat(watiNumber);
@@ -125,13 +129,13 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  
+
 
   ngOnDestroy(): void {
     if (this.chatContainer) {
       this.chatContainer.nativeElement.removeEventListener('scroll', this.onScroll.bind(this));
     }
-    if(this.subscription){
+    if (this.subscription) {
       this.subscription.unsubscribe();
     }
     if (this.messageSubscription) {
@@ -240,7 +244,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       }
     });
   }
- 
+
   loadConversationsByFilterWatiAccounts(filter: string): void {
 
     let observable: Observable<ConversationDTO[]>;
@@ -304,21 +308,25 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
 
     this.depoChat.getPagedMessagesByWatiNumber(depositeNumber, this.pageIndex, this.pageSize).subscribe({
       next: (response) => {
-        this.messages = [...response.content].reverse(); // reverse the messages
-        this.messagesreverse = [...response.content]; 
+
+        this.messages = [...response.content].reverse();
+        // reverse the messages
+        this.groupMessagesByDate();
+        this.messagesreverse = [...response.content];
+
         this.totalMessages = response.totalElements;
         this.loading = false;
 
         // Patch: Set latest image message's URL to utrImageUrl
-        // debugger
-        const latestImageMsg = this.messagesreverse.find(msg =>  msg.mediaUrl && msg.fromUser
-        );
-        if (latestImageMsg) {
-          this.utrImageUrl = latestImageMsg.mediaUrl;
-          this.utrImageFile = null; // Clear file if url is set
-        } else {
-          this.utrImageUrl = null;
-        }
+
+        // const latestImageMsg = this.messagesreverse.find(msg =>  msg.mediaUrl && msg.fromUser
+        // );
+        // if (latestImageMsg) {
+        //   this.utrImageUrl = latestImageMsg.mediaUrl;
+        //   this.utrImageFile = null; // Clear file if url is set
+        // } else {
+        //   this.utrImageUrl = null;
+        // }
 
         setTimeout(() => this.scrollToBottom(), 0);
 
@@ -330,7 +338,9 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
               // Avoid adding duplicate messages by ID
               const lastMsg = this.messages[this.messages.length - 1];
               if (!lastMsg || lastMsg.id !== data.id) {
+
                 this.messages.push(data);
+                this.groupMessagesByDate(); // <-- Add this line
                 this.scrollToBottom();
               }
             }
@@ -359,7 +369,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const content = this.messageForm.get('content')?.value ||"" ;
+    const content = this.messageForm.get('content')?.value || "";
 
     if (this.selectedFile) {
       this.loading = true;
@@ -426,7 +436,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   isImage(mediaType: string): boolean {
-    return mediaType && (mediaType.startsWith('image')||mediaType.startsWith('IMAGE')) ;
+    return mediaType && (mediaType.startsWith('image') || mediaType.startsWith('IMAGE'));
   }
 
   isVideo(mediaType: string): boolean {
@@ -758,6 +768,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
         // Add new messages to the beginning of the array
         this.messages = [...newMessages, ...this.messages];
         this.pageIndex = nextPageIndex;
+        this.groupMessagesByDate(); // <-- Add this line
 
         // Maintain scroll position after loading new messages
         setTimeout(() => {
@@ -790,7 +801,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     // Send the request immediately
     const bankId = bank.id || bank.bankId || bank._id;
     const conversationId = this.activeDepositeNumber;
-    
+
     this.depoChat.sendSelectedBankAndConversation(bankId, conversationId, action).subscribe({
       next: () => {
         this.snackbarService.snackbar(`${action.toUpperCase()} sent successfully.`, 'success');
@@ -1020,7 +1031,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
         this.depositRequestLoading = false;
       },
       error: (err) => {
-        // debugger;
+
         console.log("error");
         console.log(err);
         if (err.status === 404) {
@@ -1062,7 +1073,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     }
     if (userData) {
       const zuser = JSON.parse(userData);
-      this.userId = zuser.user_id; 
+      this.userId = zuser.user_id;
       this.userRole = zuser.role_user;// Get the user ID from storage
     } else {
       // Handle the case when user data is not available
@@ -1121,19 +1132,19 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     if (this.selectedWattiAccounts.length === 0) {
       return 'Select Watti Accounts';
     }
-    
+
     if (this.selectedWattiAccounts.length === this.watiAccountsList.length) {
       return 'All Accounts Selected';
     }
-    
+
     const selectedNames = this.watiAccountsList
       .filter(acc => this.selectedWattiAccounts.includes(acc.id))
       .map(acc => acc.watiName);
-    
+
     if (selectedNames.length <= 2) {
       return selectedNames.join(', ');
     }
-    
+
     return `${selectedNames.length} Accounts Selected`;
   }
 
@@ -1141,4 +1152,74 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     // Prevent the dropdown from closing when clicking inside
     event.stopPropagation();
   }
-} 
+
+  onSearchChange(term: string): void {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      if (term && term.trim().length > 0) {
+        this.searchConversations(term.trim());
+      } else {
+        this.loadConversations(); // fallback to normal filter if search is cleared
+      }
+    }, 300); // debounce for 300ms
+  }
+
+  searchConversations(term: string): void {
+    this.loading = true;
+    // Replace with your actual search endpoint
+    this.depoChat.searchConversations(term, this.selectedFilter, this.selectedWattiAccounts, this.userId)
+      .subscribe({
+        next: (data) => {
+          this.filteredConversations = data;
+          this.loading = false;
+        },
+        error: (error) => {
+          this.filteredConversations = [];
+          this.loading = false;
+        }
+      });
+  }
+
+  ngOnChanges() {
+    this.groupMessagesByDate();
+  }
+
+
+
+  groupMessagesByDate() {
+
+    if (!this.messages) return;
+    const groups: any = {};
+    this.messages.forEach(msg => {
+      const date = new Date(msg.timestamp).toDateString();
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(msg);
+    });
+    this.groupedMessages = Object.keys(groups).map(date => ({
+      date,
+      messages: groups[date]
+    }));
+  }
+
+  onChatInputDragOver(event: DragEvent) {
+    event.preventDefault();
+    // Optionally, set a flag to highlight the input area
+  }
+
+  onChatInputDragLeave(event: DragEvent) {
+    event.preventDefault();
+    // Optionally, remove highlight
+  }
+
+  onChatInputDrop(event: DragEvent) {
+    event.preventDefault();
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        this.selectedFile = file;
+        // Optionally, trigger change detection or preview
+      }
+    }
+  }
+}

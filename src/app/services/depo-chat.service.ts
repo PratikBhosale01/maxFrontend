@@ -274,4 +274,17 @@ export class DepoChatService {
     // TODO: Implement backend call
     console.log('Request deposit:', { imageMsg, userIdMsg });
   }
+
+  searchConversations(searchTerm: string, filter: string, wattiAccounts: number[], userId: any): Observable<any[]> {
+    // Example: return this.http.get<any[]>(`/api/conversations/search?term=${term}&filter=${filter}`);
+    // Adjust params as needed for your backend
+    return this.http.get<any[]>(`${this.baseUrl}/conversations/search`, {
+      params: {
+       searchTerm,
+        // filter,
+        // wattiAccounts: wattiAccounts.join(','),
+        // userId
+      }
+    });
+  }
 }
