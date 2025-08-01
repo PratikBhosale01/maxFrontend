@@ -13,6 +13,7 @@ import { DepoChatService } from '../../services/depo-chat.service';
 // import { DepositeChatService } from '../../services/deposite-chat.service';
 // import { DepositeChatMessageDTO, DepositeConversationDTO } from '../../domain/DepositeChatMessage';
 import { WatiAccountService, WatiAccount } from '../../services/wati-account.service';
+import { ComponettitleService } from '../../services/componenttitle.service';
 
 @Component({
   selector: 'app-deposite-chat',
@@ -94,8 +95,10 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     private BankingService: BankingService,
     private snackbarService: SnackbarService,
     private approveService: ApproveService,
+    private titleService : ComponettitleService,
     private watiAccountService: WatiAccountService // <-- Injected
   ) {
+      this.titleService.changeTitle('Deposit Chat');
     this.messageForm = this.formBuilder.group({
       content: ['']
     });
@@ -111,8 +114,11 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     this.loadConversations();
     this.fetchAllocatedBanksByCurrentTime();
     this.subscription = interval(5000).subscribe(() => {
-      this.loadConversations();
-      this.fetchAllocatedBanksByCurrentTime();
+      // Only auto-refresh if not searching
+      if (!this.searchTerm || this.searchTerm.trim().length === 0) {
+        this.loadConversations();
+        this.fetchAllocatedBanksByCurrentTime();
+      }
     });
     this.loadQuickReplies();
   }
@@ -1156,6 +1162,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   onSearchChange(term: string): void {
     clearTimeout(this.searchTimeout);
     this.searchTimeout = setTimeout(() => {
+      this.searchTerm = term;
       if (term && term.trim().length > 0) {
         this.searchConversations(term.trim());
       } else {

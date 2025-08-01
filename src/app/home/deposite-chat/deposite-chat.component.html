@@ -4,17 +4,53 @@
       <div class="sidebar-title-icon">
         <mat-icon>chat</mat-icon>
       </div>
-      <div class="filter-chips d-flex gap-2">
-        <span 
-          class="chip"
-          [class.active]="selectedFilter === 'all'"
-          (click)="selectedFilter = 'all'; applyFilter()"
-        >All</span>
-        <span 
-          class="chip"
-          [class.active]="selectedFilter === 'undone'"
-          (click)="selectedFilter = 'undone'; applyFilter()"
-        >Undone</span>
+      <div class="d-flex align-items-center w-100" style="justify-content: space-between;">
+        <!-- Left: Empty for spacing -->
+        <div style="flex:1;"></div>
+        <!-- Center: Filter chips -->
+        <div class="filter-chips d-flex gap-2 justify-content-center" style="flex:2;">
+          <span 
+            class="chip"
+            [class.active]="selectedFilter === 'all'"
+            (click)="selectedFilter = 'all'; applyFilter()"
+          >All</span>
+          <span 
+            class="chip"
+            [class.active]="selectedFilter === 'undone'"
+            (click)="selectedFilter = 'undone'; applyFilter()"
+          >Undone</span>
+        </div>
+        <!-- Right: Watti Accounts Dropdown -->
+        <div class="wati-dropdown" *ngIf="userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'APPROVEADMIN'" style="flex:1; display: flex; justify-content: flex-end;">
+          <button mat-icon-button [matMenuTriggerFor]="watiMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #watiMenu="matMenu">
+            <div class="dropdown-header px-3 py-2">
+              <span>Watti Accounts</span>
+              <button mat-button (click)="selectAllWattiAccounts(); $event.stopPropagation()">
+                {{ selectedWattiAccounts.length === watiAccountsList.length ? 'Deselect All' : 'Select All' }}
+              </button>
+            </div>
+            <button mat-menu-item *ngFor="let acc of watiAccountsList">
+              <mat-checkbox
+                [checked]="selectedWattiAccounts.includes(acc.id)"
+                (change)="toggleWattiAccount(acc.id)"
+                (click)="$event.stopPropagation()"
+                style="margin-right: 8px;">
+              </mat-checkbox>
+              <span>{{ acc.watiName }}</span>
+              <span class="badge bg-success ms-2" *ngIf="acc.isActive">Active</span>
+            </button>
+            <div *ngIf="wattiAccountsLoading" class="dropdown-item text-center px-3 py-2">
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <span class="ms-2">Loading accounts...</span>
+            </div>
+            <div *ngIf="!wattiAccountsLoading && watiAccountsList.length === 0" class="dropdown-item text-muted px-3 py-2">
+              No accounts available
+            </div>
+          </mat-menu>
+        </div>
       </div>
       <div class="search-bar mt-3 w-100">
         <form class="d-flex align-items-center position-relative" (submit)="$event.preventDefault()">
@@ -77,7 +113,7 @@
         </div>
       </div>
       <div class="chat-header-actions">
-        <div class="dropdown" style="min-width: 200px; margin-right: 12px;" *ngIf="userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'APPROVEADMIN'">
+        <!-- <div class="dropdown" style="min-width: 200px; margin-right: 12px;" *ngIf="userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'APPROVEADMIN'">
           <button class="btn btn-secondary dropdown-toggle" type="button" id="watiAccountsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             {{ getSelectedAccountNames() }}
           </button>
@@ -113,7 +149,7 @@
               No accounts available
             </li>
           </ul>
-        </div>
+        </div> -->
         <div class="quick-reply-wrapper" *ngIf="activeDepositeNumber">
           <button class="quick-reply-trigger" 
                   (click)="toggleStarMessagesDropdown()"
@@ -346,7 +382,7 @@
         </div>
       </div>
     </div>
-    <div *ngIf="allocatedBanks && allocatedBanks.length === 0" class="text-muted text-center mt-3">
+    <div  *ngIf="allocatedBanks && allocatedBanks.length === 0" class="text-muted text-center mt-3">
       No banks allocated for the current time.
     </div>
   </div>

@@ -710,6 +710,12 @@ a {
   flex-direction: column;
   background-color: transparent;
 }
+.text-muted {
+  color: rgba(255, 249, 249, 0.552) !important;
+  word-break: break-all;
+  max-width: 300px;
+  font-size: 13px;
+}
 
 .messages-container {
   flex: 1;
@@ -1084,19 +1090,20 @@ a {
   color: #b8ad9f;
   letter-spacing: 0.5px;
   margin-bottom: 0.5rem;
-  border-bottom: 2px solid #f3e2c0;
+  border-bottom: 2px solid #f3e2c083;
   padding-bottom: 0.2rem;
   text-align: left;
 }
 
 .allocated-bank-list-scroll {
-  max-height: 40%;
+  height: 40%;
   overflow-y: auto;
   padding-right: 4px;
+  border-bottom: 2px solid #f3e2c079;
 }
 
 .allocated-bank-card {
-  background: linear-gradient(135deg, #375d68 0%, #265b48 100%);
+  background: linear-gradient(135deg, #375d6896 0%, #265b489c 100%);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(116, 72, 15, 0.08);
   margin-left: 0.5rem ;
@@ -1600,6 +1607,8 @@ a {
 }
 
   .filter-chips {
+    justify-content: center !important;
+    width: 100%;
     // display: flex;
     gap: 8px;
     margin-bottom: 2px;
@@ -1659,7 +1668,7 @@ a {
 
 .sidebar-title-icon {
   position: absolute;
-  top: 12px;
+  top: 22px;
   left: 16px;
   z-index: 2;
   // background: rgba(255,255,255,0.10);
@@ -1668,9 +1677,18 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  
 }
 .sidebar-title-icon mat-icon {
   font-size: 24px;
   color: #fff;
+}
+
+.sidebar-header .wati-dropdown {
+  margin-left: 12px;
+}
+.sidebar-header .mat-icon-button {
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
 }
 
