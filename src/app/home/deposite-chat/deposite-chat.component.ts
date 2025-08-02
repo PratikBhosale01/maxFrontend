@@ -1166,6 +1166,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       if (term && term.trim().length > 0) {
         this.searchConversations(term.trim());
       } else {
+        this.searchTerm = '';
         this.loadConversations(); // fallback to normal filter if search is cleared
       }
     }, 300); // debounce for 300ms
