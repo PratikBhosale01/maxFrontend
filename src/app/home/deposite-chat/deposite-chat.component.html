@@ -1,15 +1,74 @@
 <div class="deposite-chat-container">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <h2>Deposit Chats</h2>
-      <div class="filter-select dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          {{ selectedFilter === 'all' ? 'All Conversations' : (selectedFilter === 'undone' ? 'Not Done' : 'Select Filter') }}
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
-          <li><a class="dropdown-item" href="#" (click)="selectedFilter = 'all'; applyFilter(); $event.preventDefault()">All Conversations</a></li>
-          <li><a class="dropdown-item" href="#" (click)="selectedFilter = 'undone'; applyFilter(); $event.preventDefault()">Not Done</a></li>
-        </ul>
+    <div class="sidebar-header whatsapp-style-header position-relative">
+      <div class="sidebar-title-icon">
+        <mat-icon>chat</mat-icon>
+      </div>
+      <div class="d-flex align-items-center w-100" style="justify-content: space-between;">
+        <!-- Left: Empty for spacing -->
+        <div style="flex:1;"></div>
+        <!-- Center: Filter chips -->
+        <div class="filter-chips d-flex gap-2 justify-content-center" style="flex:2;">
+          <span 
+            class="chip"
+            [class.active]="selectedFilter === 'all'"
+            (click)="selectedFilter = 'all'; applyFilter()"
+          >All</span>
+          <span 
+            class="chip"
+            [class.active]="selectedFilter === 'undone'"
+            (click)="selectedFilter = 'undone'; applyFilter()"
+          >Undone</span>
+        </div>
+        <!-- Right: Watti Accounts Dropdown -->
+        <div class="wati-dropdown" *ngIf="userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'APPROVEADMIN'" style="flex:1; display: flex; justify-content: flex-end;">
+          <button mat-icon-button [matMenuTriggerFor]="watiMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #watiMenu="matMenu">
+            <div class="dropdown-header px-3 py-2">
+              <span>Watti Accounts</span>
+              <button mat-button (click)="selectAllWattiAccounts(); $event.stopPropagation()">
+                {{ selectedWattiAccounts.length === watiAccountsList.length ? 'Deselect All' : 'Select All' }}
+              </button>
+            </div>
+            <button mat-menu-item *ngFor="let acc of watiAccountsList">
+              <mat-checkbox
+                [checked]="selectedWattiAccounts.includes(acc.id)"
+                (change)="toggleWattiAccount(acc.id)"
+                (click)="$event.stopPropagation()"
+                style="margin-right: 8px;">
+              </mat-checkbox>
+              <span>{{ acc.watiName }}</span>
+              <span class="badge bg-success ms-2" *ngIf="acc.isActive">Active</span>
+            </button>
+            <div *ngIf="wattiAccountsLoading" class="dropdown-item text-center px-3 py-2">
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <span class="ms-2">Loading accounts...</span>
+            </div>
+            <div *ngIf="!wattiAccountsLoading && watiAccountsList.length === 0" class="dropdown-item text-muted px-3 py-2">
+              No accounts available
+            </div>
+          </mat-menu>
+        </div>
+      </div>
+      <div class="search-bar mt-3 w-100">
+        <form class="d-flex align-items-center position-relative" (submit)="$event.preventDefault()">
+          <input
+            class="form-control search-input"
+            type="search"
+            placeholder="Search conversations"
+            aria-label="Search"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange($event)"
+            name="search"
+            autocomplete="off"
+            style="padding-left: 40px; text-align: center;"
+          >
+          <span class="search-icon position-absolute" style="left: 12px; top: 50%; transform: translateY(-50%); color: #aaa;">
+            <mat-icon>search</mat-icon>
+          </span>
+        </form>
       </div>
     </div>
     <div class="conversation-list">
@@ -46,14 +105,51 @@
   </div>
 
   <div class="chat-main">
-    <div class="chat-header" *ngIf="selectedConversation">
+    <div class="chat-header" >
       <div class="chat-header-user">
         <mat-icon>account_circle</mat-icon>
-        <div class="client-name-container">
+        <div class="client-name-container"*ngIf="selectedConversation">
           <h2>{{ selectedConversation.clientName || 'USER' }}</h2>
         </div>
       </div>
       <div class="chat-header-actions">
+        <!-- <div class="dropdown" style="min-width: 200px; margin-right: 12px;" *ngIf="userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'APPROVEADMIN'">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="watiAccountsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ getSelectedAccountNames() }}
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="watiAccountsDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;" (click)="onDropdownClick($event)">
+            <li class="dropdown-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>Watti Accounts</span>
+                <button class="btn btn-sm btn-outline-secondary" (click)="selectAllWattiAccounts(); $event.stopPropagation()">
+                  {{ selectedWattiAccounts.length === watiAccountsList.length ? 'Deselect All' : 'Select All' }}
+                </button>
+              </div>
+            </li>
+            <li *ngFor="let acc of watiAccountsList" class="dropdown-item-checkbox">
+              <label class="d-flex align-items-center w-100" style="cursor: pointer; padding: 8px 12px;">
+                <input
+                  type="checkbox"
+                  class="form-check-input me-2"
+                  [checked]="selectedWattiAccounts.includes(acc.id)"
+                  (change)="toggleWattiAccount(acc.id); $event.stopPropagation()"
+                  style="cursor: pointer;"
+                />
+                <span class="flex-grow-1">{{ acc.watiName }}</span>
+                <span class="badge bg-success ms-2" *ngIf="acc.isActive">Active</span>
+              </label>
+            </li>
+            <li *ngIf="wattiAccountsLoading" class="dropdown-item text-center">
+              <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span class="ms-2">Loading accounts...</span>
+            </li>
+            <li *ngIf="!wattiAccountsLoading && watiAccountsList.length === 0" class="dropdown-item text-muted">
+              No accounts available
+            </li>
+          </ul>
+        </div> -->
         <div class="quick-reply-wrapper" *ngIf="activeDepositeNumber">
           <button class="quick-reply-trigger" 
                   (click)="toggleStarMessagesDropdown()"
@@ -117,57 +213,70 @@
         <div *ngIf="loadingMore" class="loading-more">
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         </div>
-        <div *ngFor="let message of messages" 
-            class="message-bubble" 
-            [class.user-message]="message.fromUser || message.isFromUser" 
+        <ng-container *ngFor="let group of groupedMessages">
+          <div class="date-separator">
+            <span>{{ group.date | date:'MMM d, y' }}</span>
+          </div>
+          <div *ngFor="let message of group.messages"
+            class="message-bubble"
+            [class.user-message]="message.fromUser || message.isFromUser"
             [class.admin-message]="!message.fromUser && !message.isFromUser"
             [class.image-message]="message.mediaUrl && isImage(message.mediaType)"
             [class.selected-message]="isSelectedMessage(message)"
             (click)="toggleMessageSelection(message)">
-          <div class="message-content">
-            <!-- <mat-checkbox *ngIf="isSelectableMessage(message)" [checked]="isSelectedMessage(message)" (click)="$event.stopPropagation(); toggleMessageSelection(message)"></mat-checkbox> -->
-            <div *ngIf="message.mediaUrl" class="media-container">
-              <img *ngIf="isImage(message.mediaType)" 
-                [src]="message.mediaUrl" 
-                alt="Image" 
-                class="media-image" 
-                (click)="openImage(message.mediaUrl); selectImageForDeposit(message.mediaUrl)">
-              <div *ngIf="selectedImageUrl" class="image-overlay" (click)="closeImage()">
-                <img [src]="selectedImageUrl" alt="Full-size Image" class="enlarged-image">
-              </div>
-              <video *ngIf="isVideo(message.mediaType)" controls class="media-video">
-                <source [src]="getFileUrl(message.mediaName)" [type]="message.mediaType">
-                Your browser does not support the video tag.
-              </video>
-              <div *ngIf="isAudio(message.mediaType)" class="audio-player">
-                <button class="play-button" (click)="toggleAudio($event, message)">
-                  <mat-icon>{{ isPlaying(message) ? 'pause' : 'play_arrow' }}</mat-icon>
-                </button>
-                <div class="audio-progress">
-                  <div class="progress-bar" [style.width.%]="getAudioProgress(message)"></div>
+            <div class="message-content">
+              <!-- <mat-checkbox *ngIf="isSelectableMessage(message)" [checked]="isSelectedMessage(message)" (click)="$event.stopPropagation(); toggleMessageSelection(message)"></mat-checkbox> -->
+              <div *ngIf="message.mediaUrl" class="media-container">
+                <img *ngIf="isImage(message.mediaType)" 
+                  [src]="message.mediaUrl" 
+                  alt="Image" 
+                  class="media-image" 
+                  (click)="openImage(message.mediaUrl); ">
+                <div *ngIf="selectedImageUrl" class="image-overlay" (click)="closeImage()">
+                  <img [src]="selectedImageUrl" alt="Full-size Image" class="enlarged-image">
                 </div>
-                <span class="audio-duration">{{ getAudioDuration(message) }}</span>
+                <video *ngIf="isVideo(message.mediaType)" controls class="media-video">
+                  <source [src]="getFileUrl(message.mediaName)" [type]="message.mediaType">
+                  Your browser does not support the video tag.
+                </video>
+                <div *ngIf="isAudio(message.mediaType)" class="audio-player">
+                  <button class="play-button" (click)="toggleAudio($event, message)">
+                    <mat-icon>{{ isPlaying(message) ? 'pause' : 'play_arrow' }}</mat-icon>
+                  </button>
+                  <div class="audio-progress">
+                    <div class="progress-bar" [style.width.%]="getAudioProgress(message)"></div>
+                  </div>
+                  <span class="audio-duration">{{ getAudioDuration(message) }}</span>
+                </div>
+                <div *ngIf="!isImage(message.mediaType) && !isVideo(message.mediaType) && !isAudio(message.mediaType)" class="media-file">
+                  <mat-icon>attach_file</mat-icon>
+                  <a [href]="getFileUrl(message.mediaName)" target="_blank" download>
+                    {{ message.mediaName }}
+                  </a>
+                </div>
+                <span class="timestamp">{{message.timestamp | utcToLocal }}</span>
               </div>
-              <div *ngIf="!isImage(message.mediaType) && !isVideo(message.mediaType) && !isAudio(message.mediaType)" class="media-file">
-                <mat-icon>attach_file</mat-icon>
-                <a [href]="getFileUrl(message.mediaName)" target="_blank" download>
-                  {{ message.mediaName }}
-                </a>
-              </div>
-              <span class="timestamp">{{message.timestamp | utcToLocal }}</span>
+              <p style="cursor: pointer;" *ngIf="message.content && message.content.trim().length> 0" [innerHTML]="message.content | lineBreaks" (click)="selectMsgForDeposit(message.content)"></p>
+              <div></div>
+              <span *ngIf="!message.mediaUrl" class="timestamp">{{message.timestamp | utcToLocal }}</span>
             </div>
-            <p  style=" cursor: pointer ; " *ngIf="message.content && message.content.trim().length> 0" [innerHTML]="message.content | lineBreaks" (click)="selectMsgForDeposit(message.content)"  ></p>
-            <div></div>
-            <span *ngIf="!message.mediaUrl" class="timestamp">{{message.timestamp | utcToLocal }}</span>
+            <!-- Add button for image messages (see next step) -->
+            <button *ngIf="message.mediaUrl && isImage(message.mediaType) && message.fromUser || message.isFromUser" class="add-image-btn" (click)="selectImageForDeposit(message.mediaUrl)" mat-icon-button>
+              <mat-icon>add</mat-icon>
+            </button>
           </div>
-        </div>
+        </ng-container>
         <button *ngIf="selectedImageMessage && selectedUserIdMessage" class="request-deposit-btn" (click)="requestDeposit()">Request Deposit</button>
       </div>
     </div>
 
    
 
-    <div class="chat-input" *ngIf="activeDepositeNumber">
+    <div class="chat-input"
+         *ngIf="activeDepositeNumber"
+         (dragover)="onChatInputDragOver($event)"
+         (dragleave)="onChatInputDragLeave($event)"
+         (drop)="onChatInputDrop($event)">
       <form [formGroup]="messageForm" (ngSubmit)="sendMessage()">
         <div *ngIf="loading" class="chat-loader">
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -242,7 +351,7 @@
              class="allocated-bank-card mb-2 rounded shadow-sm">
           <div class="row">
             <div class="d-flex align-items-center mb-1 col-sm-4">
-              <i class="fa-solid fa-building-columns fa-lg me-2" style="color: #926108;"></i>
+              <!-- <i class="fa-solid fa-building-columns fa-lg me-2" style="color: #926108;"></i> -->
               <span class="fw-bold fs-6">{{ bank.displayName }}</span>
             </div>
             <div class="col-sm-8">
@@ -273,7 +382,7 @@
         </div>
       </div>
     </div>
-    <div *ngIf="allocatedBanks && allocatedBanks.length === 0" class="text-muted text-center mt-3">
+    <div  *ngIf="allocatedBanks && allocatedBanks.length === 0" class="text-muted text-center mt-3">
       No banks allocated for the current time.
     </div>
   </div>
@@ -311,4 +420,4 @@
   </div>
   </div>
 </div>
-<!-- TODO: Implement the rest of the chat UI following watti-chat.component.html structure --> 
+<!-- TODO: Implement the rest of the chat UI following watti-chat.component.html structure -->

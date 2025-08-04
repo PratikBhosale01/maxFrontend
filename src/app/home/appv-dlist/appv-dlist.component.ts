@@ -1,5 +1,5 @@
 import { DatePipe, formatDate } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SearchsuperadminService } from '../../services/searchsuperadmin.service';
 import { DepositSuperadminService } from '../../services/deposit-superadmin.service';
@@ -29,7 +29,7 @@ import { DepoDailogComponent } from '../../shared/depo-dailog/depo-dailog.compon
   templateUrl: './appv-dlist.component.html',
   styleUrl: './appv-dlist.component.scss',
 })
-export class AppvDListComponent {
+export class AppvDListComponent implements OnDestroy {
 
 editReport(arg0: number) {
 throw new Error('Method not implemented.');

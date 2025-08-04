@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { SearchsuperadminService } from '../../services/searchsuperadmin.service';
 import { DepositSuperadminService } from '../../services/deposit-superadmin.service';
@@ -21,7 +21,7 @@ import { SendmsgdailogComponent } from '../../shared/sendmsgdailog/sendmsgdailog
   templateUrl: './tel-users.component.html',
   styleUrl: './tel-users.component.scss'
 })
-export class TelUsersComponent {
+export class TelUsersComponent implements OnDestroy {
 
 
   searchText: string = '';

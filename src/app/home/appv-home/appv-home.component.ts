@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { SuperAdminLandingService } from '../../services/super-admin-landing.service';
 import { SupADepositService } from '../../services/sup-adeposit.service';
 import { SnackbarService } from '../../services/snackbar.service';
@@ -13,7 +13,7 @@ import { ApvadminDailog1Component } from '../apvadmin-dailog1/apvadmin-dailog1.c
   templateUrl: './appv-home.component.html',
   styleUrl: './appv-home.component.scss'
 })
-export class AppvHomeComponent {
+export class AppvHomeComponent implements OnDestroy {
   openAppvWithdraw() {
     const dialogRef = this.dialog.open(ApvadminDailog1Component, {
       width: '100%',

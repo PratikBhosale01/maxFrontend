@@ -11,6 +11,7 @@ import { SuperAdminService } from '../../services/super-admin.service';
 import { DepositeWithdraw } from '../../domain/Deposite';
 import { SITE, sites } from '../../domain/Site';
 import { SiteMaster } from '../../domain/SiteMaster';
+import { WatiAccountService, WatiAccount } from '../../services/wati-account.service';
 
 @Component({
   selector: 'app-add-app-user',
@@ -40,6 +41,7 @@ export class AddAppUserComponent {
   loader2 = false;
   Operator: any;
   loggedInRole :string;
+  watiAccountsList: WatiAccount[] = [];
 
   constructor(
     private site: SiteService,
@@ -51,8 +53,8 @@ export class AddAppUserComponent {
     private utrservice: UtrService,
     private superAdmin: SuperAdminService,
     private snackbarService: SnackbarService,
-    private   titleService:ComponettitleService
-
+    private titleService: ComponettitleService,
+    private watiAccountService: WatiAccountService // <-- Inject service
   ) {
     this.getuserID();
   
@@ -76,6 +78,13 @@ export class AddAppUserComponent {
     this.getuserID();
     this.titleService.changeTitle('Add user panel');
     this.myFormValues();
+    this.fetchWatiAccounts();
+    // Listen for role changes to reset watiAccounts if needed
+    this.formGroup?.get('role')?.valueChanges?.subscribe(role => {
+      if (role !== 'DEPOSITCHAT') {
+        this.formGroup.get('watiAccounts')?.setValue([]);
+      }
+    });
     const currentDate = new Date();
     // this.formGroup.get('date').setValue(currentDate);
    
@@ -103,12 +112,23 @@ export class AddAppUserComponent {
       // site_id: ['', Validators.required],
        id: ['0'],
       zuserId: [''],
+      watiAccountIds: [[]], // <-- Add this line
       // date: [new Date()],
     });
   }
 
+  fetchWatiAccounts(): void {
+    this.watiAccountService.getAllAccounts().subscribe({
+      next: (accounts) => {
+        this.watiAccountsList = accounts.filter(acc => acc.isActive);
+      },
+      error: (err) => {
+        this.snackbarService.snackbar('Failed to load Wati accounts', 'error');
+      }
+    });
+  }
 
- 
+
   onSubmit() {
     
     this.loader=true;

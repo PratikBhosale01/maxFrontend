@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -35,7 +35,7 @@ import { DialogComponent } from '../../shared/dialog/dialog.component';
   templateUrl: './add-old-user.component.html',
   styleUrl: './add-old-user.component.scss'
 })
-export class AddOldUserComponent {
+export class AddOldUserComponent implements OnDestroy {
   formGroup: FormGroup;
 
   ocrResult: string = '';

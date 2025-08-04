@@ -66,7 +66,7 @@ import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
 import { OperationsPanelComponent } from './operations-panel/operations-panel.component';
-
+import { MatMenuModule } from '@angular/material/menu';
 @NgModule({
   declarations: [
     LayoutComponent,
@@ -138,6 +138,7 @@ import { OperationsPanelComponent } from './operations-panel/operations-panel.co
     MatListModule,
     MatGridListModule,
     MatCheckboxModule,
+    MatMenuModule,
     
   ],
   providers: [WattiService]

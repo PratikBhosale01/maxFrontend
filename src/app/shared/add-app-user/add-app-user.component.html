@@ -19,7 +19,21 @@
               </mat-select>
             </mat-form-field>
           </div>
+          <div class="col-md-6" *ngIf="formGroup.get('role').value === 'DEPOSITCHAT'">
+            <div>
+              <mat-form-field appearance="fill" class="w-100">
+                <mat-label>Select Wati Accounts</mat-label>
+                <mat-select formControlName="watiAccountIds" multiple>
+                  <mat-option *ngFor="let acc of watiAccountsList" [value]="acc.id">
+                    {{ acc.watiName }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
         </div>
+        <!-- Wati Accounts Multi-Select for DEPOSITCHAT role -->
+       
         <!-- Top Row -->
         <div class="row">
           <div class="col-md-6">

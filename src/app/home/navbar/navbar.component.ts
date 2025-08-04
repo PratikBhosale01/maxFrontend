@@ -12,6 +12,7 @@ import {
 import { Router } from '@angular/router';
 import { ComponettitleService } from '../../services/componenttitle.service';
 import { admin, APPROVEADMIN, APPROVEDEPOSIT, APPROVEWITHDRAW, BANKER, DEPOSIT, navDomain, SUPPORT, WITHDRAWCHAT, DEPOSITCHAT } from './navDomain';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -27,7 +28,7 @@ export class NavbarComponent implements AfterViewInit, OnInit {
   userRole: string;
   userName: string = "Username";
   navDomains: navDomain[] = [];
-  constructor(public route: Router, private renderer: Renderer2, private titleService: ComponettitleService,
+  constructor(public route: Router, private renderer: Renderer2, private titleService: ComponettitleService, private authService: AuthService
   ) { }
   ngOnInit(): void {
     this.titleService.currentTitle.subscribe((title) => (this.title = title));
@@ -44,23 +45,23 @@ export class NavbarComponent implements AfterViewInit, OnInit {
   }
 
   logout() {
-  
-    let userString = localStorage.getItem('user');
-    if (userString) {
-      // Step 2: Access user_role attribute
-      const user = JSON.parse(userString);
-      this.userRole = user.role_user;
-      this.userName = user.user_email;
-    }
+
+    // let userString = localStorage.getItem('user');
+    // if (userString) {
+    //   // Step 2: Access user_role attribute
+    //   const user = JSON.parse(userString);
+    //   this.userRole = user.role_user;
+    //   this.userName = user.user_email;
+    // }
 
 
-    localStorage.setItem('user', '');
-    localStorage.clear();
-    if (this.userRole === 'ADMIN' || this.userRole === 'APPROVEADMIN' || this.userRole === 'SUPERADMIN') 
-      { this.route.navigateByUrl('/admin'); }
-     else {
-      this.route.navigateByUrl('');
-    }
+    // localStorage.setItem('user', '');
+    // localStorage.clear();
+    this.authService.logout();
+    // if (this.userRole === 'ADMIN' || this.userRole === 'APPROVEADMIN' || this.userRole === 'SUPERADMIN') { this.route.navigateByUrl('/admin'); }
+    // else {
+    //   this.route.navigateByUrl('');
+    // }
 
   }
 
