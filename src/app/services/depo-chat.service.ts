@@ -63,6 +63,12 @@ export class DepoChatService {
     return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/unread`, { params });
   }
 
+  // Get blocked conversations
+  getBlockedConversations(watiIds: number[] = [0]): Observable<ConversationDTO[]> {
+    const params = new HttpParams().set('watiIds', watiIds.join(','));  
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/blocked-conversations`, { params });
+  }
+
   // Get done conversations
   getDoneConversations(watiIds: number[] = [0]): Observable<ConversationDTO[]> {
     const params = new HttpParams().set('watiIds', watiIds.join(','));
@@ -85,6 +91,9 @@ export class DepoChatService {
   getDoneConversationsByUserId(userId: number): Observable<ConversationDTO[]> {
     return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/done/user/${userId}`);
   }
+ getBlockedConversationsByUserId(userId: number): Observable<ConversationDTO[]> {
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/blocked-conversations/by-zuser/${userId}`); 
+}
   getUndoneConversationsByUserId(userId: number): Observable<ConversationDTO[]> { 
     return this.http.get<ConversationDTO[]>(`${this.baseUrl}/active-conversations/by-zuser/${userId}`);
   }
@@ -286,5 +295,13 @@ export class DepoChatService {
        zuserId: zuserId.toString()
       }
     });
+  }
+
+  blockUser(watiNumber: string): Observable<any> {
+    const url = `${this.baseUrl}/conversations/${watiNumber}/block-status`;
+    // You can send a body if needed, here we assume toggling block status
+    return this.http.patch(url, {}).pipe(
+      catchError(this.handleError)
+    );
   }
 }
