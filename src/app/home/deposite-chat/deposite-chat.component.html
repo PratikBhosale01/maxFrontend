@@ -1,9 +1,7 @@
 <div class="deposite-chat-container">
   <div class="sidebar">
     <div class="sidebar-header whatsapp-style-header position-relative">
-      <div class="sidebar-title-icon">
-        <mat-icon>chat</mat-icon>
-      </div>
+  
       <div class="d-flex align-items-center w-100" style="justify-content: space-between;">
         <!-- Left: Empty for spacing -->
         <div style="flex:1;"></div>
@@ -19,6 +17,14 @@
             [class.active]="selectedFilter === 'undone'"
             (click)="selectedFilter = 'undone'; applyFilter()"
           >Undone</span>
+          <span 
+            class="chip chip-block"
+            [class.active]="selectedFilter === 'block'"
+            (click)="selectedFilter = 'block'; applyFilter()"
+           
+          >
+            Blocked
+          </span>
         </div>
         <!-- Right: Watti Accounts Dropdown -->
         <div class="wati-dropdown" *ngIf="userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'APPROVEADMIN'" style="flex:1; display: flex; justify-content: flex-end;">
@@ -105,7 +111,8 @@
   </div>
 
   <div class="chat-main">
-    <div class="chat-header" >
+    <div class="chat-header " >
+  
       <div class="chat-header-user">
         <mat-icon>account_circle</mat-icon>
         <div class="client-name-container"*ngIf="selectedConversation">
@@ -202,7 +209,18 @@
             </div>
           </div>
         </div>
+        <button *ngIf="selectedConversation" mat-icon-button [matMenuTriggerFor]="chatHeaderMenu" class="dark-menu-btn">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #chatHeaderMenu="matMenu">
+          <button mat-menu-item (click)="blockUser()">
+            <mat-icon>block</mat-icon>
+            <span *ngIf="!selectedConversation?.isBlocked">Block User</span>
+             <span *ngIf="selectedConversation?.isBlocked">unBlock User</span>
+          </button>
+        </mat-menu>
       </div>
+   
     </div>
 
     <div class="chat-messages" #chatContainer>

@@ -1538,6 +1538,15 @@ a {
     letter-spacing: 0.5px;
   }
 } 
+.whatsapp-chat-header{
+  background:  #3d4d579f;
+  border-bottom: 1px solid var(--border-color);
+  padding: 6px 6px 8px 6px;
+ 
+
+
+
+}
 
 .whatsapp-style-header {
   background:  #3d4d579f;
@@ -1631,6 +1640,19 @@ a {
         color: #fff;
       }
     }
+    .chip-block {
+  // background: #ffebee;
+  color: #c05959;
+   &:hover {
+        background: rgba(168, 73, 0, 0.08);
+        color: #a80000;
+      }
+  // border: 1px solid #c62828;
+}
+.chip-block.active {
+  background: #c62828;
+  color: #fff;
+}
   }
 }
 
@@ -1692,3 +1714,16 @@ a {
   border-radius: 50%;
 }
 
+.dark-menu-btn {
+  background: #23272b00 !important;
+  color: #fff !important;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.dark-menu-btn:hover,
+.dark-menu-btn:focus {
+  background: #11131700 !important;
+  color:
+  #fff !important;
+  
+}

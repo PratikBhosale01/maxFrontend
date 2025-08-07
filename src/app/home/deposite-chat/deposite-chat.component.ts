@@ -9,9 +9,7 @@ import { ChatMessageDTO, ConversationDTO } from '../../domain/ChatMessage';
 import { WattiService } from '../../services/watti.service';
 import { ApproveService } from '../../services/approve.service';
 import { DepoChatService } from '../../services/depo-chat.service';
-// TODO: Replace with actual deposite chat service and models
 // import { DepositeChatService } from '../../services/deposite-chat.service';
-// import { DepositeChatMessageDTO, DepositeConversationDTO } from '../../domain/DepositeChatMessage';
 import { WatiAccountService, WatiAccount } from '../../services/wati-account.service';
 import { ComponettitleService } from '../../services/componenttitle.service';
 
@@ -96,7 +94,8 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     private snackbarService: SnackbarService,
     private approveService: ApproveService,
     private titleService : ComponettitleService,
-    private watiAccountService: WatiAccountService // <-- Injected
+    private watiAccountService: WatiAccountService, // <-- Injected
+    // private chatService: DepositeChatService
   ) {
       this.titleService.changeTitle('Deposit Chat');
     this.messageForm = this.formBuilder.group({
@@ -227,6 +226,10 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       case 'done':
         observable = this.depoChat.getDoneConversations(watiIds);
         break;
+      case 'block':
+        observable = this.depoChat.getBlockedConversations(watiIds);
+        break;
+        
       case 'all':
         observable = this.depoChat.getAllConversations(watiIds);
         break;
@@ -260,6 +263,9 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
         observable = this.depoChat.getUnreadConversationsByUserId(this.userId);
         break;
       case 'done':
+        observable = this.depoChat.getDoneConversationsByUserId(this.userId);
+        break;
+      case 'block':
         observable = this.depoChat.getDoneConversationsByUserId(this.userId);
         break;
       case 'all':
@@ -1228,6 +1234,25 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
         this.selectedFile = file;
         // Optionally, trigger change detection or preview
       }
+    }
+  }
+
+  blockUser() {
+    console.log('Block user clicked');
+    if (this.selectedConversation && this.selectedConversation.watiNumber) {
+      
+      this.depoChat.blockUser(this.selectedConversation.watiNumber) .subscribe({
+        next: () => {     
+          this.snackbarService.snackbar('User blocked successfully.', 'success');
+          // Optionally refresh conversations or update UI
+          this.loadConversationsByFilter(this.selectedFilter);  
+        },
+        error: (error) => { 
+          console.error('Error blocking user:', error);
+          this.snackbarService.snackbar('Failed to block user.', 'error');
+        }
+      });
+      // Optionally show a confirmation/snackbar
     }
   }
 }
