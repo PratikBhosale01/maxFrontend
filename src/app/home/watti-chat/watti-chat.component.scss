@@ -900,3 +900,217 @@ a {
     color: white !important;
   }
 } 
+.whatsapp-chat-header{
+  background:  #3d4d579f;
+  border-bottom: 1px solid var(--border-color);
+  padding: 6px 6px 8px 6px;
+ 
+
+
+
+}
+
+.whatsapp-style-header {
+  background:  #3d4d579f;
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 16px 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  .whatsapp-title {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 200;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+
+  .sidebar-actions {
+    gap: 8px;
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: #b1b3b5;
+      font-size: 22px;
+      padding: 4px;
+      border-radius: 50%;
+      transition: background 0.2s;
+      &:hover {
+        background: rgba(186, 73, 73, 0.08);
+        color: #fff;
+      }
+      mat-icon {
+        font-size: 22px;
+      }
+    }
+  }
+
+  .search-bar {
+    width: 100%;
+    margin-top: 18px;
+   
+    form {
+      width: 100%;
+      position: relative;
+    }
+    .search-input {
+      padding-left: 40px !important;
+      text-align: center;
+      background-color:  #4c5e6893;
+     color: #fffefe !important;
+    }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      font-size: 1.4rem;
+      pointer-events: none;
+    }
+  }
+  .search-input::placeholder {
+  color: #a9a8a8e3;
+  opacity: 1;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+  .filter-chips {
+    justify-content: center !important;
+    width: 100%;
+    // display: flex;
+    gap: 8px;
+    margin-bottom: 2px;
+    .chip {
+      padding: 3px 18px;
+      border-radius: 20px;
+      background: transparent;
+      color: #b1b3b5;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, color 0.2s;
+      &:hover {
+        background: rgba(0,168,132,0.08);
+        color: var(--primary-color, #00a884fe);
+      }
+      &.active {
+        background: #00a88478;
+        color: #fff;
+      }
+    }
+    .chip-block {
+  // background: #ffebee;
+  color: #c05959;
+   &:hover {
+        background: rgba(168, 73, 0, 0.08);
+        color: #a80000;
+      }
+  // border: 1px solid #c62828;
+}
+.chip-block.active {
+  background: #c62828;
+  color: #fff;
+}
+  }
+}
+
+.message-bubble {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.message-content {
+  flex: 1;
+}
+.add-image-btn {
+  margin-left: 8px;
+  align-self: center;
+  background: #ffffff00;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  color: #1976d2;
+  z-index: 2;
+}
+.date-separator {
+  text-align: center;
+  margin: 16px 0 8px 0;
+  position: relative;
+}
+.date-separator span {
+  background: #222;
+  color: #fff;
+  padding: 2px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.sidebar-title-icon {
+  position: absolute;
+  top: 22px;
+  left: 16px;
+  z-index: 2;
+  // background: rgba(255,255,255,0.10);
+  border-radius: 50%;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+.sidebar-title-icon mat-icon {
+  font-size: 24px;
+  color: #fff;
+}
+
+.sidebar-header .wati-dropdown {
+  margin-left: 12px;
+}
+.sidebar-header .mat-icon-button {
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+
+.dark-menu-btn {
+  background: #23272b00 !important;
+  color: #fff !important;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.dark-menu-btn:hover,
+.dark-menu-btn:focus {
+  background: #11131700 !important;
+  color:
+  #fff !important;
+  
+}
+
+.d-flex.align-items-center.w-100 {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.wati-dropdown {
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  min-width: 48px;
+  margin-left: 8px;
+}

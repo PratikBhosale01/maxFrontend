@@ -96,6 +96,10 @@ export class WattiService {
     return this.http.get<ConversationDTO>(`${this.baseUrl}/conversations/${watiNumber}`);
   }
 
+  // Get blocked conversations
+  getBlockedConversations(): Observable<ConversationDTO[]> {
+    return this.http.get<ConversationDTO[]>(`${this.baseUrl}/conversations/blocked`);
+  }
   // Get messages by watiNumber
   getMessagesByWatiNumber(watiNumber: string): Observable<ChatMessageDTO[]> {
     return this.http.get<ChatMessageDTO[]>(`${this.baseUrl}/messages/${watiNumber}`).pipe(
@@ -251,4 +255,25 @@ export class WattiService {
   getConnectionStatus(): Observable<boolean> {
     return this.connectionStatus.asObservable();
   }
+
+   searchConversations(searchTerm: string, filter: string,): Observable<any[]> {
+  
+    return this.http.get<any[]>(`${this.baseUrl}/conversations/search`, {
+      params: {
+       searchTerm,
+        // filter,
+        // wattiAccounts: wattiAccounts.join(','),
+       
+      }
+    });
+  }
+
+   blockUser(watiNumber: string): Observable<any> {
+    const url = `${this.baseUrl}/conversations/${watiNumber}/block-status`;
+    // You can send a body if needed, here we assume toggling block status
+    return this.http.patch(url, {}).pipe(
+      catchError(this.handleError)
+    );
+  }
+
 } 

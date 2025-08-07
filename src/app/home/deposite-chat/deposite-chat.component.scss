@@ -1727,3 +1727,28 @@ a {
   #fff !important;
   
 }
+
+.d-flex.align-items-center.w-100 {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.wati-dropdown {
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  min-width: 48px;
+  margin-left: 8px;
+}

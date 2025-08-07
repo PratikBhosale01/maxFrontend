@@ -67,6 +67,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
 import { OperationsPanelComponent } from './operations-panel/operations-panel.component';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatChipsModule } from '@angular/material/chips';
 @NgModule({
   declarations: [
     LayoutComponent,
@@ -139,7 +140,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatGridListModule,
     MatCheckboxModule,
     MatMenuModule,
-    
+    MatChipsModule
   ],
   providers: [WattiService]
 })
