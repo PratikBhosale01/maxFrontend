@@ -79,8 +79,12 @@ export class WattiChatComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadConversations();
-    this.subscription = interval(5000).subscribe(() => {
-      this.loadConversations();
+
+    
+      this.subscription = interval(5000).subscribe(() => {
+         if (!this.searchTerm || this.searchTerm.trim().length === 0) {
+     
+      this.loadConversations();}
     });
 
    
@@ -747,12 +751,15 @@ export class WattiChatComponent implements OnInit, OnDestroy {
     }
   }
    blockUser() {
-    console.log('Block user clicked');
     if (this.selectedConversation && this.selectedConversation.watiNumber) {
       
       this.wattiService.blockUser(this.selectedConversation.watiNumber) .subscribe({
-        next: () => {     
+        next: () => {   
+          if (!this.selectedConversation?.isBlocked) {  
           this.snackbarService.snackbar('User blocked successfully.', 'success');
+          } else {
+            this.snackbarService.snackbar('User unblocked successfully.', 'success');
+          }
           // Optionally refresh conversations or update UI
           this.loadConversationsByFilter(this.selectedFilter);  
         },
