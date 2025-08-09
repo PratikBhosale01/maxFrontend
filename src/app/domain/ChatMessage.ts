@@ -21,6 +21,7 @@ data: any;
     clientId?:string;
     clientName?:String;
     isManual?: boolean;
+    isBlocked?: boolean;
 }
 
 export interface PagedResponse<T> {

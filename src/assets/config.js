@@ -13,5 +13,5 @@ var appConfig = {
 
 // var appConfigWs ={
 // //   mainbackendUrlws: 'ws://13.200.63.62:8080/ws',
-//   mainbackendUrlws: 'wss://october-charleston-operator-care.trycloudflare.com/ws',
+  // mainbackendUrlws: 'wss://october-charleston-operator-care.trycloudflare.com/ws',
 // };

@@ -6,6 +6,7 @@ import { ChatMessageDTO, ConversationDTO } from '../../domain/ChatMessage';
 import { WattiService } from '../../services/watti.service';
 import { filter, Subscription, Observable, interval } from 'rxjs';
 import { ComponettitleService } from '../../services/componenttitle.service';
+import { SnackbarService } from '../../services/snackbar.service';
 
 
 @Component({
@@ -56,9 +57,13 @@ export class WattiChatComponent implements OnInit, OnDestroy {
   private scrollThreshold = 100; // pixels from top to trigger loading more messages
   subscription: any;
   selectedImageUrl: string | null = null;
+  searchTerm: string = '';
+  private searchTimeout: any;
+
 
   constructor(
     private wattiService: WattiService,
+     private snackbarService: SnackbarService,
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private ngZone: NgZone,
@@ -74,8 +79,12 @@ export class WattiChatComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadConversations();
-    this.subscription = interval(5000).subscribe(() => {
-      this.loadConversations();
+
+    
+      this.subscription = interval(5000).subscribe(() => {
+         if (!this.searchTerm || this.searchTerm.trim().length === 0) {
+     
+      this.loadConversations();}
     });
 
    
@@ -87,6 +96,35 @@ export class WattiChatComponent implements OnInit, OnDestroy {
       }
     );
   }
+ onSearchChange(term: string): void {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.searchTerm = term;
+      if (term && term.trim().length > 0) {
+        this.searchConversations(term.trim());
+      } else {
+        this.searchTerm = '';
+        this.loadConversations(); // fallback to normal filter if search is cleared
+      }
+    }, 300); // debounce for 300ms
+  }
+
+   searchConversations(term: string): void {
+    this.loading = true;
+    // Replace with your actual search endpoint
+    this.wattiService.searchConversations(term, this.selectedFilter)
+      .subscribe({
+        next: (data) => {
+          this.filteredConversations = data;
+          this.loading = false;
+        },
+        error: (error) => {
+          this.filteredConversations = [];
+          this.loading = false;
+        }
+      });
+  }
+
   
   selectConversation(watiNumber: string) {
     
@@ -189,6 +227,9 @@ export class WattiChatComponent implements OnInit, OnDestroy {
         break;
       case 'done':
         observable = this.wattiService.getDoneConversations();
+        break;
+      case 'block':
+        observable = this.wattiService.getBlockedConversations();
         break;
       case 'all':
         observable = this.wattiService.getAllConversations();
@@ -707,6 +748,27 @@ export class WattiChatComponent implements OnInit, OnDestroy {
       // Prevent default behavior and send message when only Enter is pressed
       event.preventDefault();
       this.sendMessage();
+    }
+  }
+   blockUser() {
+    if (this.selectedConversation && this.selectedConversation.watiNumber) {
+      
+      this.wattiService.blockUser(this.selectedConversation.watiNumber) .subscribe({
+        next: () => {   
+          if (!this.selectedConversation?.isBlocked) {  
+          this.snackbarService.snackbar('User blocked successfully.', 'success');
+          } else {
+            this.snackbarService.snackbar('User unblocked successfully.', 'success');
+          }
+          // Optionally refresh conversations or update UI
+          this.loadConversationsByFilter(this.selectedFilter);  
+        },
+        error: (error) => { 
+          console.error('Error blocking user:', error);
+          this.snackbarService.snackbar('Failed to block user.', 'error');
+        }
+      });
+      // Optionally show a confirmation/snackbar
     }
   }
 

@@ -285,8 +285,7 @@ export class DepoChatService {
   }
 
   searchConversations(searchTerm: string, filter: string, wattiAccounts: number[], zuserId: any): Observable<any[]> {
-    // Example: return this.http.get<any[]>(`/api/conversations/search?term=${term}&filter=${filter}`);
-    // Adjust params as needed for your backend
+  
     return this.http.get<any[]>(`${this.baseUrl}/conversations/search`, {
       params: {
        searchTerm,

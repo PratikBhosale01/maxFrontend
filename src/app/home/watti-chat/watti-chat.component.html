@@ -1,15 +1,46 @@
 <div class="watti-chat-container">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <h2>Chats</h2>
-      <mat-form-field class="filter-select">
-        <mat-select [(ngModel)]="selectedFilter" (selectionChange)="applyFilter()">
-          <mat-option value="all">All Conversations</mat-option>
-          <!-- <mat-option value="unread">Unread</mat-option>
-          <mat-option value="done">Done</mat-option> -->
-          <mat-option value="undone">Not Done</mat-option>
-        </mat-select>
-      </mat-form-field>
+    <div class="sidebar-header whatsapp-style-header position-relative">
+      <div class="d-flex align-items-center w-100 flex-nowrap">
+  <div class="filter-chips d-flex gap-2 flex-wrap flex-grow-1">
+    <span 
+      class="chip"
+      [class.active]="selectedFilter === 'all'"
+      (click)="selectedFilter = 'all'; applyFilter()"
+    >All</span>
+    <span 
+      class="chip"
+      [class.active]="selectedFilter === 'undone'"
+      (click)="selectedFilter = 'undone'; applyFilter()"
+    >Undone</span>
+    <span 
+      class="chip chip-block"
+      [class.active]="selectedFilter === 'block'"
+      (click)="selectedFilter = 'block'; applyFilter()"
+    >Blocked</span>
+  </div>
+
+</div>
+  
+      
+      <div class="search-bar mt-3 w-100">
+        <form class="d-flex align-items-center position-relative" (submit)="$event.preventDefault()">
+          <input
+            class="form-control search-input"
+            type="search"
+            placeholder="Search conversations"
+            aria-label="Search"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange($event)"
+            name="search"
+            autocomplete="off"
+            style="padding-left: 40px; text-align: center;"
+          >
+          <span class="search-icon position-absolute" style="left: 12px; top: 50%; transform: translateY(-50%); color: #aaa;">
+            <mat-icon>search</mat-icon>
+          </span>
+        </form>
+      </div>
     </div>
     <div class="conversation-list">
       <!-- <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar> -->
@@ -77,7 +108,18 @@
     <button (click)="toggleManualStatus(selectedConversation.watiNumber)" class="toggle-button">
       {{ isManual ? 'Switch to Automatic' : 'Switch to Manual' }}
     </button>
+     <button *ngIf="selectedConversation" mat-icon-button [matMenuTriggerFor]="chatHeaderMenu" class="dark-menu-btn">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      <mat-menu #chatHeaderMenu="matMenu">
+          <button mat-menu-item (click)="blockUser()">
+            <mat-icon>block</mat-icon>
+            <span *ngIf="!selectedConversation?.isBlocked">Block User</span>
+             <span *ngIf="selectedConversation?.isBlocked">unBlock User</span>
+          </button>
+        </mat-menu>
     </div>
+    
     </div>
 
     <div class="chat-messages" #chatContainer>
