@@ -205,6 +205,12 @@ export class DepoChatService {
     return this.http.patch<ConversationDTO>(`${this.baseUrl}/conversations/${watiNumber}/client-name`, { clientId });
   }
 
+  // Example service method to implement later
+  updateClientName2(id: any, clientName: string) {
+    // TODO: Replace with actual API endpoint
+    return this.http.put(`${this.baseUrl}/${id}/update-client-name`, { clientName });
+  }
+
   connectdchat(watiNumber: any) {
     this.stompClient = new Client({
      brokerURL: 'wss://api.approvepanel.com/dws',

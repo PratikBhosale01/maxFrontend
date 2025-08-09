@@ -259,10 +259,28 @@ a {
     
     .client-name-container {
       h2 {
+        font-size: 1.1rem !important; // Smaller text
+        font-weight: 500;
         margin: 0;
         color: var(--text-primary);
-        font-size: 18px;
-        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .edit-btn {
+        margin-left: 4px;
+        color: #90caf9;
+        opacity: 0.7;
+        padding: 0;
+        mat-icon {
+          font-size: 18px !important; // Smaller icon
+          width: 18px !important;
+          height: 18px !important;
+          line-height: 18px !important;
+        }
+      }
+      .edit-btn:hover {
+        opacity: 1;
       }
     }
   }
@@ -1751,4 +1769,22 @@ a {
   flex-shrink: 0;
   min-width: 48px;
   margin-left: 8px;
+}
+.client-name-input {
+  font-size: 1.1rem !important; // Smaller input text
+  font-weight: 500;
+  background: transparent;
+  color: white;
+  border: none;
+  border-bottom: 1px solid #aaa;
+  outline: none;
+  width: 90%;
+}
+.edit-btn {
+  margin-left: 8px;
+  color: #90caf9;
+  opacity: 0.7;
+}
+.edit-btn:hover {
+  opacity: 1;
 }

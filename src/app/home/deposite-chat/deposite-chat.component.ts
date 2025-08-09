@@ -1255,4 +1255,32 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       // Optionally show a confirmation/snackbar
     }
   }
+
+  startEditingName() {
+    this.isEditingName = true;
+    this.editingClientName = this.selectedConversation?.clientName || '';
+         
+  }
+
+  updateClientName() {
+    if (this.selectedConversation && this.editingClientName.trim()) {
+      this.selectedConversation.clientName = this.editingClientName.trim();
+    
+
+   
+      this.depoChat.updateClientName2(this.selectedConversation.id, this.editingClientName.trim())
+        .subscribe({
+          next: () => {
+            // Optionally show a success snackbar
+            this.snackbarService.snackbar('Client name updated.', 'success');
+       
+          },
+          error: (error) => {
+            // Optionally show an error snackbar
+            this.snackbarService.snackbar('Failed to update client name.', 'error');
+          }
+        });
+    }
+    this.isEditingName = false;
+  }
 }
