@@ -33,7 +33,7 @@ export class WattiChatComponent implements OnInit, OnDestroy {
   activeWatiNumber: string = '';
   wsConnected = false;
   isEditingName = false;
-  editingClientName = '';
+  editingClientName :any = '';
   isManual: boolean = false;
   private chatSubscription: Subscription;
   private connectionStatusSubscription: Subscription;
@@ -79,9 +79,7 @@ export class WattiChatComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadConversations();
-
-    
-      this.subscription = interval(5000).subscribe(() => {
+ this.subscription = interval(5000).subscribe(() => {
          if (!this.searchTerm || this.searchTerm.trim().length === 0) {
      
       this.loadConversations();}
@@ -679,37 +677,32 @@ export class WattiChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  startEditingName(): void {
-    if (this.selectedConversation) {
-      this.isEditingName = true;
-      this.editingClientName = this.selectedConversation.clientName?.toString() || '';
-    }
+  startEditingName() {
+    this.isEditingName = true;
+    this.editingClientName = this.selectedConversation?.clientName || '';
+         
   }
 
-  updateClientName(): void {
+  updateClientName() {
     if (this.selectedConversation && this.editingClientName.trim()) {
-      this.loading = true;
-      this.wattiService.updateClientName(this.selectedConversation.watiNumber, this.editingClientName.trim())
+      this.selectedConversation.clientName = this.editingClientName.trim();
+    
+
+   
+      this.wattiService.updateClientName2(this.selectedConversation.id, this.editingClientName.trim())
         .subscribe({
-          next: (updatedConversation) => {
-            this.selectedConversation = updatedConversation;
-            // Update the conversation in the list
-            const index = this.conversations.findIndex(c => c.watiNumber === updatedConversation.watiNumber);
-            if (index !== -1) {
-              this.conversations[index] = updatedConversation;
-              this.filteredConversations = [...this.conversations];
-            }
-            this.isEditingName = false;
-            this.loading = false;
+          next: () => {
+            // Optionally show a success snackbar
+            this.snackbarService.snackbar('Client name updated.', 'success');
+       
           },
           error: (error) => {
-            console.error('Error updating client name:', error);
-            this.loading = false;
+            // Optionally show an error snackbar
+            this.snackbarService.snackbar('Failed to update client name.', 'error');
           }
         });
-    } else {
-      this.isEditingName = false;
     }
+    this.isEditingName = false;
   }
 
   toggleManualStatus( watiNumber :any): void {
@@ -751,15 +744,12 @@ export class WattiChatComponent implements OnInit, OnDestroy {
     }
   }
    blockUser() {
+    console.log('Block user clicked');
     if (this.selectedConversation && this.selectedConversation.watiNumber) {
       
       this.wattiService.blockUser(this.selectedConversation.watiNumber) .subscribe({
-        next: () => {   
-          if (!this.selectedConversation?.isBlocked) {  
+        next: () => {     
           this.snackbarService.snackbar('User blocked successfully.', 'success');
-          } else {
-            this.snackbarService.snackbar('User unblocked successfully.', 'success');
-          }
           // Optionally refresh conversations or update UI
           this.loadConversationsByFilter(this.selectedFilter);  
         },

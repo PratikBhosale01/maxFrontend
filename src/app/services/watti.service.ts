@@ -118,7 +118,10 @@ export class WattiService {
       })
     );
   }
-
+  updateClientName2(id: any, clientName: string) {
+    // TODO: Replace with actual API endpoint
+    return this.http.put(`${this.baseUrl}/${id}/update-client-name`, { clientName });
+  }
   // Get paged messages by watiNumber
   getPagedMessagesByWatiNumber(
     watiNumber: string,
