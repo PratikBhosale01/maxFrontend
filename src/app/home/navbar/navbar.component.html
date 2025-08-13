@@ -17,12 +17,45 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <div class="t" [ngClass]="{ sidebarExpanded: isExpanded }">
-          <h3 style="color: gold">
-            {{ userRole === 'APPROVEDEPOSIT' ? 'Approve' : userRole }} Panel
-            <span style="color: rgb(246, 245, 241); font-weight: 300"
-              >| {{ title }}</span
-            >
-          </h3>
+          <div class="d-flex align-items-center">
+            <h3 style="color: gold">
+              {{ userRole === 'APPROVEDEPOSIT' ? 'Approve' : userRole }} Panel
+              <span style="color: rgb(246, 245, 241); font-weight: 300"
+                >| {{ title }}</span
+              >
+            </h3>
+            <!-- Notification Toggle Buttons -->
+            <div class="notification-controls ms-3">
+              <button 
+                class="btn btn-sm notification-toggle-btn"
+                [ngClass]="{ 'active': isNotificationsEnabled }"
+                (click)="toggleNotifications()"
+                title="{{ isNotificationsEnabled ? 'Turn off notifications' : 'Turn on notifications' }}"
+              >
+                <span class="material-symbols-outlined">
+                  {{ isNotificationsEnabled ? 'notifications_active' : 'notifications_off' }}
+                </span>
+                <span class="notification-status-text">
+                  {{ isNotificationsEnabled ? 'ON' : 'OFF' }}
+                </span>
+              </button>
+              
+              <!-- Notification Badge -->
+              <div class="notification-badge" *ngIf="unreadCount > 0" (click)="toggleNotificationDropdown(); $event.stopPropagation()">
+                <span class="badge-count">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+              </div>
+
+              <!-- Notification Dropdown -->
+              <app-notification-dropdown
+                [notifications]="notifications"
+                [unreadCount]="unreadCount"
+                [isVisible]="showNotificationDropdown"
+                (markAsRead)="markNotificationAsRead($event)"
+                (markAllAsRead)="markAllNotificationsAsRead()"
+                (clearAll)="clearAllNotifications()"
+              ></app-notification-dropdown>
+            </div>
+          </div>
         </div>
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
           <li class="nav-item header">

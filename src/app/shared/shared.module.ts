@@ -50,6 +50,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { WithDailogComponent } from './with-dailog/with-dailog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { OtpDialogComponent } from './otp-dialog/otp-dialog.component';
+import { NotificationDropdownComponent } from './notification-dropdown/notification-dropdown.component';
 
 
 @NgModule({
@@ -83,7 +84,8 @@ import { OtpDialogComponent } from './otp-dialog/otp-dialog.component';
     DialogComponent,
     DepoDailogComponent,
     WithDailogComponent,
-    OtpDialogComponent
+    OtpDialogComponent,
+    NotificationDropdownComponent
   ],
   imports: [
     CommonModule,
@@ -114,6 +116,6 @@ import { OtpDialogComponent } from './otp-dialog/otp-dialog.component';
     MatTooltipModule,
     MatCheckboxModule,
 
-  ],exports:[LoaderComponent,DialogComponent,OtpDialogComponent]
+  ],exports:[LoaderComponent,DialogComponent,OtpDialogComponent,NotificationDropdownComponent]
 })
 export class SharedModule { }

@@ -411,3 +411,116 @@ color:  #6d6e7e!important;
   font-size: 18px;
   vertical-align: middle;
 }
+
+// Notification Controls Styles
+.notification-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.notification-toggle-btn {
+  background: transparent;
+  border: 1px solid #ffd700;
+  color: #ffd700;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(255, 215, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  }
+
+  &.active {
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    color: #000;
+    border-color: #ffd700;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+
+    .material-symbols-outlined {
+      color: #000;
+    }
+
+    .notification-status-text {
+      color: #000;
+    }
+  }
+
+  .material-symbols-outlined {
+    font-size: 16px;
+    color: #ffd700;
+    transition: color 0.3s ease;
+  }
+
+  .notification-status-text {
+    font-weight: 600;
+    font-size: 11px;
+    color: #ffd700;
+    transition: color 0.3s ease;
+  }
+}
+
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4444;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #000000;
+  animation: pulse 2s infinite;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  .badge-count {
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+  }
+}
+
+// Responsive adjustments for notification controls
+@media (max-width: 768px) {
+  .notification-controls {
+    margin-left: 10px !important;
+    
+    .notification-toggle-btn {
+      min-width: 60px;
+      padding: 4px 8px;
+      font-size: 10px;
+      
+      .notification-status-text {
+        display: none;
+      }
+    }
+  }
+}

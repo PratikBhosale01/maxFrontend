@@ -189,7 +189,10 @@
               <div *ngFor="let reply of quickReplies" 
                    class="quick-message-item"
                    (click)="sendQuickReply(reply)">
-                <span class="message-text">{{ reply }}</span>
+                <div class="quick-reply-content">
+                  <div style="color: aliceblue;" class="quick-reply-title">{{ reply.title }}</div>
+                  <div  style="color: aliceblue;"class="quick-reply-message">{{ reply.message }}</div>
+                </div>
                 <button class="delete-btn" 
                         (click)="removeQuickReply(reply); $event.stopPropagation()">
                   <mat-icon>delete</mat-icon>
@@ -201,11 +204,15 @@
               </div>
               
               <div *ngIf="showQuickReplyInput" class="add-message-section">
+                <input
+                  [(ngModel)]="newQuickReplyTitle"
+                  placeholder="Enter title..."
+                  class="title-input"
+                  autofocus>
                 <textarea
                   [(ngModel)]="newQuickReply"
                   placeholder="Type your quick message..."
-                  rows="3"
-                  autofocus>
+                  rows="3">
                 </textarea>
                 <div class="add-actions">
                   <button class="btn-add" (click)="addQuickReply()">Add</button>

@@ -1,0 +1,57 @@
+<div class="notification-dropdown" [ngClass]="{ 'show': isVisible }">
+  <div class="notification-header">
+    <h6 class="mb-0">Notifications</h6>
+    <div class="notification-actions">
+      <button 
+        class="btn btn-sm btn-link" 
+        (click)="onMarkAllAsRead()"
+        *ngIf="unreadCount > 0"
+        title="Mark all as read"
+      >
+        <span class="material-symbols-outlined">done_all</span>
+      </button>
+      <button 
+        class="btn btn-sm btn-link" 
+        (click)="onClearAll()"
+        *ngIf="notifications.length > 0"
+        title="Clear all notifications"
+      >
+        <span class="material-symbols-outlined">clear_all</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="notification-list">
+    <div 
+      *ngFor="let notification of notifications" 
+      class="notification-item"
+      [ngClass]="[getNotificationClass(notification.type), { 'unread': !notification.read }]"
+      (click)="onMarkAsRead(notification.id)"
+    >
+      <div class="notification-icon">
+        <span class="material-symbols-outlined">
+          {{ getNotificationIcon(notification.type) }}
+        </span>
+      </div>
+      <div class="notification-content">
+        <div class="notification-title">{{ notification.title }}</div>
+        <div class="notification-message">{{ notification.message }}</div>
+        <div class="notification-time">{{ formatTime(notification.timestamp) }}</div>
+      </div>
+      <div class="notification-status" *ngIf="!notification.read">
+        <div class="unread-indicator"></div>
+      </div>
+    </div>
+
+    <div class="no-notifications" *ngIf="notifications.length === 0">
+      <span class="material-symbols-outlined">notifications_none</span>
+      <p>No notifications</p>
+    </div>
+  </div>
+
+  <div class="notification-footer" *ngIf="notifications.length > 0">
+    <small class="text-muted">
+      {{ unreadCount }} unread of {{ notifications.length }} total
+    </small>
+  </div>
+</div>
