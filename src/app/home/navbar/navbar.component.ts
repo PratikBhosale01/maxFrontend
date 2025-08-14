@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 import { ComponettitleService } from '../../services/componenttitle.service';
 import { admin, APPROVEADMIN, APPROVEDEPOSIT, APPROVEWITHDRAW, BANKER, DEPOSIT, navDomain, SUPPORT, WITHDRAWCHAT, DEPOSITCHAT } from './navDomain';
 import { AuthService } from '../../services/auth.service';
-import { SseNotificationService, NotificationMessage } from '../../services/sse-notification.service';
+import { SseNotificationService } from '../../services/sse-notification.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -34,7 +34,7 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   navDomains: navDomain[] = [];
   
   // Notification properties
-  notifications: NotificationMessage[] = [];
+  notifications: any[] = [];
   isNotificationsEnabled: boolean = false;
   unreadCount: number = 0;
   showNotificationDropdown: boolean = false;
@@ -233,6 +233,7 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   toggleNotifications(): void {
+    // debugger;
     this.sseNotificationService.toggleNotifications();
   }
 

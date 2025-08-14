@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { NotificationMessage } from '../../services/sse-notification.service';
+
 
 @Component({
   selector: 'app-notification-dropdown',
@@ -7,7 +7,7 @@ import { NotificationMessage } from '../../services/sse-notification.service';
   styleUrls: ['./notification-dropdown.component.scss']
 })
 export class NotificationDropdownComponent {
-  @Input() notifications: NotificationMessage[] = [];
+  @Input() notifications: any[] = [];
   @Input() unreadCount: number = 0;
   @Input() isVisible: boolean = false;
   

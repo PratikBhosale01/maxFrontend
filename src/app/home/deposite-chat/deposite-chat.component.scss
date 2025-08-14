@@ -390,10 +390,10 @@ a {
 
 .dropdown-header {
   padding: 8px 12px;
-  background-color: #f8f9fa;
+  background-color: var(--secondary-color);
   border-bottom: 1px solid #dee2e6;
   font-weight: 600;
-  color: #495057;
+  color:var(--primary-color);
   
   .btn-outline-secondary {
     font-size: 0.75rem;

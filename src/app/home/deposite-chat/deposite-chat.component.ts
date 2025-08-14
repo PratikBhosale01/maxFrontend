@@ -871,9 +871,10 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
 
   addQuickReply(): void {
     const message = this.newQuickReply.trim();
-    const title = this.newQuickReplyTitle.trim();
     
-    if (message && title && this.userId) {
+    if (message && this.userId) {
+      const title = message.substring(0, 20); // first 20 characters
+      
       // Check if quick reply with same message already exists
       const exists = this.quickReplies.some(qr => qr.message === message);
       
@@ -888,7 +889,6 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
           next: (savedQuickReply) => {
             this.quickReplies.push(savedQuickReply);
             this.newQuickReply = '';
-            this.newQuickReplyTitle = '';
             this.snackbarService.snackbar('Quick reply added successfully', 'success');
           },
           error: (error) => {
@@ -901,8 +901,8 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       }
     }
     this.showQuickReplyInput = false;
-    // Don't close the dropdown, keep it open so user can add more messages
   }
+  
 
   removeQuickReply(reply: QuickReply): void {
     if (reply.id) {

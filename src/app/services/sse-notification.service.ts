@@ -2,20 +2,20 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AppConfigService } from './app-config.service';
 
-export interface NotificationMessage {
-  id: string;
-  title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  timestamp: Date;
-  read: boolean;
-}
+// export interface NotificationMessage {
+//   id: string;
+//   title: string;
+//   message: string;
+//   type: 'info' | 'success' | 'warning' | 'error';
+//   timestamp: Date;
+//   read: boolean;
+// }
 
 @Injectable({
   providedIn: 'root'
 })
 export class SseNotificationService {
-  private notifications = new BehaviorSubject<NotificationMessage[]>([]);
+  private notifications = new BehaviorSubject<any[]>([]);
   private isEnabled = new BehaviorSubject<boolean>(true);
   private eventSources: EventSource[] = [];
   private baseUrl = this.config.getBaseurl();
@@ -89,7 +89,7 @@ export class SseNotificationService {
     this.requestNotificationPermission();
   }
 
-  getNotifications(): Observable<NotificationMessage[]> {
+  getNotifications(): Observable<any[]> {
     return this.notifications.asObservable();
   }
 
@@ -139,6 +139,24 @@ export class SseNotificationService {
     this.disconnectFromSSE();
   }
 
+  // private connectToSSE() {
+  //   console.log(this.baseUrl + "this.baseUrl");
+  //   const eventSource = new EventSource(`${this.baseUrl}/notifydchat/messages/subscribe`, { withCredentials: true });
+  
+  //   eventSource.onmessage = (event) => {
+  //     console.log('SSE Message:', event.data);
+  //   };
+  
+  //   eventSource.onerror = (err) => {
+  //     console.error('SSE Error:', err);
+  //     eventSource.close();
+  //     setTimeout(() => {
+  //       console.log('Reconnecting SSE...');
+  //       this.connectToSSE();
+  //     }, 5000);
+  //   };
+  // }
+
   private connectToSSE(): void {
     let connectedEndpoints = 0;
     
@@ -150,8 +168,8 @@ export class SseNotificationService {
       return;
     }
     
-    console.log(`Connecting to ${endpoints.length} endpoints for role: ${this.getUserRole()}`);
-    
+    // console.log(`Connecting to ${endpoints.length} endpoints for role: ${this.getUserRole()}`);
+    // debugger;
     // Connect to role-specific SSE endpoints
     endpoints.forEach((endpoint, index) => {
       try {
@@ -195,13 +213,14 @@ export class SseNotificationService {
 
 
 
-  private handleNotification(data: string, source: string): void {
+  private handleNotification(data: any, source: string): void {
     // Parse the demo message format
+    
     const parsedData = this.parseNotificationMessage(data);
     
-    const notification: NotificationMessage = {
+    const notification: any = {
       id: this.generateId(),
-      title: parsedData.title,
+      title: 'New Notification',
       message: parsedData.message,
       type: parsedData.type,
       timestamp: new Date(),
@@ -211,52 +230,40 @@ export class SseNotificationService {
     // Add to notifications list
     const currentNotifications = this.notifications.value;
     this.notifications.next([notification, ...currentNotifications]);
-
+   console.log(notification + "notification");
     // Show browser notification
     this.showBrowserNotification(notification);
   }
 
-  private parseNotificationMessage(message: string): { title: string; message: string; type: 'info' | 'success' | 'warning' | 'error' } {
-    // Handle the demo message format: "🔔 New Approve Withdraw Request: User ID: demoUser1, UTR: utrNumber_66ab8bcd589e, Amount: amount_56a05bede071"
-    
-    // Remove the bell emoji and extract the main content
-    const cleanMessage = message.replace('🔔 ', '');
-    
-    // Determine notification type based on content
-    let type: 'info' | 'success' | 'warning' | 'error' = 'info';
-    
-    if (cleanMessage.toLowerCase().includes('withdraw')) {
-      type = 'warning';
-    } else if (cleanMessage.toLowerCase().includes('deposit') || cleanMessage.toLowerCase().includes('depo')) {
-      type = 'info';
-    } else if (cleanMessage.toLowerCase().includes('chat')) {
-      type = 'success';
-    } else if (cleanMessage.toLowerCase().includes('error') || cleanMessage.toLowerCase().includes('failed')) {
-      type = 'error';
+  private parseNotificationMessage(message: any) {
+    try {
+      // Parse the incoming JSON string
+      const parsed = JSON.parse(message);
+  
+      return {
+        title: parsed.title || 'New Notification',
+        message: parsed.message || '',
+        type: parsed.type || ''
+      };
+    } catch (err) {
+      console.error('Failed to parse notification message:', err, message);
+  
+      // Fallback if it's not valid JSON
+      return {
+        title: 'New Notification',
+        message: message,
+        type: ''
+      };
     }
-
-    // Extract title and message
-    const colonIndex = cleanMessage.indexOf(':');
-    let title = 'New Notification';
-    let messageContent = cleanMessage;
-
-    if (colonIndex !== -1) {
-      title = cleanMessage.substring(0, colonIndex).trim();
-      messageContent = cleanMessage.substring(colonIndex + 1).trim();
-    }
-
-    return {
-      title,
-      message: messageContent,
-      type
-    };
   }
 
-  private showBrowserNotification(notification: NotificationMessage): void {
+  private showBrowserNotification(notification: any): void {
     if ('Notification' in window && Notification.permission === 'granted') {
+      
+      // console.log(notification + "notification");
       const browserNotification = new Notification(notification.title, {
         body: notification.message,
-        icon: '/assets/logo.png', // Using existing logo as notification icon
+        icon: '/assets/notification.png', // Using existing logo as notification icon
         tag: notification.id,
         requireInteraction: false,
         silent: false
