@@ -107,7 +107,7 @@ throw new Error('Method not implemented.');
         this.pageNo = 0; // Reset to first page for a new search
         this.searchDeposits();
       } else {
-        console.log('Search text is empty, no search will be performed.');
+        // console.log('Search text is empty, no search will be performed.');
         // Optionally, you can fetch the default list if search is empty
         this.getDeposits();
       }
@@ -300,12 +300,12 @@ throw new Error('Method not implemented.');
       // totalAmount:deposits.amount,
     };
 
-    console.log('inside approval');
+    // console.log('inside approval');
   }
 
   
   getDeposits(): void {
-    console.log(this.selectedStatuses.value);
+    // console.log(this.selectedStatuses.value);
     const statusesToSend =
       this.selectedStatuses.value.length > 0
         ? this.selectedStatuses.value

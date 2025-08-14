@@ -7,7 +7,7 @@ var appConfig = {
   mainbackendUrl: "https://api.approvepanel.com",
   // mainbackendUrl:"http://0djs0mh1-8080.inc1.devtunnels.ms",
   // mainbackendUrl:"http://vinayahire-23413.portmap.host:23413",
-  //  mainbackendUrl:"https://priority-outside-buyer-rs.trycloudflare.com",
+  //  mainbackendUrl:"https://durham-july-concentrations-showers.trycloudflare.com",
 };
 // var appConfigWs = {};
 

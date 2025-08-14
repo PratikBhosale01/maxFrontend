@@ -6,12 +6,14 @@ import { BankingService } from '../../services/banking.service';
 import { SnackbarService } from '../../services/snackbar.service';
 
 import { ChatMessageDTO, ConversationDTO } from '../../domain/ChatMessage';
+import { QuickReply } from '../../domain/QuickReply';
 import { WattiService } from '../../services/watti.service';
 import { ApproveService } from '../../services/approve.service';
 import { DepoChatService } from '../../services/depo-chat.service';
 // import { DepositeChatService } from '../../services/deposite-chat.service';
 import { WatiAccountService, WatiAccount } from '../../services/wati-account.service';
 import { ComponettitleService } from '../../services/componenttitle.service';
+import { QuickReplyService } from '../../services/quick-reply.service';
 
 @Component({
   selector: 'app-deposite-chat',
@@ -19,8 +21,9 @@ import { ComponettitleService } from '../../services/componenttitle.service';
   styleUrls: ['./deposite-chat.component.scss']
 })
 export class DepositeChatComponent implements OnInit, OnDestroy {
-  quickReplies: string[] = [];
+  quickReplies: QuickReply[] = [];
   newQuickReply: string = '';
+  newQuickReplyTitle: string = '';
   showQuickReplyInput = false;
   showStarMessagesDropdown = false;
   @ViewChild('chatContainer') chatContainer: ElementRef;
@@ -95,6 +98,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     private approveService: ApproveService,
     private titleService : ComponettitleService,
     private watiAccountService: WatiAccountService, // <-- Injected
+    private quickReplyService: QuickReplyService, // <-- Injected
     // private chatService: DepositeChatService
   ) {
       this.titleService.changeTitle('Deposit Chat');
@@ -833,45 +837,86 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   loadQuickReplies(): void {
-    const stored = localStorage.getItem('watti-quick-replies');
-    this.quickReplies = stored ? JSON.parse(stored) : [];
+    if (this.userId) {
+      this.quickReplyService.getQuickRepliesByUserId(this.userId).subscribe({
+        next: (quickReplies) => {
+          this.quickReplies = quickReplies;
+        },
+        error: (error) => {
+          console.error('Error loading quick replies:', error);
+          this.snackbarService.snackbar('Failed to load quick replies', 'error');
+        }
+      });
+    }
   }
 
-  saveQuickReplies(): void {
-    localStorage.setItem('watti-quick-replies', JSON.stringify(this.quickReplies));
-  }
-
-  sendQuickReply(reply: string): void {
+  sendQuickReply(reply: QuickReply): void {
     if (!this.activeDepositeNumber) return;
-    this.messageForm.get('content')?.setValue(reply);
+    this.messageForm.get('content')?.setValue(reply.message);
     this.sendMessage();
     this.showStarMessagesDropdown = false;
   }
 
   openQuickReplyInput(): void {
     this.showQuickReplyInput = true;
+    this.newQuickReply = '';
+    this.newQuickReplyTitle = '';
     setTimeout(() => {
-      const textarea = document.querySelector('.add-message-section textarea') as HTMLTextAreaElement;
-      if (textarea) {
-        textarea.focus();
+      const titleInput = document.querySelector('.add-message-section .title-input') as HTMLInputElement;
+      if (titleInput) {
+        titleInput.focus();
       }
     });
   }
 
   addQuickReply(): void {
-    const value = this.newQuickReply.trim();
-    if (value && !this.quickReplies.includes(value)) {
-      this.quickReplies.push(value);
-      this.saveQuickReplies();
-      this.newQuickReply = '';
+    const message = this.newQuickReply.trim();
+    
+    if (message && this.userId) {
+      const title = message.substring(0, 20); // first 20 characters
+      
+      // Check if quick reply with same message already exists
+      const exists = this.quickReplies.some(qr => qr.message === message);
+      
+      if (!exists) {
+        const newQuickReply: QuickReply = {
+          title: title,
+          message: message,
+          zuserId: this.userId
+        };
+        
+        this.quickReplyService.saveQuickReply(newQuickReply).subscribe({
+          next: (savedQuickReply) => {
+            this.quickReplies.push(savedQuickReply);
+            this.newQuickReply = '';
+            this.snackbarService.snackbar('Quick reply added successfully', 'success');
+          },
+          error: (error) => {
+            console.error('Error adding quick reply:', error);
+            this.snackbarService.snackbar('Failed to add quick reply', 'error');
+          }
+        });
+      } else {
+        this.snackbarService.snackbar('Quick reply already exists', 'warning');
+      }
     }
     this.showQuickReplyInput = false;
-    // Don't close the dropdown, keep it open so user can add more messages
   }
+  
 
-  removeQuickReply(reply: string): void {
-    this.quickReplies = this.quickReplies.filter(q => q !== reply);
-    this.saveQuickReplies();
+  removeQuickReply(reply: QuickReply): void {
+    if (reply.id) {
+      this.quickReplyService.deleteQuickReply(reply.id).subscribe({
+        next: () => {
+          this.quickReplies = this.quickReplies.filter(q => q.id !== reply.id);
+          this.snackbarService.snackbar('Quick reply removed successfully', 'success');
+        },
+        error: (error) => {
+          console.error('Error removing quick reply:', error);
+          this.snackbarService.snackbar('Failed to remove quick reply', 'error');
+        }
+      });
+    }
     // Don't close dropdown even if no messages left, user might want to add new ones
   }
 
@@ -922,6 +967,8 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   closeStarMessagesDropdown(): void {
     this.showStarMessagesDropdown = false;
     this.showQuickReplyInput = false;
+    this.newQuickReply = '';
+    this.newQuickReplyTitle = '';
   }
 
   @HostListener('document:click', ['$event'])

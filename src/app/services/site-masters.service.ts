@@ -14,6 +14,7 @@ export class SiteMastersService {
 
 
   constructor(private http : HttpClient, private config :AppConfigService) {
+   
     this.loadAllSiteMasters();
    }
 

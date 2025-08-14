@@ -81,22 +81,25 @@
     <div class="chat-header" *ngIf="selectedConversation">
       <div class="chat-header-user">
         <mat-icon>account_circle</mat-icon>
-        <div class="client-name-container">
-          <!-- <input *ngIf="isEditingName" 
-                 [(ngModel)]="editingClientName" 
-                 (blur)="updateClientName()"
-                 (keyup.enter)="updateClientName()"
-                 class="client-name-input"
-                 matInput>
-          <h2 *ngIf="!isEditingName" 
-              (click)="startEditingName()" 
-              [class.has-client-id]="selectedConversation.clientId">
-            {{  selectedConversation.clientId ||selectedConversation.clientName || 'USER' }}
-          </h2> -->
-          <h2 >
-            {{ selectedConversation.clientName || 'USER' }}
-          </h2>
-
+          <div class="client-name-container" *ngIf="selectedConversation">
+          <ng-container *ngIf="!isEditingName; else editName">
+            <h2 (click)="startEditingName()" style="cursor:pointer;">
+              {{ selectedConversation.clientName || 'USER' }}
+              <button mat-icon-button class="edit-btn" (click)="startEditingName(); $event.stopPropagation()" style="vertical-align: middle;">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </h2>
+          </ng-container>
+          <ng-template #editName>
+            <input
+              [(ngModel)]="editingClientName"
+              (blur)="updateClientName()"
+              (keydown.enter)="updateClientName()"
+              class="client-name-input"
+              style="font-size:1.5rem; font-weight:600; background:transparent; color:white; border:none; border-bottom:1px solid #aaa; outline:none; width:90%;"
+              autofocus
+            />
+          </ng-template>
         </div>
       </div>
       <div class="chat-header-actions">
@@ -247,9 +250,9 @@
             </mat-form-field>
           
             
-            <!-- <button mat-icon-button type="button" (click)="toggleRecording()" class="btn-icon" [class.recording]="isRecording">
+            <button mat-icon-button type="button" (click)="toggleRecording()" class="btn-icon" [class.recording]="isRecording">
               <mat-icon>{{ isRecording ? 'stop' : 'mic' }}</mat-icon>
-            </button> -->
+            </button>
           </div>
           
           <button mat-icon-button type="submit" [disabled]="messageForm.invalid || loading" class="btn-icon">

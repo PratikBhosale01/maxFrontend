@@ -8,18 +8,22 @@ import {
   ViewChild,
   Renderer2,
   OnInit,
+  OnDestroy,
+  HostListener,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ComponettitleService } from '../../services/componenttitle.service';
 import { admin, APPROVEADMIN, APPROVEDEPOSIT, APPROVEWITHDRAW, BANKER, DEPOSIT, navDomain, SUPPORT, WITHDRAWCHAT, DEPOSITCHAT } from './navDomain';
 import { AuthService } from '../../services/auth.service';
+import { SseNotificationService } from '../../services/sse-notification.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
-export class NavbarComponent implements AfterViewInit, OnInit {
+export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('navbarToggler') navbarToggler!: ElementRef;
   @Input() isExpanded: boolean = false;
   @Output() toggleSidebar: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -28,12 +32,28 @@ export class NavbarComponent implements AfterViewInit, OnInit {
   userRole: string;
   userName: string = "Username";
   navDomains: navDomain[] = [];
-  constructor(public route: Router, private renderer: Renderer2, private titleService: ComponettitleService, private authService: AuthService
+  
+  // Notification properties
+  notifications: any[] = [];
+  isNotificationsEnabled: boolean = false;
+  unreadCount: number = 0;
+  showNotificationDropdown: boolean = false;
+  private subscriptions: Subscription[] = [];
+  
+  constructor(
+    public route: Router, 
+    private renderer: Renderer2, 
+    private titleService: ComponettitleService, 
+    private authService: AuthService,
+    private sseNotificationService: SseNotificationService
   ) { }
   ngOnInit(): void {
     this.titleService.currentTitle.subscribe((title) => (this.title = title));
     this.getrole();
     this.setRoleData();
+    this.initializeNotifications();
+    // Start notifications after user data is loaded
+    this.sseNotificationService.startNotificationsForUser();
   }
 
   ngAfterViewInit() {
@@ -188,4 +208,70 @@ export class NavbarComponent implements AfterViewInit, OnInit {
     return this.expandedMenus.has(navTitle);
   }
 
+  // Notification methods
+  private initializeNotifications(): void {
+    // Subscribe to notification status
+    this.subscriptions.push(
+      this.sseNotificationService.getNotificationStatus().subscribe(
+        status => this.isNotificationsEnabled = status
+      )
+    );
+
+    // Subscribe to notifications list
+    this.subscriptions.push(
+      this.sseNotificationService.getNotifications().subscribe(
+        notifications => this.notifications = notifications
+       
+      )
+    );
+
+    // Subscribe to unread count
+    this.subscriptions.push(
+      this.sseNotificationService.getUnreadCount().subscribe(
+        count => this.unreadCount = count
+      )
+    );
+  }
+
+  toggleNotifications(): void {
+    // debugger;
+    this.sseNotificationService.toggleNotifications();
+  }
+
+  toggleNotificationDropdown(): void {
+ 
+    this.showNotificationDropdown = !this.showNotificationDropdown;
+  }
+
+  closeNotificationDropdown(): void {
+    this.showNotificationDropdown = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    // Close dropdown if clicking outside
+    if (this.showNotificationDropdown) {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.notification-controls')) {
+        this.showNotificationDropdown = false;
+      }
+    }
+  }
+
+  markNotificationAsRead(notificationId: string): void {
+    this.sseNotificationService.markAsRead(notificationId);
+  }
+
+  markAllNotificationsAsRead(): void {
+    this.sseNotificationService.markAllAsRead();
+  }
+
+  clearAllNotifications(): void {
+    this.sseNotificationService.clearNotifications();
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscriptions
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
 }

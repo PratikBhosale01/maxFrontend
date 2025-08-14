@@ -1114,3 +1114,21 @@ a {
   min-width: 48px;
   margin-left: 8px;
 }
+.client-name-input {
+  font-size: 1.1rem !important; // Smaller input text
+  font-weight: 500;
+  background: transparent;
+  color: white;
+  border: none;
+  border-bottom: 1px solid #aaa;
+  outline: none;
+  width: 90%;
+}
+.edit-btn {
+  margin-left: 8px;
+  color: #90caf9;
+  opacity: 0.7;
+}
+.edit-btn:hover {
+  opacity: 1;
+}
