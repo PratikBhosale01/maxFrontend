@@ -90,6 +90,7 @@ export class SseNotificationService {
   }
 
   getNotifications(): Observable<any[]> {
+    
     return this.notifications.asObservable();
   }
 
@@ -176,23 +177,23 @@ export class SseNotificationService {
         const eventSource = new EventSource(endpoint);
         
         eventSource.onmessage = (event) => {
-          console.log(`SSE message from endpoint ${index + 1}:`, event.data);
+        
           this.handleNotification(event.data, `Endpoint ${index + 1}`);
         };
 
         eventSource.onerror = (error) => {
-          console.error(`SSE Error for endpoint ${endpoint}:`, error);
+       
           eventSource.close();
         };
 
         eventSource.onopen = () => {
-          console.log(`SSE connection opened for endpoint ${index + 1}: ${endpoint}`);
+      
           connectedEndpoints++;
         };
 
         this.eventSources.push(eventSource);
       } catch (error) {
-        console.error(`Failed to connect to SSE endpoint ${endpoint}:`, error);
+      
       }
     });
 
@@ -230,7 +231,7 @@ export class SseNotificationService {
     // Add to notifications list
     const currentNotifications = this.notifications.value;
     this.notifications.next([notification, ...currentNotifications]);
-   console.log(notification + "notification");
+ 
     // Show browser notification
     this.showBrowserNotification(notification);
   }
@@ -259,28 +260,53 @@ export class SseNotificationService {
 
   private showBrowserNotification(notification: any): void {
     if ('Notification' in window && Notification.permission === 'granted') {
-      
-      // console.log(notification + "notification");
-      const browserNotification = new Notification(notification.title, {
-        body: notification.message,
-        icon: '/assets/notification.png', // Using existing logo as notification icon
+      // Default icon
+      const iconPath = '/assets/notification.png';
+  
+      // Title emoji based on type
+      let titlePrefix = '';
+      switch (notification.type) {
+        case 'withdrawChat':
+          titlePrefix = '💸 Withdraw Chat';
+          break;
+        case 'depositChat':
+          titlePrefix = '💰 Deposit Chat';
+          break;
+        case 'approveDeposit':
+          titlePrefix = '✅ Deposit Approved';
+          break;
+        case 'approveWithdraw':
+          titlePrefix = '🆗 Withdraw Approved';
+          break;
+        default:
+          titlePrefix = notification.title || 'New Notification';
+      }
+  
+      // Make title pop (uppercase + emoji)
+      const bigTitle = `${titlePrefix.toUpperCase()}`;
+  
+      // Message on a second line for visual hierarchy
+      const bodyText = `\n${notification.message}`;
+  
+      const browserNotification = new Notification(bigTitle, {
+        body: bodyText,
+        icon: iconPath,
         tag: notification.id,
         requireInteraction: false,
         silent: false
       });
-
+  
       browserNotification.onclick = () => {
         this.markAsRead(notification.id);
         browserNotification.close();
-        // You can add navigation logic here
       };
-
-      // Auto close after 5 seconds
+  
       setTimeout(() => {
         browserNotification.close();
       }, 5000);
     }
   }
+  
 
   private generateId(): string {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);

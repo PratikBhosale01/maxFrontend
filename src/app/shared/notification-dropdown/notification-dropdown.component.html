@@ -25,17 +25,17 @@
     <div 
       *ngFor="let notification of notifications" 
       class="notification-item"
-      [ngClass]="[getNotificationClass(notification.type), { 'unread': !notification.read }]"
+      
       (click)="onMarkAsRead(notification.id)"
     >
       <div class="notification-icon">
         <span class="material-symbols-outlined">
-          {{ getNotificationIcon(notification.type) }}
+          <!-- {{ getNotificationIcon(notification.type) }} -->
         </span>
       </div>
       <div class="notification-content">
-        <div class="notification-title">{{ notification.title }}</div>
-        <div class="notification-message">{{ notification.message }}</div>
+        <div style="color: aliceblue;" class="notification-title">{{ notification.title }}</div>
+        <div style="color: aliceblue;" class="notification-message">{{ notification.message }}</div>
         <div class="notification-time">{{ formatTime(notification.timestamp) }}</div>
       </div>
       <div class="notification-status" *ngIf="!notification.read">

@@ -221,6 +221,7 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
     this.subscriptions.push(
       this.sseNotificationService.getNotifications().subscribe(
         notifications => this.notifications = notifications
+       
       )
     );
 
@@ -238,6 +239,7 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   toggleNotificationDropdown(): void {
+ 
     this.showNotificationDropdown = !this.showNotificationDropdown;
   }
 
