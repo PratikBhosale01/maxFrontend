@@ -19,8 +19,9 @@ export class SseNotificationService {
   private isEnabled = new BehaviorSubject<boolean>(true);
   private eventSources: EventSource[] = [];
   private baseUrl = this.config.getBaseurl();
-  
-
+  private reconnectAttempts = new Map<string, number>();
+  private maxReconnectAttempts = 3;
+  private reconnectDelay = 5000; // 5 seconds
 
   // Get user role from localStorage or sessionStorage
   private getUserRole(): string {
@@ -47,6 +48,7 @@ export class SseNotificationService {
         return [
           `${this.baseUrl}/notify/subscribe/with`,
           `${this.baseUrl}/notify/subscribe/depo`,
+          // `${this.baseUrl}/notifydchat/messages/subscribe`,
           `${this.baseUrl}/notifydchat/messages/subscribe`,
           `${this.baseUrl}/notifywchat/messages/subscribe`
         ];
@@ -66,7 +68,8 @@ export class SseNotificationService {
       case 'DEPOSITCHAT':
         // Call only deposit chat endpoint
         return [
-          `${this.baseUrl}/notifydchat/messages/subscribe`
+          // `${this.baseUrl}/notifydchat/messages/subscribe`
+          `${this.baseUrl}/api/notifydepochat/sse/messages/subscribe`
         ];
         
       case 'WITHDRAWCHAT':
@@ -122,11 +125,44 @@ export class SseNotificationService {
     this.startNotifications();
   }
 
+  // Public method to request notification permission
+  requestPermission(): Promise<NotificationPermission> {
+    if ('Notification' in window) {
+      return Notification.requestPermission();
+    }
+    return Promise.resolve('denied' as NotificationPermission);
+  }
+
+  // Check if notifications are supported
+  isNotificationSupported(): boolean {
+    return 'Notification' in window;
+  }
+
+  // Get current notification permission status
+  getNotificationPermission(): NotificationPermission {
+    if ('Notification' in window) {
+      return Notification.permission;
+    }
+    return 'denied';
+  }
+
   private requestNotificationPermission(): void {
     if ('Notification' in window) {
-      Notification.requestPermission().then(permission => {
-        console.log('Notification permission:', permission);
-      });
+      // Only request permission if it's not already granted or denied
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          console.log('Notification permission:', permission);
+          if (permission === 'granted') {
+            console.log('Browser notifications enabled');
+          } else {
+            console.log('Browser notifications disabled by user');
+          }
+        }).catch(error => {
+          console.warn('Error requesting notification permission:', error);
+        });
+      } else {
+        console.log('Notification permission already set to:', Notification.permission);
+      }
     }
   }
 
@@ -169,82 +205,111 @@ export class SseNotificationService {
       return;
     }
     
-    // console.log(`Connecting to ${endpoints.length} endpoints for role: ${this.getUserRole()}`);
-    // debugger;
+    console.log(`Connecting to ${endpoints.length} endpoints for role: ${this.getUserRole()}`);
+    
     // Connect to role-specific SSE endpoints
     endpoints.forEach((endpoint, index) => {
-      try {
-        const eventSource = new EventSource(endpoint);
-        
-        eventSource.onmessage = (event) => {
-        
-          this.handleNotification(event.data, `Endpoint ${index + 1}`);
-        };
-
-        eventSource.onerror = (error) => {
-       
-          eventSource.close();
-        };
-
-        eventSource.onopen = () => {
-      
-          connectedEndpoints++;
-        };
-
-        this.eventSources.push(eventSource);
-      } catch (error) {
-      
-      }
+      this.createEventSource(endpoint, index);
     });
+  }
 
-    // Log connection status
-    if (connectedEndpoints === 0) {
-      console.log('No SSE endpoints connected for current user role');
-    } else {
-      console.log(`Successfully connected to ${connectedEndpoints} endpoints`);
+  private createEventSource(endpoint: string, index: number): void {
+    try {
+      const eventSource = new EventSource(endpoint, { withCredentials: true });
+      
+      eventSource.onmessage = (event) => {
+        console.log(`SSE Message from endpoint ${index + 1}:`, event.data);
+        this.handleNotification(event.data, `Endpoint ${index + 1}`);
+      };
+
+      eventSource.onerror = (error) => {
+        console.error(`SSE Error from endpoint ${index + 1}:`, error);
+        eventSource.close();
+        this.handleConnectionError(endpoint, index);
+      };
+
+      eventSource.onopen = () => {
+        console.log(`Successfully connected to endpoint ${index + 1}: ${endpoint}`);
+        this.reconnectAttempts.delete(endpoint);
+      };
+
+      this.eventSources.push(eventSource);
+    } catch (error) {
+      console.error(`Failed to create EventSource for endpoint ${index + 1}:`, error);
+      this.handleConnectionError(endpoint, index);
+    }
+  }
+
+  private handleConnectionError(endpoint: string, index: number): void {
+    const attempts = this.reconnectAttempts.get(endpoint) || 0;
+    
+    if (attempts < this.maxReconnectAttempts && this.isEnabled.value) {
+      console.log(`Attempting to reconnect to endpoint ${index + 1} (attempt ${attempts + 1}/${this.maxReconnectAttempts})`);
+      this.reconnectAttempts.set(endpoint, attempts + 1);
+      
+      setTimeout(() => {
+        this.createEventSource(endpoint, index);
+      }, this.reconnectDelay);
+    } else if (attempts >= this.maxReconnectAttempts) {
+      console.error(`Max reconnection attempts reached for endpoint ${index + 1}`);
     }
   }
 
   private disconnectFromSSE(): void {
+    console.log('Disconnecting from SSE endpoints');
     this.eventSources.forEach(eventSource => {
       eventSource.close();
     });
     this.eventSources = [];
+    this.reconnectAttempts.clear();
   }
 
 
 
   private handleNotification(data: any, source: string): void {
-    // Parse the demo message format
-    
-    const parsedData = this.parseNotificationMessage(data);
-    
-    const notification: any = {
-      id: this.generateId(),
-      title: 'New Notification',
-      message: parsedData.message,
-      type: parsedData.type,
-      timestamp: new Date(),
-      read: false
-    };
+    try {
+      // Parse the notification message
+      const parsedData = this.parseNotificationMessage(data);
+      
+      const notification: any = {
+        id: this.generateId(),
+        title: parsedData.title || 'New Notification',
+        message: parsedData.message || data,
+        type: parsedData.type || 'info',
+        timestamp: new Date(),
+        read: false,
+        source: source
+      };
 
-    // Add to notifications list
-    const currentNotifications = this.notifications.value;
-    this.notifications.next([notification, ...currentNotifications]);
- 
-    // Show browser notification
-    this.showBrowserNotification(notification);
+      // Add to notifications list (limit to last 100 notifications to prevent memory issues)
+      const currentNotifications = this.notifications.value;
+      const updatedNotifications = [notification, ...currentNotifications].slice(0, 100);
+      this.notifications.next(updatedNotifications);
+      
+      // Play notification sound only if notifications are enabled
+      if (this.isEnabled.value) {
+        this.playNotificationSound();
+        this.showBrowserNotification(notification);
+      }
+    } catch (error) {
+      console.error('Error handling notification:', error, data);
+    }
   }
 
   private parseNotificationMessage(message: any) {
     try {
-      // Parse the incoming JSON string
-      const parsed = JSON.parse(message);
+      // Handle both string and object inputs
+      let parsed;
+      if (typeof message === 'string') {
+        parsed = JSON.parse(message);
+      } else {
+        parsed = message;
+      }
   
       return {
-        title: parsed.title || 'New Notification',
-        message: parsed.message || '',
-        type: parsed.type || ''
+        title: parsed.title || parsed.subject || 'New Notification',
+        message: parsed.message || parsed.body || parsed.content || message,
+        type: parsed.type || parsed.category || 'info'
       };
     } catch (err) {
       console.error('Failed to parse notification message:', err, message);
@@ -252,58 +317,86 @@ export class SseNotificationService {
       // Fallback if it's not valid JSON
       return {
         title: 'New Notification',
-        message: message,
-        type: ''
+        message: typeof message === 'string' ? message : JSON.stringify(message),
+        type: 'info'
       };
     }
   }
 
-  private showBrowserNotification(notification: any): void {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      // Default icon
-      const iconPath = '/assets/notification.png';
-  
-      // Title emoji based on type
-      let titlePrefix = '';
-      switch (notification.type) {
-        case 'withdrawChat':
-          titlePrefix = '💸 Withdraw Chat';
-          break;
-        case 'depositChat':
-          titlePrefix = '💰 Deposit Chat';
-          break;
-        case 'approveDeposit':
-          titlePrefix = '✅ Deposit Approved';
-          break;
-        case 'approveWithdraw':
-          titlePrefix = '🆗 Withdraw Approved';
-          break;
-        default:
-          titlePrefix = notification.title || 'New Notification';
-      }
-  
-      // Make title pop (uppercase + emoji)
-      const bigTitle = `${titlePrefix.toUpperCase()}`;
-  
-      // Message on a second line for visual hierarchy
-      const bodyText = `\n${notification.message}`;
-  
-      const browserNotification = new Notification(bigTitle, {
-        body: bodyText,
-        icon: iconPath,
-        tag: notification.id,
-        requireInteraction: false,
-        silent: false
+  private playNotificationSound(): void {
+    try {
+      const audio = new Audio('assets/542043_6856600-lq.mp3');
+      audio.volume = 0.6;
+      audio.play().catch((error) => {
+        console.warn('Could not play notification sound:', error);
       });
-  
-      browserNotification.onclick = () => {
-        this.markAsRead(notification.id);
-        browserNotification.close();
-      };
-  
-      setTimeout(() => {
-        browserNotification.close();
-      }, 5000);
+    } catch (error) {
+      console.warn('Error creating audio element:', error);
+    }
+  }
+
+  private showBrowserNotification(notification: any): void {
+    if ('Notification' in window && Notification.permission === 'granted' && this.isEnabled.value) {
+      try {
+        // Default icon
+        const iconPath = '/assets/notification.png';
+    
+        // Title emoji based on type
+        let titlePrefix = '';
+        switch (notification.type) {
+          case 'withdrawChat':
+            titlePrefix = '💸 Withdraw Chat';
+            break;
+          case 'depositChat':
+            titlePrefix = '💰 Deposit Chat';
+            break;
+          case 'approveDeposit':
+            titlePrefix = '✅ Deposit Approved';
+            break;
+          case 'approveWithdraw':
+            titlePrefix = '🆗 Withdraw Approved';
+            break;
+          case 'success':
+            titlePrefix = '✅ Success';
+            break;
+          case 'warning':
+            titlePrefix = '⚠️ Warning';
+            break;
+          case 'error':
+            titlePrefix = '❌ Error';
+            break;
+          default:
+            titlePrefix = '📢 Notification';
+        }
+    
+        // Make title pop (uppercase + emoji)
+        const bigTitle = `${titlePrefix.toUpperCase()}`;
+    
+        // Message on a second line for visual hierarchy
+        const bodyText = `\n${notification.message}`;
+    
+        const browserNotification = new Notification(bigTitle, {
+          body: bodyText,
+          icon: iconPath,
+          tag: notification.id,
+          requireInteraction: false,
+          silent: false
+        });
+    
+        browserNotification.onclick = () => {
+          this.markAsRead(notification.id);
+          browserNotification.close();
+          // Focus the window
+          window.focus();
+        };
+    
+        // Auto-close after 5 seconds
+        setTimeout(() => {
+          browserNotification.close();
+        }, 5000);
+      } catch (error) {
+        console.error('Error showing browser notification:', error);
+      }
     }
   }
   
