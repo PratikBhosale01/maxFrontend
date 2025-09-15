@@ -195,6 +195,11 @@ export class WattiService {
     return this.http.put(`${this.baseUrl}/${id}/read`, {});
   }
 
+  deLinkUserIDs(conversation: ConversationDTO): Observable<any> {
+    const url = `${this.baseUrl}/dLinkUserIDs`;
+    return this.http.post(url, conversation);
+  }
+
   // Mark conversation as done
   markConversationAsDone(id: number): Observable<any> {
     return this.http.put(`${this.baseUrl}/${id}/done`, {});

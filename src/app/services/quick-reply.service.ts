@@ -9,12 +9,13 @@ import { AppConfigService } from './app-config.service';
 })
 export class QuickReplyService {
   private baseUrl: string;
-
+  private baseWUrl: string;
   constructor(
     private http: HttpClient,
     private config: AppConfigService
   ) {
     this.baseUrl = `${this.config.getBaseurl()}/api/dchat/quick-replies`;
+    this.baseWUrl = `${this.config.getBaseurl()}/api/chat/quick-replies`;
   }
 
   // Save a new quick reply
@@ -27,9 +28,21 @@ export class QuickReplyService {
     return this.http.get<QuickReply[]>(`${this.baseUrl}/zuser/${zuserId}`);
   }
 
-  // Delete a quick reply by ID
   deleteQuickReply(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  deleteQuickReplyw(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  saveQuickReplyw(quickReply: QuickReply): Observable<QuickReply> {
+    return this.http.post<QuickReply>(this.baseUrl, quickReply);
+  }
+
+  
+  getQuickRepliesByUserIdw(zuserId: number): Observable<QuickReply[]> {
+    return this.http.get<QuickReply[]>(`${this.baseUrl}/${zuserId}`);
   }
 }
 

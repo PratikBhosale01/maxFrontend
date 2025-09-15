@@ -19,8 +19,11 @@ export class SseNotificationService {
   private isEnabled = new BehaviorSubject<boolean>(true);
   private eventSources: EventSource[] = [];
   private baseUrl = this.config.getBaseurl();
+  private notificationsEnabled = new BehaviorSubject<boolean>(false);
+  private retryAttempts = 0;
+  private maxRetries = 5;
+  private eventSource: EventSource | null = null;
   
-
 
   // Get user role from localStorage or sessionStorage
   private getUserRole(): string {
@@ -94,16 +97,25 @@ export class SseNotificationService {
     return this.notifications.asObservable();
   }
 
+  private playNotificationSound(): void {
+    try {
+      const audio = new Audio('assets/542043_6856600-lq.mp3');
+      audio.volume = 0.6;
+      audio.play().catch(() => { /* ignore autoplay restrictions */ });
+    } catch { /* no-op */ }
+  }
+
   getNotificationStatus(): Observable<boolean> {
     return this.isEnabled.asObservable();
   }
 
-  toggleNotifications(): void {
-    const currentStatus = this.isEnabled.value;
-    if (currentStatus) {
-      this.stopNotifications();
+  toggleNotifications() {
+    const enabled = !this.notificationsEnabled.value;
+    this.notificationsEnabled.next(enabled);
+    if (enabled) {
+      this.startNotificationsForUser();
     } else {
-      this.startNotifications();
+      this.stopNotifications();
     }
   }
 
@@ -117,9 +129,10 @@ export class SseNotificationService {
   }
 
   // Public method to start notifications (called after user login)
-  startNotificationsForUser(): void {
-    console.log('Starting notifications for logged in user');
-    this.startNotifications();
+  startNotificationsForUser() {
+    if (!this.notificationsEnabled.value) return; // Only connect if enabled
+
+    this.connectToSSE();
   }
 
   private requestNotificationPermission(): void {
@@ -230,7 +243,12 @@ export class SseNotificationService {
 
     // Add to notifications list
     const currentNotifications = this.notifications.value;
+
+  
+
     this.notifications.next([notification, ...currentNotifications]);
+
+    this.playNotificationSound();
  
     // Show browser notification
     this.showBrowserNotification(notification);
