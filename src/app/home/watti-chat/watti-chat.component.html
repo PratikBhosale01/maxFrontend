@@ -108,7 +108,62 @@
         <span *ngIf="!wsConnected">Offline</span>
       </div> -->
       <!-- <p><strong>Manual Status:</strong> {{ isManual ? 'Manual' : 'Automatic' }}</p> -->
-    <button (click)="toggleManualStatus(selectedConversation.watiNumber)" class="toggle-button">
+      <div class="quick-reply-wrapper" *ngIf="activeWatiNumber">
+        <button class="quick-reply-trigger" 
+                (click)="toggleStarMessagesDropdown()"
+                [class.active]="showStarMessagesDropdown">
+          <mat-icon>star</mat-icon>
+        </button>
+        
+        <div class="quick-reply-dropdown" *ngIf="showStarMessagesDropdown">
+          <div class="dropdown-header">
+            <span>Quick Messages</span>
+            <button class="close-btn" (click)="closeStarMessagesDropdown()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          
+          <div class="dropdown-content">
+            <div *ngFor="let reply of quickReplies" 
+                 class="quick-message-item"
+                 (click)="sendQuickReply(reply)">
+              <div class="quick-reply-content">
+                <div style="color: aliceblue;" class="quick-reply-title">{{ reply.title }}</div>
+                
+              </div>
+              <button class="delete-btn" 
+                      (click)="removeQuickReply(reply); $event.stopPropagation()">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            
+            <div *ngIf="quickReplies.length === 0 && !showQuickReplyInput" class="empty-state">
+              <p>No quick messages yet</p>
+            </div>
+            
+            <div *ngIf="showQuickReplyInput" class="add-message-section">
+              <textarea
+                [(ngModel)]="newQuickReply"
+                placeholder="Type your quick message..."
+                rows="3"
+                autofocus>
+              </textarea>
+              <div class="add-actions">
+                <button class="btn-add" (click)="addQuickReply()">Add</button>
+                <button class="btn-cancel" (click)="showQuickReplyInput = false; $event.stopPropagation()">Cancel</button>
+              </div>
+            </div>
+            
+            <button *ngIf="!showQuickReplyInput" 
+                    class="add-new-btn"
+                    (click)="openQuickReplyInput(); $event.stopPropagation()">
+              <mat-icon>add</mat-icon>
+              Add New Message
+            </button>
+          </div>
+        </div>
+      </div>
+      <button (click)="toggleManualStatus(selectedConversation.watiNumber)" class="toggle-button">
       {{ isManual ? 'Switch to Automatic' : 'Switch to Manual' }}
     </button>
      <button *ngIf="selectedConversation" mat-icon-button [matMenuTriggerFor]="chatHeaderMenu" class="dark-menu-btn">
@@ -119,6 +174,10 @@
             <mat-icon>block</mat-icon>
             <span *ngIf="!selectedConversation?.isBlocked">Block User</span>
              <span *ngIf="selectedConversation?.isBlocked">unBlock User</span>
+          </button>
+          <button mat-menu-item (click)="deLinkUserIDs()">
+            <mat-icon>link_off</mat-icon>
+            <span>De Link</span>
           </button>
         </mat-menu>
     </div>

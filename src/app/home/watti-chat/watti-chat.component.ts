@@ -7,6 +7,8 @@ import { WattiService } from '../../services/watti.service';
 import { filter, Subscription, Observable, interval } from 'rxjs';
 import { ComponettitleService } from '../../services/componenttitle.service';
 import { SnackbarService } from '../../services/snackbar.service';
+import { QuickReply } from '../../domain/QuickReply';
+import { QuickReplyService } from '../../services/quick-reply.service';
 
 
 @Component({
@@ -15,6 +17,12 @@ import { SnackbarService } from '../../services/snackbar.service';
   styleUrls: ['./watti-chat.component.scss']
 })
 export class WattiChatComponent implements OnInit, OnDestroy {
+
+  quickReplies: QuickReply[] = [];
+  newQuickReply: string = '';
+  newQuickReplyTitle: string = '';
+  showQuickReplyInput = false;
+  showStarMessagesDropdown = false;
   @ViewChild('chatContainer') chatContainer: ElementRef;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -59,7 +67,8 @@ export class WattiChatComponent implements OnInit, OnDestroy {
   selectedImageUrl: string | null = null;
   searchTerm: string = '';
   private searchTimeout: any;
-
+  userId: any;
+  userRole: any;
 
   constructor(
     private wattiService: WattiService,
@@ -68,7 +77,8 @@ export class WattiChatComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private ngZone: NgZone,
     private titleService: ComponettitleService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private quickReplyService: QuickReplyService,
   ) {
     this.titleService.changeTitle('Watti Chat');
     this.messageForm = this.formBuilder.group({
@@ -78,22 +88,37 @@ export class WattiChatComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.getuserId();
     this.loadConversations();
  this.subscription = interval(5000).subscribe(() => {
          if (!this.searchTerm || this.searchTerm.trim().length === 0) {
      
       this.loadConversations();}
     });
-
-   
-    
-    
     this.connectionStatusSubscription = this.wattiService.getConnectionStatus().subscribe(
       status => {
         this.wsConnected = status;
       }
     );
+    this.loadQuickReplies();
   }
+
+  getuserId() {
+    let userData = localStorage.getItem('user');
+    if (!userData) {
+      userData = sessionStorage.getItem('user');
+    }
+    if (userData) {
+      const zuser = JSON.parse(userData);
+      this.userId = zuser.user_id;
+      this.userRole = zuser.role_user;// Get the user ID from storage
+    } else {
+      // Handle the case when user data is not available
+      console.error('User data not found in localStorage or sessionStorage');
+      return;
+    }
+  }
+
  onSearchChange(term: string): void {
     clearTimeout(this.searchTimeout);
     this.searchTimeout = setTimeout(() => {
@@ -635,7 +660,8 @@ export class WattiChatComponent implements OnInit, OnDestroy {
   getlastMessage(data :any): string {
     try {
       if (data) {
-        const parsedData = JSON.parse(data);
+        const cleanString = data.replace(/[\u0000-\u001F]+/g, "");
+        const parsedData = JSON.parse(cleanString);
         let message = parsedData.lastMessage || '';
         // Check if message starts with an asterisk
         const startsWithStar = message.startsWith('*');
@@ -760,6 +786,122 @@ export class WattiChatComponent implements OnInit, OnDestroy {
       });
       // Optionally show a confirmation/snackbar
     }
+  }
+  deLinkUserIDs() {
+    if (!this.selectedConversation) {
+      return;
+    }
+    this.wattiService.deLinkUserIDs(this.selectedConversation).subscribe({
+      next: () => {
+        this.snackbarService.snackbar('User IDs de-linked successfully.', 'success');
+        this.loadConversationsByFilter(this.selectedFilter);
+      },
+      error: (error) => {
+        console.error('Error de-linking user IDs:', error);
+        this.snackbarService.snackbar('Failed to de-link user IDs.', 'error');
+      }
+    });
+  }
+  loadQuickReplies(): void {
+    if (this.userId) {
+      this.quickReplyService.getQuickRepliesByUserIdw(this.userId).subscribe({
+        next: (quickReplies) => {
+          this.quickReplies = quickReplies;
+
+        },
+        error: (error) => {
+          console.error('Error loading quick replies:', error);
+          // this.snackbarService.snackbar('Failed to load quick replies', 'error');
+        }
+      });
+    }
+  }
+
+  toggleStarMessagesDropdown(): void {
+    this.loadQuickReplies();
+    this.showStarMessagesDropdown = !this.showStarMessagesDropdown;
+    if (!this.showStarMessagesDropdown) {
+      this.showQuickReplyInput = false;
+
+    }
+  }
+
+  
+  closeStarMessagesDropdown(): void {
+    this.showStarMessagesDropdown = false;
+    this.showQuickReplyInput = false;
+    this.newQuickReply = '';
+    this.newQuickReplyTitle = '';
+  }
+
+  sendQuickReply(reply: QuickReply): void {
+    if (!this.activeWatiNumber) return;
+    this.messageForm.get('content')?.setValue(reply.message);
+    this.sendMessage();
+    this.showStarMessagesDropdown = false;
+  }
+
+  openQuickReplyInput(): void {
+    this.showQuickReplyInput = true;
+    this.newQuickReply = '';
+    this.newQuickReplyTitle = '';
+    setTimeout(() => {
+      const titleInput = document.querySelector('.add-message-section .title-input') as HTMLInputElement;
+      if (titleInput) {
+        titleInput.focus();
+      }
+    });
+  }
+
+  addQuickReply(): void {
+    const message = this.newQuickReply.trim();
+    
+    if (message && this.userId) {
+      const title = message.substring(0, 20); // first 20 characters
+      
+      // Check if quick reply with same message already exists
+      const exists = this.quickReplies.some(qr => qr.message === message);
+      
+      if (!exists) {
+        const newQuickReply: QuickReply = {
+          title: title,
+          message: message,
+          zuserId: this.userId
+        };
+        
+        this.quickReplyService.saveQuickReplyw(newQuickReply).subscribe({
+          next: (savedQuickReply) => {
+            this.quickReplies.push(savedQuickReply);
+            this.newQuickReply = '';
+            this.snackbarService.snackbar('Quick reply added successfully', 'success');
+          },
+          error: (error) => {
+            console.error('Error adding quick reply:', error);
+            this.snackbarService.snackbar('Failed to add quick reply', 'error');
+          }
+        });
+      } else {
+        this.snackbarService.snackbar('Quick reply already exists', 'warning');
+      }
+    }
+    this.showQuickReplyInput = false;
+  }
+  
+
+  removeQuickReply(reply: QuickReply): void {
+    if (reply.id) {
+      this.quickReplyService.deleteQuickReplyw(reply.id).subscribe({
+        next: () => {
+          this.quickReplies = this.quickReplies.filter(q => q.id !== reply.id);
+          this.snackbarService.snackbar('Quick reply removed successfully', 'success');
+        },
+        error: (error) => {
+          console.error('Error removing quick reply:', error);
+          // this.snackbarService.snackbar('Failed to remove quick reply', 'error');
+        }
+      });
+    }
+    // Don't close dropdown even if no messages left, user might want to add new ones
   }
 
 } 
