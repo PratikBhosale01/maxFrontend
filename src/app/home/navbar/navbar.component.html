@@ -25,7 +25,7 @@
               >
             </h3>
             <!-- Notification Toggle Buttons -->
-            <div class="notification-controls ms-3">
+            <!-- <div class="notification-controls ms-3">
               <button 
                 class="btn btn-sm notification-toggle-btn"
                 [ngClass]="{ 'active': isNotificationsEnabled }"
@@ -40,12 +40,12 @@
                 </span>
               </button>
               
-              <!-- Notification Badge -->
+        
               <div class="notification-badge" *ngIf="unreadCount > 0" (click)="toggleNotificationDropdown(); $event.stopPropagation()">
                 <span class="badge-count">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
               </div>
 
-              <!-- Notification Dropdown -->
+             
               <app-notification-dropdown
                 [notifications]="notifications"
                 [unreadCount]="unreadCount"
@@ -55,7 +55,7 @@
                 (clearAll)="clearAllNotifications()"
                  (closeDropdown)="closeNotificationDropdown()"
               ></app-notification-dropdown>
-            </div>
+            </div> -->
           </div>
         </div>
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">

@@ -51,9 +51,9 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
     this.titleService.currentTitle.subscribe((title) => (this.title = title));
     this.getrole();
     this.setRoleData();
-    this.initializeNotifications();
+    // this.initializeNotifications();
     // Start notifications after user data is loaded
-    this.sseNotificationService.startNotificationsForUser();
+    // this.sseNotificationService.startNotificationsForUser();
   }
 
   ngAfterViewInit() {
