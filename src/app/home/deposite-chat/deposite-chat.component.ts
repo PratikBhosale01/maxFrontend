@@ -21,6 +21,7 @@ import { QuickReplyService } from '../../services/quick-reply.service';
   styleUrls: ['./deposite-chat.component.scss']
 })
 export class DepositeChatComponent implements OnInit, OnDestroy {
+  approveList: any[] = [];
   quickReplies: QuickReply[] = [];
   newQuickReply: string = '';
   newQuickReplyTitle: string = '';
@@ -98,7 +99,8 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     private approveService: ApproveService,
     private titleService : ComponettitleService,
     private watiAccountService: WatiAccountService, // <-- Injected
-    private quickReplyService: QuickReplyService, // <-- Injected
+    private quickReplyService: QuickReplyService,
+    private apprvserv: ApproveService, // <-- Injected
     // private chatService: DepositeChatService
   ) {
       this.titleService.changeTitle('Deposit Chat');
@@ -106,7 +108,8 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       content: ['']
     });
     this.depositRequestForm = this.formBuilder.group({
-      userId: ['', Validators.required]
+      userId: ['', Validators.required],
+      avoidUtr: [false]
     });
   }
 
@@ -116,7 +119,9 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     this.groupMessagesByDate();
     this.loadConversations();
     this.fetchAllocatedBanksByCurrentTime();
+    this.getApproveList();
     this.subscription = interval(5000).subscribe(() => {
+      this.getApproveList();
       // Only auto-refresh if not searching
       if (!this.searchTerm || this.searchTerm.trim().length === 0) {
         this.loadConversations();
@@ -1068,10 +1073,12 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       }
     }
     const userId = this.depositRequestForm.value.userId;
+    const avoidUtr = !!this.depositRequestForm.value.avoidUtr;
+    const utrNumberValue = avoidUtr ? 'Enter UTR' : 'NA';
     const payload = {
       id: 0,
       userId: userId,
-      utrNumber: 'NA',
+      utrNumber: utrNumberValue,
       amount: '',
       date: new Date().toDateString(),
       siteMasterId: 0,
@@ -1330,4 +1337,15 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     }
     this.isEditingName = false;
   }
+  
+  getApproveList() {
+    this.apprvserv.get200appvd().subscribe((data) => {
+      // console.log(data);
+      this.approveList = data;
+    }
+    , (error) => {
+      console.error('Error fetching approve list:', error);
+    });
+}
+
 }

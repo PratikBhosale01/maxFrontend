@@ -385,7 +385,7 @@
              class="allocated-bank-card mb-2 rounded shadow-sm">
           <div class="row">
             <div class="d-flex align-items-center mb-1 col-sm-4">
-              <!-- <i class="fa-solid fa-building-columns fa-lg me-2" style="color: #926108;"></i> -->
+         
               <span class="fw-bold fs-6">{{ bank.displayName }}</span>
             </div>
             <div class="col-sm-8">
@@ -420,36 +420,51 @@
       No banks allocated for the current time.
     </div>
   </div>
+
+
+
+
   <div class="Deposit-request">
     <form (ngSubmit)="submitDepositRequest()" [formGroup]="depositRequestForm" class="deposit-request-form" [class.disabled]="depositRequestLoading">
-      <div *ngIf="depositRequestLoading" class="deposit-loader">
-        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div *ngIf="depositRequestLoading" class="deposit-loader d-flex justify-content-center py-2">
+        <div class="spinner-border text-light" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
-      <div class="drop-area"
-           [class.drag-over]="dragOver"
-           (dragover)="onDragOver($event)"
-           (dragleave)="onDragLeave($event)"
-           (drop)="onDrop($event)"
-           (click)="utrFileInput.click()">
-        <input type="file" #utrFileInput accept="image/*" (change)="onUtrFileSelected($event)" hidden />
-        <ng-container *ngIf="utrImageUrl; else dropPlaceholder">
-          <div class="utr-image-preview">
-            <img [src]="utrImageUrl" alt="UTR Image Preview" />
-            <button type="button" class="remove-image-btn" (click)="removeUtrImage($event)"><mat-icon>close</mat-icon></button>
-          </div>
-        </ng-container>
-        <ng-template #dropPlaceholder>
-          <div class="drop-placeholder">
-            <mat-icon>cloud_upload</mat-icon>
-            <span>Drag & drop UTR image here, or click to select</span>
-          </div>
-        </ng-template>
+      <div class="mb-1">
+        <label class="form-label" style="color: aliceblue;">UTR Image</label>
+        <div class="drop-area"
+             [class.drag-over]="dragOver"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)"
+             (click)="utrFileInput.click()">
+          <input type="file" #utrFileInput accept="image/*" (change)="onUtrFileSelected($event)" hidden />
+          <ng-container *ngIf="utrImageUrl; else dropPlaceholder">
+            <div class="utr-image-preview d-flex align-items-center gap-2">
+              <img [src]="utrImageUrl" alt="UTR Image Preview" />
+              <button type="button" class="btn btn-sm btn-outline-light remove-image-btn" (click)="removeUtrImage($event)">&times;</button>
+            </div>
+          </ng-container>
+          <ng-template #dropPlaceholder>
+            <div class="drop-placeholder d-flex align-items-center gap-2">
+              <span>Drag & drop UTR image here, or click to select</span>
+            </div>
+          </ng-template>
+        </div>
       </div>
-      <mat-form-field appearance="fill" class="user-id-field">
-        <mat-label style="color: aliceblue;">User ID</mat-label>
-        <input  style="color: aliceblue;" matInput formControlName="userId" placeholder="Enter user ID" />
-      </mat-form-field>
-      <button style="color: rgb(86, 86, 86);" mat-raised-button color="primary" type="submit" [disabled]="!depositRequestForm.valid || !utrImageUrl || depositRequestLoading">Deposit-request</button>
+
+      <div class="mb-2">
+        <label for="depositUserId" class="form-label" style="color: aliceblue;">User ID</label>
+        <input id="depositUserId" type="text" style="color: rgb(255, 255, 255); background-color: #202c33;"  class="form-control" formControlName="userId" placeholder="Enter user ID" />
+      </div>
+
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="avoidUtrCheck" formControlName="avoidUtr">
+        <label class="form-check-label" for="avoidUtrCheck" style="color: aliceblue;">Avoid UTR</label>
+      </div>
+
+      <button class="btn btn-primary" type="submit" [disabled]="!depositRequestForm.valid || !utrImageUrl || depositRequestLoading">Deposit-request</button>
     </form>
   </div>
   </div>

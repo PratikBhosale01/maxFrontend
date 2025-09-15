@@ -1502,12 +1502,12 @@ a {
   .deposit-request-form {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 8px;
     width: 100%;
     max-width: 400px;
     background: var(--secondary-color);
     border-radius: 12px;
-    padding: 24px 20px 20px 20px;
+    padding: 0px 20px 20px 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   }
   .drop-area {
@@ -1523,7 +1523,7 @@ a {
     box-shadow: 0px 48px 35px -48px  rgb(35, 35, 35);
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     position: relative;
     &:hover, &.drag-over {
       border-color: #007a63;
@@ -1544,12 +1544,13 @@ a {
         font-size: 14px;
       }
       .or-text {
-        margin: 4px 0;
+        margin: 2px 0;
         color: var(--text-secondary);
+        
         font-size: 13px;
       }
       button {
-        margin-top: 6px;
+        // margin-top: 6px;
         font-size: 13px;
         padding: 4px 12px;
         border-radius: 6px;
@@ -1835,4 +1836,8 @@ a {
 }
 .edit-btn:hover {
   opacity: 1;
+}
+#depositUserId::placeholder {
+  color: white; /* placeholder ka color */
+  opacity: 1;   /* Firefox ke liye required hai */
 }
