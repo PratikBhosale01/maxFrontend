@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -14,19 +15,30 @@ export class NotificationDropdownComponent {
   @Output() markAsRead = new EventEmitter<string>();
   @Output() markAllAsRead = new EventEmitter<void>();
   @Output() clearAll = new EventEmitter<void>();
+    @Output() closeDropdown = new EventEmitter<void>();
 
-  // getNotificationIcon(type: string): string {
-  //   switch (type) {
-  //     case 'success':
-  //       return 'check_circle';
-  //     case 'warning':
-  //       return 'warning';
-  //     case 'error':
-  //       return 'error';
-  //     default:
-  //       return 'info';
-  //   }
-  // }
+  constructor(private router: Router) {}
+
+    getNotificationIcon(type: string): string {
+    switch (type) {
+      case 'withdrawChat':
+        return 'chat';
+      case 'depositChat':
+        return 'chat';
+      case 'approveDeposit':
+        return 'check_circle';
+      case 'approveWithdraw':
+        return 'check_circle';
+      case 'success':
+        return 'check_circle';
+      case 'warning':
+        return 'warning';
+      case 'error':
+        return 'error';
+      default:
+        return 'notifications';
+    }
+  }
 
   getNotificationClass(type: string): string {
     switch (type) {
@@ -64,5 +76,36 @@ export class NotificationDropdownComponent {
 
   onClearAll(): void {
     this.clearAll.emit();
+  }
+   onNotificationClick(notification: any): void {
+    // Mark as read first
+    debugger
+    this.onMarkAsRead(notification.id);
+    
+    // Route based on notification title
+    const title = notification.title;
+    
+    if (title === "ApproveDeposit Chat Received") {
+      this.router.navigate(['/home/approve']);
+    } else if (title === "ApproveWithdraw Chat Received") {
+      this.router.navigate(['/home/AppvWlist']);
+    } else if (title === "Withdraw Chat Received") {
+      this.router.navigate(['/home/watti-chat']);
+    } else if (title === "Deposit Chat Received") {
+      this.router.navigate(['/home/Deposite-Chat']);
+    }
+    
+    // Close the dropdown after navigation
+    this.closeDropdown.emit();
+  }
+
+  isClickableNotification(title: string): boolean {
+    const clickableTitles = [
+      "ApproveDeposit request Received",
+      "ApproveWithdraw request Received", 
+      "Withdraw chat Received",
+      "Deposit chat Received"
+    ];
+    return clickableTitles.includes(title);
   }
 }

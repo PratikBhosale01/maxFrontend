@@ -25,16 +25,25 @@
     <div 
       *ngFor="let notification of notifications" 
       class="notification-item"
-      
-      (click)="onMarkAsRead(notification.id)"
+      [ngClass]="getNotificationClass(notification.type)"
+      (click)="onNotificationClick(notification)"
     >
       <div class="notification-icon">
         <span class="material-symbols-outlined">
-          <!-- {{ getNotificationIcon(notification.type) }} -->
+          {{ getNotificationIcon(notification.type) }}
         </span>
       </div>
       <div class="notification-content">
-        <div style="color: aliceblue;" class="notification-title">{{ notification.title }}</div>
+        <div style="color: aliceblue;" class="notification-title">
+          {{ notification.title }}
+          <span 
+            *ngIf="isClickableNotification(notification.title)" 
+            class="material-symbols-outlined clickable-indicator"
+            title="Click to navigate"
+          >
+            arrow_forward
+          </span>
+        </div>
         <div style="color: aliceblue;" class="notification-message">{{ notification.message }}</div>
         <div class="notification-time">{{ formatTime(notification.timestamp) }}</div>
       </div>
