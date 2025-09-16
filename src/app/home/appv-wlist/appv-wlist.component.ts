@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { SearchsuperadminService } from '../../services/searchsuperadmin.service';
@@ -19,7 +19,9 @@ import { DepoDailogComponent } from '../../shared/depo-dailog/depo-dailog.compon
   templateUrl: './appv-wlist.component.html',
   styleUrl: './appv-wlist.component.scss'
 })
-export class AppvWlistComponent implements OnDestroy {
+export class AppvWlistComponent {
+  @Input() compactColumns: string[] | null = null;
+  @Input() embedded: boolean = false;
   searchText: string = '';
   waNum: number = 0; // Default to 0 (All)
   
@@ -91,12 +93,19 @@ updateSearchText($event: Event) {
 throw new Error('Method not implemented.');
 }
  
-   displayedColumns: string[] = ['Sr.no','userId', 'utrNumber', 'amount', 'entryTime', 'approveWithdrawStatus','approve', 'Operations'];
+   displayedColumns: string[] = ['Sr.no','userId', 'utrNumber', 'amount', 'entryTime', 'site', 'approveWithdrawStatus','approve', 'Operations'];
   
    // Define the data source (replace with your real data)
    dataSource ;
  
    ngOnInit(): void {
+    if (this.compactColumns && Array.isArray(this.compactColumns) && this.compactColumns.length) {
+      this.displayedColumns = this.compactColumns;
+    }
+    // When embedded, drop the Sr.no column by default if still present
+    if (this.embedded) {
+      this.displayedColumns = this.displayedColumns.filter(c => c !== 'Sr.no');
+    }
     this.selectedStatuses.valueChanges.subscribe((selectedStatuses) => {
       this.onStatusChange(selectedStatuses);
     });
@@ -204,16 +213,18 @@ deleteReport(Id: number) {
  
 
 getUserId(){
-  let userData = localStorage.getItem('user');
+    let userData = localStorage.getItem('user');
   if (!userData) {
     userData = sessionStorage.getItem('user');
   }
+
+
   if (userData) {
     this.user = JSON.parse(userData);
-    this.userId = this.user.user_id;  // Get the user ID from storage
+    this.userId = this.user.user_id;  // Get the user ID from localStorage
   } else {
     // Handle the case when user data is not available
-    console.error('User data not found in localStorage or sessionStorage');
+    console.error('User data not found in localStorage');
     return;
   }
 }
@@ -274,12 +285,6 @@ onWaNumChange(value: number): void {
   this.waNum = value; // Update the waNum property with the selected value
   this.getWithdraws(); // Call the method to fetch data based on the selected WA number
 }
-
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
 
  }
 

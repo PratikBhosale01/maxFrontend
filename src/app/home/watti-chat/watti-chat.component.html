@@ -1,26 +1,22 @@
 <div class="watti-chat-container">
-  <div class="sidebar">
-    <div class="sidebar-header whatsapp-style-header position-relative">
-      <div class="d-flex align-items-center w-100 flex-nowrap">
-  <div class="filter-chips d-flex gap-2 flex-wrap flex-grow-1">
-    <span 
-      class="chip"
-      [class.active]="selectedFilter === 'all'"
-      (click)="selectedFilter = 'all'; applyFilter()"
-    >All</span>
-    <span 
-      class="chip"
-      [class.active]="selectedFilter === 'undone'"
-      (click)="selectedFilter = 'undone'; applyFilter()"
-    >Undone</span>
-    <span 
-      class="chip chip-block"
-      [class.active]="selectedFilter === 'block'"
-      (click)="selectedFilter = 'block'; applyFilter()"
-    >Blocked</span>
+
+  <div  *ngIf="showWithdrawList" style="flex: 0 0 40%; max-width: 40%; padding-right: 12px; overflow-X: hidden; position: relative;">
+    <app-appv-wlist [embedded]="true" [compactColumns]="['Sr.no','userId','amount','approveWithdrawStatus','Operations']"></app-appv-wlist>
   </div>
 
-</div>
+  <!-- Middle: 20% Conversations -->
+  <div class="sidebar" style="flex: 0 0 20%; max-width: 20%; overflow: auto;">
+    <div class="sidebar-header whatsapp-style-header position-relative">
+      <div class="d-flex align-items-centzer w-100 flex-nowrap">
+        <mat-form-field appearance="fill" style="width: 100%;">
+          <mat-label style="color: white;">Select Status</mat-label>
+          <mat-select [(value)]="selectedFilter" (selectionChange)="applyFilter()">
+            <mat-option value="all">ALL</mat-option>
+            <mat-option value="undone">UNDONE</mat-option>
+            <mat-option value="block">BLOCKED</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
   
       
       <div class="search-bar mt-3 w-100">
@@ -58,7 +54,6 @@
             <div *ngIf="!conversation.isRead" class="notification-badge"></div>
           </div>
           <div class="conversation-details">
-            <!-- <h3 *ngIf="conversation.clientId " >{{  conversation.clientName  }}</h3> -->
             <h3 *ngIf="conversation.clientName " >{{ conversation.clientName  }}</h3>
             <h3 *ngIf="!conversation.clientName "> USER </h3>
             <p class="lastmsg" [innerHTML]="getlastMessage(conversation.data) | lineBreaks"></p>
@@ -77,18 +72,21 @@
     </div>
   </div>
 
-  <div class="chat-main">
-    <div class="chat-header" *ngIf="selectedConversation">
+  <!-- Right: 50% chat -->
+  <div class="chat-main" [ngStyle]="{flex: showWithdrawList ? '0 0 40%' : '0 0 80%', maxWidth: showWithdrawList ? '40%' : '80%'}" style="margin-left: 0; overflow: hidden; position: relative;">
+    <div class="chat-header">
       <div class="chat-header-user">
         <mat-icon>account_circle</mat-icon>
           <div class="client-name-container" *ngIf="selectedConversation">
           <ng-container *ngIf="!isEditingName; else editName">
-            <h2 (click)="startEditingName()" style="cursor:pointer;">
-              {{ selectedConversation.clientName || 'USER' }}
-              <button mat-icon-button class="edit-btn" (click)="startEditingName(); $event.stopPropagation()" style="vertical-align: middle;">
+            <div class="name-edit-wrap">
+              <h2 (click)="startEditingName()" class="client-name" style="cursor:pointer;">
+                {{ selectedConversation.clientName || 'USER' }}
+              </h2>
+              <button mat-icon-button class="edit-btn" (click)="startEditingName(); $event.stopPropagation()">
                 <mat-icon>edit</mat-icon>
               </button>
-            </h2>
+            </div>
           </ng-container>
           <ng-template #editName>
             <input
@@ -103,6 +101,9 @@
         </div>
       </div>
       <div class="chat-header-actions">
+        <button mat-icon-button class="dark-menu-btn" (click)="toggleWithdrawList()" [matTooltip]="showWithdrawList ? 'Hide list' : 'Show list'">
+          <mat-icon>{{ showWithdrawList ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+        </button>
       <!-- <div class="ws-status" [class.connected]="wsConnected" title="WebSocket Connection Status">
         <span *ngIf="wsConnected">Live</span>
         <span *ngIf="!wsConnected">Offline</span>
@@ -177,7 +178,7 @@
           </button>
           <button mat-menu-item (click)="deLinkUserIDs()">
             <mat-icon>link_off</mat-icon>
-            <span>De Link</span>
+            <span>D-Link</span>
           </button>
         </mat-menu>
     </div>
@@ -321,4 +322,6 @@
       </form>
     </div>
   </div>
+
+ 
 </div> 

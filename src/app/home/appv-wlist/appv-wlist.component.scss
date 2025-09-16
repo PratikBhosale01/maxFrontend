@@ -237,8 +237,8 @@ table {
   margin-top: 10px;
   font-size: 16px;
   min-width: 400px;
-  background-color: #2e2e2e;
-  border: 1px solid #212121;
+  background-color: transparent; /* match chat background */
+  border: 1px solid #1a1a1a;
 }
 
 
@@ -271,13 +271,13 @@ table {
 }
 
 ::ng-deep .mat-mdc-header-cell{
- color:   gold !important;
- background-color:  rgb(35, 30, 9) !important;
- text-align: center !important;
+  color: gold !important;
+  background-color: #1f1f1f !important; /* align with chat dark header */
+  text-align: center !important;
 }
 
 ::ng-deep .mat-mdc-cell{
-  color: #f4eaea !important;
+  color: #eaeaea !important;
   text-align: center !important;
 }
 
@@ -291,7 +291,7 @@ table {
 }
 
 ::ng-deep .mat-mdc-paginator {
-  background-color:#2e2e2e !important;
+  background-color: transparent !important;
   color: rgb(243, 243, 243) !important;
 }
 ::ng-deep .mat-mdc-select-arrow svg  {

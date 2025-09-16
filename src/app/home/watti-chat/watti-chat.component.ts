@@ -69,6 +69,7 @@ export class WattiChatComponent implements OnInit, OnDestroy {
   private searchTimeout: any;
   userId: any;
   userRole: any;
+  showWithdrawList: boolean = true;
 
   constructor(
     private wattiService: WattiService,
@@ -101,6 +102,10 @@ export class WattiChatComponent implements OnInit, OnDestroy {
       }
     );
     this.loadQuickReplies();
+  }
+
+  toggleWithdrawList(): void {
+    this.showWithdrawList = !this.showWithdrawList;
   }
 
   getuserId() {

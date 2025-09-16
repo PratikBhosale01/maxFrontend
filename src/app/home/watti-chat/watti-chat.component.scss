@@ -68,6 +68,7 @@ a {
   height: calc(100vh - 80px);
   overflow: hidden;
   font-family: "Segoe UI", "Helvetica Neue", Helvetica, "Lucida Grande", Arial, sans-serif;
+  position: relative;
 }
 
 .sidebar {
@@ -311,6 +312,30 @@ a {
           background-color: rgba(255, 255, 255, 0.15);
         }
       }
+    }
+  }
+
+  .name-edit-wrap {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-auto-rows: auto;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+  }
+
+  .client-name {
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .name-edit-wrap {
+      grid-template-columns: 1fr;
+      justify-items: start;
     }
   }
   
