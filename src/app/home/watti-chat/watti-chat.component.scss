@@ -1,12 +1,12 @@
 :host{
   --primary-color: #00a884;
-  --secondary-color: #202c33;
-  --chat-bg: #0b141a;
+  --secondary-color:rgb(46 46 46);
+  --chat-bg:#111111;
   --message-out: #005c4b;
-  --message-in: #202c33;
+  --message-in: #1f1f1f;
   --text-primary: #e9edef;
   --text-secondary: #8696a0;
-  --border-color: #2a3942;
+  --border-color: #1f1f1f;
 }
 
 .media-image:hover {
@@ -115,7 +115,7 @@ a {
     }
     
     ::ng-deep .mat-mdc-form-field-flex {
-      background-color: #2a3942;
+      background-color: #1f1f1f;
       border-radius: 8px;
       padding: 0 8px;
     }
@@ -141,11 +141,11 @@ a {
   background-color: var(--secondary-color);
   
   &:hover {
-    background-color: #111b21;
+    background-color: #1f1f1f;
   }
   
   &.active {
-    background-color: #2a3942;
+    background-color: #3e3d3d;
     border-left: none;
   }
   
@@ -635,7 +635,7 @@ a {
 }
 
 ::ng-deep .mat-mdc-text-field-wrapper {
-  background-color: #2a3942 !important;
+  background-color: #3e3d3d !important;
   border-radius: 8px !important;
 }
 
@@ -726,7 +726,7 @@ a {
       flex: 1;
       display: flex;
       align-items: center;
-      background-color: #2a3942;
+      background-color: rgb(46 46 46);
       border-radius: 8px;
       padding: 0 8px;
       transition: all 0.2s;
@@ -936,7 +936,7 @@ a {
 }
 
 .whatsapp-style-header {
-  background:  #3d4d579f;
+  background:  #1f1f1f;
   border-bottom: 1px solid var(--border-color);
   padding: 16px 16px 8px 16px;
   display: flex;
@@ -982,7 +982,7 @@ a {
     .search-input {
       padding-left: 40px !important;
       text-align: center;
-      background-color:  #4c5e6893;
+      background-color:  rgb(46 46 46);
      color: #fffefe !important;
     }
     .search-icon {
