@@ -7,6 +7,12 @@
   --text-primary: #e9edef;
   --text-secondary: #8696a0;
   --border-color: #2a3942;
+  /* Responsive typography scale */
+  --fs-xs: clamp(10px, 0.75vw, 12px);
+  --fs-sm: clamp(12px, 0.8vw, 14px);
+  --fs-md: clamp(14px, 1.1vw, 16px);
+  --fs-lg: clamp(16px, 1.5vw, 20px);
+  --fs-xl: clamp(20px, 2vw, 24px);
 }
 
 .deposite-chat-container {
@@ -14,6 +20,7 @@
   height: calc(100vh - 80px);
   overflow: hidden;
   font-family: "Segoe UI", "Helvetica Neue", Helvetica, "Lucida Grande", Arial, sans-serif;
+  font-size: var(--fs-md);
 }
 
 // TODO: Copy and adapt the rest of the styles from watti-chat.component.scss 
@@ -34,6 +41,22 @@
   max-width: 90vw;
   max-height: 90vh;
   object-fit: contain; /* Maintain aspect ratio */
+}
+.lg-text {
+  color: #b88818 !important; /* Green for active */
+  font-weight: 600;
+}
+.dg-text {
+  color: #e1b111 !important; /* Red for inactive */
+  font-weight: 600;
+}
+.gg-text {
+  color: #F2CA46 !important; /* Green for active */
+  font-weight: 600;
+}
+.tg-text {
+  color: #ffd344 !important; /* Red for inactive */
+  font-weight: 600;
 }
 
 
@@ -161,18 +184,18 @@ a {
   
   h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--fs-md);
     font-weight: 500;
     color: var(--text-primary);
   }
   
   .timestamp {
-    font-size: 12px;
+    font-size: var(--fs-xs);
     color: var(--text-secondary);
  
   }
   .lastmsg{
-    font-size: 14px;
+    font-size: var(--fs-sm);
     color: var(--text-secondary);
     padding-bottom: 0px !important;
     margin-bottom: 0px!important;
@@ -226,6 +249,7 @@ a {
   padding: 16px;
   text-align: center;
   color: var(--text-secondary);
+  font-size: var(--fs-sm);
 }
 
 .chat-main {
@@ -259,7 +283,7 @@ a {
     
     .client-name-container {
       h2 {
-        font-size: 1.1rem !important; // Smaller text
+        font-size: var(--fs-lg) !important; // Responsive
         font-weight: 500;
         margin: 0;
         color: var(--text-primary);
@@ -273,7 +297,7 @@ a {
         opacity: 0.7;
         padding: 0;
         mat-icon {
-          font-size: 18px !important; // Smaller icon
+          font-size: var(--fs-sm) !important; // Responsive icon size
           width: 18px !important;
           height: 18px !important;
           line-height: 18px !important;
@@ -769,7 +793,7 @@ a {
   color: rgba(255, 249, 249, 0.552) !important;
   word-break: break-all;
   max-width: 300px;
-  font-size: 13px;
+  font-size: var(--fs-xs);
 }
 
 .messages-container {
@@ -838,11 +862,12 @@ a {
     p {
       margin: 0 0 4px;
       color: var(--text-primary);
+      font-size: var(--fs-md);
     }
     
     .timestamp {
       display: block;
-      font-size: 11px;
+      font-size: var(--fs-xs);
       color: var(--text-secondary);
       text-align: right;
       margin-top: 2px;
@@ -872,7 +897,7 @@ a {
       
       .timestamp {
         display: block;
-        font-size: 11px;
+        font-size: var(--fs-xs);
         color: black;
         text-align: right;
         margin-top: -17px;
@@ -1131,7 +1156,7 @@ a {
         
         textarea {
           color: var(--text-primary) !important;
-          font-size: 15px;
+          font-size: var(--fs-md);
         }
       }
     }
@@ -1140,7 +1165,7 @@ a {
 
 //===========================================================
 .allocated-bank-title {
-  font-size: 1.15rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: #b8ad9f;
   letter-spacing: 0.5px;
@@ -1166,7 +1191,7 @@ a {
   padding: 0.5rem 0.75rem;
   transition: all 0.2s ease;
   border: 1px solid #f3e2c0;
-  font-size: 0.92rem;
+  font-size: var(--fs-sm);
   
   &:hover {
     box-shadow: 0 4px 16px rgba(161, 98, 16, 0.16);
@@ -1174,30 +1199,30 @@ a {
 }
 .allocated-bank-card .fw-bold {
   color: #f9dab1;
-  font-size: 1rem;
+  font-size: var(--fs-sm);
 }
 .allocated-bank-card .fw-semibold {
   color: #edd2a2;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: var(--fs-sm);
 }
 .allocated-bank-card .fa-building-columns {
   margin-right: 0.15rem;
   font-size: 1.1rem;
 }
 .allocated-bank-card span {
-  font-size: 0.92rem;
+  font-size: var(--fs-sm);
 }
 
 @media (max-width: 576px) {
   .allocated-bank-card {
     padding: 0.4rem 0.5rem;
-    font-size: 0.85rem;
+    font-size: var(-fs-xs);
   }
   .allocated-bank-card .fw-bold,
   .allocated-bank-card .fw-semibold,
   .allocated-bank-card span {
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
   }
   .allocated-bank-card .fa-building-columns {
     font-size: 1rem;
@@ -1416,7 +1441,7 @@ a {
 }
 .no-messages{
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 500;
   text-align: center;
   margin-top: 20px;
@@ -1664,6 +1689,7 @@ a {
       text-align: center;
       background-color:  #4c5e6893;
      color: #fffefe !important;
+     font-size: var(--fs-sm);
     }
     .search-icon {
       position: absolute;
@@ -1679,7 +1705,7 @@ a {
   color: #a9a8a8e3;
   opacity: 1;
   text-align: center;
-  font-size: 1.05rem;
+  font-size: var(--fs-sm);
 }
 
   .filter-chips {
@@ -1693,7 +1719,7 @@ a {
       border-radius: 20px;
       background: transparent;
       color: #b1b3b5;
-      font-size: 13px;
+      font-size: var(--fs-xs);
       font-weight: 500;
       cursor: pointer;
       border: none;
@@ -1750,7 +1776,7 @@ a {
   color: #fff;
   padding: 2px 16px;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: var(--fs-xs);
   font-weight: 500;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
@@ -1779,6 +1805,34 @@ a {
 .sidebar-header .mat-icon-button {
   background: rgba(255,255,255,0.08);
   border-radius: 50%;
+}
+
+/* Left Approve List panel (replaces bootstrap bg-dark/text-white) */
+.approve-list-panel {
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
+}
+
+.approve-list-panel h4 {
+  color: var(--text-primary);
+}
+
+.approve-list-panel .table {
+  background-color: var(--secondary-color);
+  background-color: transparent;
+  color: var(--text-primary);
+}
+
+.approve-list-panel .table thead th {
+  background-color: var(--secondary-color);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.approve-list-panel .table tbody td {
+  background-color: var(--secondary-color);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
 }
 
 .dark-menu-btn {
@@ -1820,7 +1874,7 @@ a {
   margin-left: 8px;
 }
 .client-name-input {
-  font-size: 1.1rem !important; // Smaller input text
+  font-size: var(--fs-lg) !important; // Responsive input text
   font-weight: 500;
   background: transparent;
   color: white;

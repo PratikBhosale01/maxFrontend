@@ -1,23 +1,84 @@
-<div class="deposite-chat-container">
+<div class="row">
+<div *ngIf="showApproveListPanel" class="col-3 approve-list-panel p-2" style="max-height: 100vh;">
+  <h4 style=" color:#00a884;">Approve List :-</h4>
+  <div class="scrollable-table" style="max-height: 78vh; overflow-y: auto; overflow-x:hidden ;">
+    <table class="table table-dark ">
+      <thead>
+        <tr >
+          <th style=" color:#00a884b2;">userID</th>
+          <th style=" color:#00a884b2;">amount</th>
+          <th style=" color:#00a884b2;">status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of approveList">
+          <td [matTooltip]="item.entryTime | utcToLocal">{{ item.userId }}</td>
+          <td>{{ item.amount }}</td>
+          <td> <span *ngIf="item.approveStatus === 'PENDING'" style="color: yellow; font-weight: 200"
+              matTooltip="Pending">
+              <i class="fa-solid fa-hourglass-half"></i>
+              <!-- Pending icon -->
+            </span>
+
+            <!-- Failed status -->
+            <span *ngIf="item.approveStatus === 'FAILED'" style="color: red; font-weight: 200" matTooltip="Failed">
+              <i class="fa-solid fa-circle-xmark"></i>
+              <!-- Failed icon -->
+            </span>
+
+            <!-- Done status -->
+            <span *ngIf="item.approveStatus === 'DONE'" style="color:#00a884; font-weight: 200"
+              matTooltip="Done">
+              <i class="fa-solid fa-circle-check fa-lg"></i>
+              <!-- Done icon -->
+            </span>
+            <!-- Reject status -->
+            <i *ngIf="item.approveStatus === 'REJECTED'" class="fa-solid fa-circle-xmark fa-lg" style="color: red"
+              matTooltip="Rejected">
+            </i>
+
+            <i *ngIf="item.approveStatus === 'ADMIN_REJECT'" class="fa-solid fa-circle-xmark fa-lg" style="color: rgb(198, 75, 75)"
+            matTooltip="Rejected">
+          </i>
+
+            <!-- Manual Approve status -->
+            <i *ngIf="item.approveStatus === 'APPROVED'" class="fa-solid fa-circle-check fa-lg"
+              style="color: rgb(245, 166, 49)" matTooltip="Manually Approved">
+            </i>
+            <div class="loader" *ngIf="item.approveStatus === 'IN_PROCESS'">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="deposite-chat-container" [ngClass]="{'col-9': showApproveListPanel, 'col-12': !showApproveListPanel}">
   <div class="sidebar">
     <div class="sidebar-header whatsapp-style-header position-relative">
       <div class="d-flex align-items-center w-100 flex-nowrap">
   <div class="filter-chips d-flex gap-2 flex-wrap flex-grow-1">
-    <span 
-      class="chip"
-      [class.active]="selectedFilter === 'all'"
-      (click)="selectedFilter = 'all'; applyFilter()"
-    >All</span>
-    <span 
-      class="chip"
-      [class.active]="selectedFilter === 'undone'"
-      (click)="selectedFilter = 'undone'; applyFilter()"
-    >Undone</span>
-    <span 
-      class="chip chip-block"
-      [class.active]="selectedFilter === 'block'"
-      (click)="selectedFilter = 'block'; applyFilter()"
-    >Blocked</span>
+    <button mat-stroked-button color="primary" [matMenuTriggerFor]="filterMenu" class="w-100" style="justify-content: space-between;">
+      <span>{{ selectedFilter === 'all' ? 'All' : (selectedFilter === 'undone' ? 'Undone' : (selectedFilter === 'block' ? 'Blocked' : selectedFilter)) }}</span>
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #filterMenu="matMenu">
+      <button mat-menu-item (click)="selectedFilter = 'all'; applyFilter()">
+        <mat-icon *ngIf="selectedFilter === 'all'">check</mat-icon>
+        <span>All</span>
+      </button>
+      <button mat-menu-item (click)="selectedFilter = 'undone'; applyFilter()">
+        <mat-icon *ngIf="selectedFilter === 'undone'">check</mat-icon>
+        <span>Undone</span>
+      </button>
+      <button mat-menu-item (click)="selectedFilter = 'block'; applyFilter()">
+        <mat-icon *ngIf="selectedFilter === 'block'">check</mat-icon>
+        <span>Blocked</span>
+      </button>
+    </mat-menu>
   </div>
   <div class="wati-dropdown flex-shrink-0 ms-2">
     <div *ngIf="userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'APPROVEADMIN'" style="display: flex; justify-content: flex-end;">
@@ -38,7 +99,7 @@
             (click)="$event.stopPropagation()"
             style="margin-right: 8px;">
           </mat-checkbox>
-          <span>{{ acc.watiName }}</span>
+          <span>{{ acc.watiName }} {{acc.watiAccount}}</span>
           <span class="badge bg-success ms-2" *ngIf="acc.isActive">Active</span>
         </button>
         <div *ngIf="wattiAccountsLoading" class="dropdown-item text-center px-3 py-2">
@@ -88,19 +149,24 @@
             <div *ngIf="!conversation.isRead" class="notification-badge"></div>
           </div>
           <div class="conversation-details">
-            <h3 *ngIf="conversation.clientName">{{ conversation.clientName }}</h3>
+            <h3 *ngIf="conversation.clientName"   [ngClass]="{'lg-text': conversation.watiAccount === 1, 'dg-text': conversation.watiAccount === 2 , 'gg-text':conversation.watiAccount === 3,'tg-text':conversation.watiAccount === 3 }" >{{ conversation.clientName }} <span>{{conversation.watiAccount}}</span></h3>
             <h3 *ngIf="!conversation.clientName">USER</h3>
             <p class="lastmsg" [innerHTML]="getlastMessage(conversation.data) | lineBreaks"></p>
             <p class="timestamp">{{ conversation.lastMessageTime | utcToLocal }}</p>
           </div>
-          <button *ngIf="!conversation.isDone"
-            mat-icon-button 
-            class="done-button" 
-            (click)="markAsDone(conversation); $event.stopPropagation()"
-            [class.done]="conversation.isDone"
-            matTooltip="Mark as done">
-            <mat-icon>{{ conversation.isDone ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
-          </button>
+          <div class="done-wrapper" style="display:flex; flex-direction:column; align-items:flex-end;">
+            <button *ngIf="!conversation.isDone"
+              mat-icon-button 
+              class="done-button" 
+              (click)="markAsDone(conversation); $event.stopPropagation()"
+              [class.done]="conversation.isDone"
+              matTooltip="Mark as done">
+              <mat-icon>{{ conversation.isDone ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            </button>
+            <!-- <p class="timestamp" style="margin:1px 0 0 0;">testing</p> -->
+          </div>
+          
+        
         </mat-card-content>
       </mat-card>
     </div>
@@ -133,6 +199,9 @@
         </div>
       </div>
       <div class="chat-header-actions">
+        <button mat-icon-button  class="dark-menu-btn"(click)="toggleApproveListPanel()" matTooltip="{{ showApproveListPanel ? 'Hide Approve List' : 'Show Approve List' }}">
+          <mat-icon>{{ showApproveListPanel ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+        </button>
         <!-- <div class="dropdown" style="min-width: 200px; margin-right: 12px;" *ngIf="userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'APPROVEADMIN'">
           <button class="btn btn-secondary dropdown-toggle" type="button" id="watiAccountsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             {{ getSelectedAccountNames() }}
@@ -379,47 +448,69 @@
    
     <div class="allocated-bank-title mb-2 ms-2"> Current Bank</div>
     <div class="allocated-bank-list-scroll">
-    <div *ngIf="allocatedBanks && allocatedBanks.length > 0">
-      <div class="allocated-bank-list">
-        <div *ngFor="let bank of allocatedBanks" 
-             class="allocated-bank-card mb-2 rounded shadow-sm">
-          <div class="row">
-            <div class="d-flex align-items-center mb-1 col-sm-4">
-         
-              <span class="fw-bold fs-6">{{ bank.displayName }}</span>
+      <!-- Two column split: left = banks with qrImageLink, right = banks without -->
+      <div class="allocated-bank-list-row d-flex" style="gap:8px;">
+        <div class="allocated-bank-col" style="width:50%;">
+          <div class="allocated-bank-title ms-2" style="font-size:0.9rem; font-weight:600; color:#dcdcdc; margin-bottom:8px;">QR</div>
+          <div *ngIf="allocatedBanksWithQr && allocatedBanksWithQr.length > 0">
+            <div *ngFor="let bank of allocatedBanksWithQr" class="allocated-bank-card mb-2 rounded shadow-sm">
+                <div class="row">
+                  <div class="col-12">
+                    <!-- Smaller bank name placed at the top of the card -->
+                    <span class="fw-bold" style="font-size: var(--fs-xs); display:block; margin-bottom:6px;">{{ bank.displayName }}</span>
+                  </div>
+                  <div class="col-12">
+                    <div class="bank-actions mt-0">
+                      <div class="button-group">
+                        <button class="bank-action-btn message-btn" [class.active]="bank.sendMessage" (click)="onBankActionClick(bank, 'message')">
+                          <mat-icon>message</mat-icon>
+                        </button>
+                        <button class="bank-action-btn qr-btn" [class.active]="bank.sendQR" (click)="onBankActionClick(bank, 'qr')">
+                          <mat-icon>qr_code</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
             </div>
-            <div class="col-sm-8">
-              <div>
-                <span class="fw-semibold">Amount:</span>
-                <span *ngFor="let range of bank.amountRanges; let last = last" style="color: aliceblue; font-weight: 600;">
-                  ₹{{ range.minAmount }} - ₹{{ range.maxAmount }}<span *ngIf="!last">, </span>
-                </span>
-              </div>
-              <div class="bank-actions mt-2">
-                <div class="button-group">
-                  <button class="bank-action-btn message-btn" 
-                          [class.active]="bank.sendMessage"
-                          (click)="onBankActionClick(bank, 'message')">
-                    <mat-icon>message</mat-icon>
-                   
-                  </button>
-                  <button class="bank-action-btn qr-btn" 
-                          [class.active]="bank.sendQR"
-                          (click)="onBankActionClick(bank, 'qr')">
-                    <mat-icon>qr_code</mat-icon>
-                    
-                  </button>
+          </div>
+          <div *ngIf="(!allocatedBanksWithQr || allocatedBanksWithQr.length === 0)" class="text-muted text-center mt-3">
+            No banks with QR image.
+          </div>
+        </div>
+
+        <div class="allocated-bank-col" style="width:50%;">
+          <div class="allocated-bank-title ms-2" style="font-size:0.9rem; font-weight:600; color:#dcdcdc; margin-bottom:8px;">IMPS
+            
+          </div>
+          <div *ngIf="allocatedBanksWithoutQr && allocatedBanksWithoutQr.length > 0">
+            <div *ngFor="let bank of allocatedBanksWithoutQr" class="allocated-bank-card mb-2 rounded shadow-sm">
+              <div class="row">
+                <div class="col-12">
+                  <!-- Smaller bank name placed at the top of the card -->
+                  <span class="fw-bold" style="font-size: var(--fs-xs); display:block; margin-bottom:6px;">{{ bank.displayName }}</span>
+                </div>
+                <div class="col-12">
+                  <div class="bank-actions mt-0">
+                    <div class="button-group">
+                      <button class="bank-action-btn message-btn" [class.active]="bank.sendMessage" (click)="onBankActionClick(bank, 'message')">
+                        <mat-icon>message</mat-icon>
+                      </button>
+                      <button class="bank-action-btn qr-btn" [class.active]="bank.sendQR" (click)="onBankActionClick(bank, 'qr')">
+                        <mat-icon>qr_code</mat-icon>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <div *ngIf="(!allocatedBanksWithoutQr || allocatedBanksWithoutQr.length === 0)" class="text-muted text-center mt-3">
+            No banks without QR image.
+          </div>
         </div>
       </div>
     </div>
-    <div  *ngIf="allocatedBanks && allocatedBanks.length === 0" class="text-muted text-center mt-3">
-      No banks allocated for the current time.
-    </div>
-  </div>
 
 
 
@@ -461,12 +552,13 @@
 
       <div class="form-check mb-1">
         <input class="form-check-input" type="checkbox" id="avoidUtrCheck" formControlName="avoidUtr">
-        <label class="form-check-label" for="avoidUtrCheck" style="color: aliceblue;">Avoid UTR</label>
+        <label class="form-check-label" for="avoidUtrCheck" style="color: aliceblue;">No UTR</label>
       </div>
 
-      <button class="btn btn-primary" type="submit" [disabled]="!depositRequestForm.valid || !utrImageUrl || depositRequestLoading">Deposit-request</button>
+      <button class="btn btn-primary" type="submit"   style="background-color: #00a884; border-color: #00a884; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer;" [disabled]="!depositRequestForm.valid || !utrImageUrl || depositRequestLoading">Deposit-request</button>
     </form>
   </div>
   </div>
+</div>
 </div>
 <!-- TODO: Implement the rest of the chat UI following watti-chat.component.html structure -->

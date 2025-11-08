@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, NgZone, ChangeDetectorRef, HostListener } from '@angular/core';
+import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material/tooltip';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { Subscription, Observable, interval } from 'rxjs';
@@ -15,12 +16,26 @@ import { WatiAccountService, WatiAccount } from '../../services/wati-account.ser
 import { ComponettitleService } from '../../services/componenttitle.service';
 import { QuickReplyService } from '../../services/quick-reply.service';
 
+const tooltipDefaults: MatTooltipDefaultOptions = {
+  showDelay: 200,
+  hideDelay: 0,
+  touchendHideDelay: 0,
+  position: 'above'
+};
+
 @Component({
   selector: 'app-deposite-chat',
   templateUrl: './deposite-chat.component.html',
-  styleUrls: ['./deposite-chat.component.scss']
+  styleUrls: ['./deposite-chat.component.scss'],
+  providers: [
+    { provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: tooltipDefaults }
+  ]
 })
 export class DepositeChatComponent implements OnInit, OnDestroy {
+  showApproveListPanel: boolean = true;
+  toggleApproveListPanel() {
+    this.showApproveListPanel = !this.showApproveListPanel;
+  }
   approveList: any[] = [];
   quickReplies: QuickReply[] = [];
   newQuickReply: string = '';
@@ -70,6 +85,9 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   subscription: any;
   selectedImageUrl: string | null = null;
   allocatedBanks: any[] = [];
+  // Split lists for UI: banks that already have a QR image, and those that don't
+  allocatedBanksWithQr: any[] = [];
+  allocatedBanksWithoutQr: any[] = [];
   loader: boolean;
   selectedImageMessage: any = null;
   selectedUserIdMessage: any = null;
@@ -86,6 +104,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   userRole: any;
   searchTerm: string = '';
   private searchTimeout: any;
+  showWithdrawList: boolean = false;
 
   constructor(
     private wattiService: WattiService,
@@ -97,13 +116,13 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     private BankingService: BankingService,
     private snackbarService: SnackbarService,
     private approveService: ApproveService,
-    private titleService : ComponettitleService,
+    private titleService: ComponettitleService,
     private watiAccountService: WatiAccountService, // <-- Injected
     private quickReplyService: QuickReplyService,
     private apprvserv: ApproveService, // <-- Injected
     // private chatService: DepositeChatService
   ) {
-      this.titleService.changeTitle('Deposit Chat');
+    this.titleService.changeTitle('Deposit Chat');
     this.messageForm = this.formBuilder.group({
       content: ['']
     });
@@ -135,6 +154,9 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     this.depoChat.disconnect();
     this.messages = [];
     this.depoChat.connectdchat(watiNumber);
+    this.depositRequestForm.get('userId')?.reset();
+    this.utrImageUrl = null;
+    this.utrImageFile = null;
   }
 
   ngAfterViewInit() {
@@ -188,11 +210,42 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     this.BankingService.getAvailableBanksByTimeSorted(time).subscribe(
       (data) => {
         this.allocatedBanks = data;
+        // split into two lists for the template: those with qrImageLink and those without
+        this.splitAllocatedBanks();
       },
       (error) => {
         console.error('Error fetching allocated banks by time:', error);
       }
     );
+  }
+
+  /**
+   * Split allocatedBanks into two arrays:
+   * - allocatedBanksWithQr: banks that have a non-empty qrImageLink
+   * - allocatedBanksWithoutQr: banks that do not have qrImageLink
+   */
+  private splitAllocatedBanks(): void {
+    if (!this.allocatedBanks || this.allocatedBanks.length === 0) {
+      this.allocatedBanksWithQr = [];
+      this.allocatedBanksWithoutQr = [];
+      return;
+    }
+
+    this.allocatedBanksWithQr = this.allocatedBanks.filter((b: any) => {
+      try {
+        return b && b.qrImageLink && b.qrImageLink.toString().trim().length > 0;
+      } catch (e) {
+        return false;
+      }
+    });
+
+    this.allocatedBanksWithoutQr = this.allocatedBanks.filter((b: any) => {
+      try {
+        return !(b && b.qrImageLink && b.qrImageLink.toString().trim().length > 0);
+      } catch (e) {
+        return true;
+      }
+    });
   }
 
   loadConversations(): void {
@@ -238,7 +291,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
       case 'block':
         observable = this.depoChat.getBlockedConversations(watiIds);
         break;
-        
+
       case 'all':
         observable = this.depoChat.getAllConversations(watiIds);
         break;
@@ -317,11 +370,15 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   }
 
   loadConversationByDepositeNumber(depositeNumber: string): void {
+   this.depositRequestForm.get('userId')?.reset();
+    this.utrImageUrl = null;
+    this.utrImageFile = null;
     this.depoChat.disconnect();
     this.loading = true;
     this.activeDepositeNumber = depositeNumber;
     this.pageIndex = 0;
     this.messages = [];
+
 
     if (this.messageSubscription && !this.messageSubscription.closed) {
       this.messageSubscription.unsubscribe();
@@ -876,20 +933,20 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
 
   addQuickReply(): void {
     const message = this.newQuickReply.trim();
-    
+
     if (message && this.userId) {
       const title = message.substring(0, 20); // first 20 characters
-      
+
       // Check if quick reply with same message already exists
       const exists = this.quickReplies.some(qr => qr.message === message);
-      
+
       if (!exists) {
         const newQuickReply: QuickReply = {
           title: title,
           message: message,
           zuserId: this.userId
         };
-        
+
         this.quickReplyService.saveQuickReply(newQuickReply).subscribe({
           next: (savedQuickReply) => {
             this.quickReplies.push(savedQuickReply);
@@ -907,7 +964,7 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     }
     this.showQuickReplyInput = false;
   }
-  
+
 
   removeQuickReply(reply: QuickReply): void {
     if (reply.id) {
@@ -1294,14 +1351,14 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   blockUser() {
     console.log('Block user clicked');
     if (this.selectedConversation && this.selectedConversation.watiNumber) {
-      
-      this.depoChat.blockUser(this.selectedConversation.watiNumber) .subscribe({
-        next: () => {     
+
+      this.depoChat.blockUser(this.selectedConversation.watiNumber).subscribe({
+        next: () => {
           this.snackbarService.snackbar('User blocked successfully.', 'success');
           // Optionally refresh conversations or update UI
-          this.loadConversationsByFilter(this.selectedFilter);  
+          this.loadConversationsByFilter(this.selectedFilter);
         },
-        error: (error) => { 
+        error: (error) => {
           console.error('Error blocking user:', error);
           this.snackbarService.snackbar('Failed to block user.', 'error');
         }
@@ -1313,21 +1370,24 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
   startEditingName() {
     this.isEditingName = true;
     this.editingClientName = this.selectedConversation?.clientName || '';
-         
+
+  }
+  toggleWithdrawList(): void {
+    this.showWithdrawList = !this.showWithdrawList;
   }
 
   updateClientName() {
     if (this.selectedConversation && this.editingClientName.trim()) {
       this.selectedConversation.clientName = this.editingClientName.trim();
-    
 
-   
+
+
       this.depoChat.updateClientName2(this.selectedConversation.id, this.editingClientName.trim())
         .subscribe({
           next: () => {
             // Optionally show a success snackbar
             this.snackbarService.snackbar('Client name updated.', 'success');
-       
+
           },
           error: (error) => {
             // Optionally show an error snackbar
@@ -1337,15 +1397,13 @@ export class DepositeChatComponent implements OnInit, OnDestroy {
     }
     this.isEditingName = false;
   }
-  
   getApproveList() {
     this.apprvserv.get200appvd().subscribe((data) => {
       // console.log(data);
       this.approveList = data;
     }
-    , (error) => {
-      console.error('Error fetching approve list:', error);
-    });
-}
-
+      , (error) => {
+        console.error('Error fetching approve list:', error);
+      });
+  }
 }
