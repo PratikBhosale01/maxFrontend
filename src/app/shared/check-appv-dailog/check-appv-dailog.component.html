@@ -16,7 +16,7 @@
 </Div>
 <mat-dialog-content>
   <app-loader *ngIf="loader"></app-loader>
-  <div class="row">
+  <div class="row">  
     @if (type==="Deposit") {
       <div class="col-md-6">
         @if(status === 'PENDING'||status === 'FAILED') {
@@ -72,22 +72,22 @@
             <h3>💰 Deposit Details</h3>
             
             <p><strong>🆔 User ID:</strong> {{ user.userId }}</p>
-            <p class="d-none d-md-block"><strong>💸 Amount:</strong> ₹{{ user.amount }}</p>
-            <p class="d-none d-md-block"><strong>🔢 UTR Number:</strong> {{ user.utrNumber }}</p>
+            <p><strong>💸 Amount:</strong> ₹{{ user.amount }}</p>
+            <p><strong>🔢 UTR Number:</strong> {{ user.utrNumber }}</p>
             
             <p><strong>🏦 Bank:</strong> {{ user.bank.bankName }} ({{ user.bank.bankHolderName }})</p>
-            <p class="d-none d-md-block"><strong>💳 Account No:</strong> {{ user.bank.accountNumber }}</p>
-            <p class="d-none d-md-block"><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
+            <p><strong>💳 Account No:</strong> {{ user.bank.accountNumber }}</p>
+            <p><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
           
             <p><strong>🖥️ Site:</strong> 
               <a [href]="user.site.url" target="_blank">{{ user.site.name }}</a>
             </p>
             
-            <p class="d-none d-md-block"><strong>�� UTR Image:</strong> 
+            <p><strong>📷 UTR Image:</strong> 
               <a [href]="user.bankUtrImageLink" target="_blank">Download Image</a>
             </p>
           
-            <div class="status d-none d-md-block" [ngClass]="user.approveStatus.toLowerCase()">
+            <div class="status" [ngClass]="user.approveStatus.toLowerCase()">
               <strong>Status:</strong> {{status}}
             </div>
           </div>
@@ -99,7 +99,7 @@
       @if(status === 'PENDING'||status === 'FAILED'|| status === 'DONE') {
       <form [formGroup]="formGroup" class="form-container">
         <div class="form-row">
-          <mat-form-field appearance="fill" class="form-field">
+          <!-- <mat-form-field appearance="fill" class="form-field">
             <mat-label>UTR Number</mat-label>
             <input
               matInput
@@ -126,7 +126,7 @@
                 UTR Number is required.
               </span>
             </mat-error>
-          </mat-form-field>
+          </mat-form-field> -->
 
           @if (type==="Deposit"){
           <mat-form-field appearance="fill" class="form-field">
@@ -143,18 +143,36 @@
             Check UTR Details
           </button>
           }@else {
+             <mat-form-field appearance="fill" class="form-field">
+            <mat-label>Amount</mat-label>
+            <input matInput formControlName="amount" />
+          </mat-form-field>
+         @if(!devicedata){
           <mat-form-field appearance="fill" class="form-field">
             <mat-label>Select Bank</mat-label>
             <mat-select formControlName="bank">
               <mat-option *ngFor="let bank of banks" [value]="bank.id">
-                {{bank.bankName}}
+                {{bank.displayName}}
               </mat-option>
             </mat-select>
             <mat-error *ngIf="formGroup.get('bank')?.errors?.['required']">
               Bank selection is required
-              
             </mat-error>
           </mat-form-field>
+          }@else{
+            <mat-form-field appearance="fill" class="form-field">
+              <mat-label>Select Bank</mat-label>
+              <mat-select formControlName="bank">
+                <mat-option *ngFor="let bank of deviceNames" [value]="bank">
+                  {{bank}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          }
+          <!-- Checkbox to toggle using the full bank list (Other Bank) -->
+          <div *ngIf="devicedata" style="display:flex; align-items:center; gap:8px;">
+            <mat-checkbox [(ngModel)]="useOtherBanks" (change)="onOtherBankToggle($event.checked)" [ngModelOptions]="{standalone: true}">Use full bank list</mat-checkbox>
+          </div>
           }
         </div>
         
@@ -220,13 +238,14 @@
         <div class="transaction-card">
           <h3>💰 Withdraw Details</h3>
           <p><strong>🆔 User ID:</strong> {{ user.userId }}</p>
-          <p class="d-none d-md-block"><strong>💸 Amount:</strong> ₹{{ user.amount }}</p>
-          <p class="d-none d-md-block"><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
+          <p><strong>💸 Amount:</strong> ₹{{ user.amount }}</p>
+          <p><strong>📅 Entry Time:</strong> {{ user.entryTime | date:'dd MMM yyyy, h:mm a' }}</p>
           <p><strong>🖥️ Site:</strong> 
             <a [href]="user.site.url" target="_blank">{{ user.site.name }}</a>
           </p>
-          <div class="status d-none d-md-block" [ngClass]="user.approveStatus.toLowerCase()">
-            <strong>Status:</strong> {{status}}
+        
+          <div class="status" [ngClass]="user.approveWithdrawStatus.toLowerCase()">
+            <strong>Status:</strong> {{ status}}
           </div>
         </div>
       }
@@ -266,16 +285,18 @@
         <h4 class="mat-h4" style="color: gold">Withdraw Message :</h4>
         <mat-card
           class="scrollable-card"
-          style="padding: 12px; background: #23272b; color: #000000; border-radius: 8px; min-height: 60px; font-size: 1rem; word-break: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 10px;"
+          style="padding: 2px; "
         >
           <span
             [innerHTML]="formatWithdrawMessage(user?.withdrawMessage)"
-            style="white-space: pre-line; display: block;"
           ></span>
         </mat-card>
-        <div class="nft-verification">
+        <div class="nft-verification">  
           <mat-checkbox class="example-margin"
           [(ngModel)]="isNeftPayment" color="primary" > NEFT Payment</mat-checkbox>
+          <!-- <mat-checkbox [(ngModel)]="isNftPayment" color="primary">
+            Verify as NFT Payment
+          </mat-checkbox> -->
         </div>
       </div>
 
@@ -360,6 +381,15 @@
     <span class="bar"></span>
     <span class="bar"></span>
   </div>
+   <button
+    *ngIf="status === 'DONE'"
+    (click)="sendMessage()"
+    class="message-btn"
+    mat-raised-button
+    color="primary"
+    [disabled]="formGroup.invalid">
+    Send Message 
+  </button>
 
   <button
     *ngIf="status === 'DONE'"
@@ -367,9 +397,8 @@
     class="message-btn"
     mat-raised-button
     color="primary"
-    [disabled]="formGroup.invalid"
-  >
-    Send Message
+    [disabled]="formGroup.invalid">
+    Send Message successfull 
   </button>
   <div *ngIf="status === 'MESSAGE_SENT'" class="status-message message-sent">
     <i class="fas fa-paper-plane"></i>

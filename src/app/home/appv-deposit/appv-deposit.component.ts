@@ -40,7 +40,7 @@ import { AddUserDialogComponent } from '../../shared/add-user-dialog/add-user-di
   templateUrl: './appv-deposit.component.html',
   styleUrl: './appv-deposit.component.scss'
 })
-export class AppvDepositComponent implements OnDestroy {
+export class AppvDepositComponent {
   formGroup: FormGroup;
   banksList: any[]; // Replace with your actual bank names
   filteredBanks: Observable<Bank[]>;
@@ -127,18 +127,18 @@ export class AppvDepositComponent implements OnDestroy {
   }
 
   getUserId() {
-    let userData = localStorage.getItem('user');
-    if (!userData) {
-      userData = sessionStorage.getItem('user');
-    }
+    const userData = localStorage.getItem('user');
     if (userData) {
       this.user = JSON.parse(userData);
     } else {
       // Handle the case when user data is not available
-      this.snackbarService.snackbar('User data not found in localStorage or sessionStorage!', 'error');
+      this.snackbarService.snackbar('User data not found in localStorage!', 'error');
+      
       return;
     }
-    this.userId = this.user.user_id;
+
+     this.userId = this.user.user_id;
+
   }
   getDeposite() {
     
@@ -541,7 +541,10 @@ export class AppvDepositComponent implements OnDestroy {
     );
   }
   getuserID() {
-    const userString = localStorage.getItem('user');
+    let userString = localStorage.getItem('user');
+    if (!userString) {
+      userString = sessionStorage.getItem('user');
+    }
     if (userString) {
       // Step 2: Access user_role attribute
       const user = JSON.parse(userString);

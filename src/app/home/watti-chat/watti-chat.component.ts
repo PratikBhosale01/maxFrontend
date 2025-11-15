@@ -611,16 +611,51 @@ export class WattiChatComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  sendRecording(): void {
+  // sendRecording(): void {
+  //   if (this.recordedChunks.length > 0) {
+  //     try {
+  //       const audioBlob = new Blob(this.recordedChunks, { type: 'audio/webm' });
+  //       const audioFile = new File([audioBlob], `audio-message-${Date.now()}.webm`, { type: 'audio/webm' });
+
+  //       this.selectedFile = audioFile;
+  //       this.sendMessage();
+  //     } catch (error) {
+  //       console.error('Error creating audio file:', error);
+  //     }
+
+  //     this.clearRecordingPreview();
+  //   }
+  // }
+   sendRecording(): void {
     if (this.recordedChunks.length > 0) {
+      this.loading = true;
       try {
         const audioBlob = new Blob(this.recordedChunks, { type: 'audio/webm' });
         const audioFile = new File([audioBlob], `audio-message-${Date.now()}.webm`, { type: 'audio/webm' });
-
-        this.selectedFile = audioFile;
-        this.sendMessage();
+        const content = this.messageForm.get('content')?.value;
+        this.wattiService.convertWebmToMP3(audioFile).subscribe({
+          next: (mp3Blob: Blob) => {
+            const mp3File = new File([mp3Blob], `audio-message-${Date.now()}.mp3`, { type: 'audio/mpeg' });
+            this.wattiService.sendMessageWithMedia( this.activeWatiNumber, content, false, mp3File).subscribe({
+              next: (response) => {
+                this.messageForm.reset();
+                this.selectedFile = null;
+                this.loading = false;
+              },
+              error: (error) => {
+                this.snackbarService.snackbar('Error sending audio: ' + (error?.error?.message || 'Unknown error'), 'error');
+                this.loading = false;
+              }
+            });
+          },
+          error: (error) => {
+            this.snackbarService.snackbar('Error converting audio: ' + (error?.error?.message || 'Unknown error'), 'error');
+            this.loading = false;
+          }
+        });
       } catch (error) {
-        console.error('Error creating audio file:', error);
+        this.snackbarService.snackbar('Error creating audio file', 'error');
+        this.loading = false;
       }
 
       this.clearRecordingPreview();

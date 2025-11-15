@@ -1,5 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ApproveService } from '../../services/approve.service';
+import { BankingService } from '../../services/banking.service';
+import { Bank } from '../../domain/Bank';
 import { AppvDeposit } from '../../domain/Deposite';
 import { RejectconfirmationComponent } from '../../shared/rejectconfirmation/rejectconfirmation.component';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -72,6 +74,10 @@ export class ApproveComponent implements OnInit, OnDestroy {
   deviceList: string[] = [];
   private draggedNotification: any = null;
   ur: any;
+  // Map depositId -> available banks for that deposit (from getAvailableBanksByTimeSorted)
+  availableBanksByDeposit: { [key: number]: Bank[] } = {};
+  // Map depositId -> selected bank object
+  selectedBankByDeposit: { [key: number]: Bank | null } = {};
 
   constructor(private ApproveService: ApproveService,
     private fb: FormBuilder,
@@ -80,7 +86,8 @@ export class ApproveComponent implements OnInit, OnDestroy {
     private utrservice: UtrService,
     private cdr: ChangeDetectorRef,
     private titleService: ComponettitleService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private bankingService: BankingService
   ) {
     this.titleService.changeTitle('Approve Panel');
     this.loadProducts();
@@ -90,8 +97,22 @@ export class ApproveComponent implements OnInit, OnDestroy {
       }
     });
 
+  }
 
+  // Called when user focuses any bank select - pause auto-refresh while interacting
+  onSelectFocus() {
+    this.isTyping = true;
+    // clear typing timer to avoid immediate unpause
+    clearTimeout(this.typingTimer);
+  }
 
+  // Called on blur - resume auto-refresh shortly after user leaves
+  onSelectBlur() {
+    // small delay to avoid race if user quickly re-opens
+    clearTimeout(this.typingTimer);
+    this.typingTimer = setTimeout(() => {
+      this.isTyping = false;
+    }, this.doneTypingInterval);
   }
   @ViewChild('zoomedImage', { static: false }) zoomedImage!: ElementRef;
   @ViewChild('magnifier', { static: false }) magnifier!: ElementRef;
@@ -130,7 +151,8 @@ export class ApproveComponent implements OnInit, OnDestroy {
         this.formGroups[deposit.id] = new FormGroup({
           utrNumber: new FormControl(deposit.utrNumber || ''),
           amount: new FormControl(deposit.amount || ''),
-          newId: new FormControl('')
+          newId: new FormControl(''),
+          deviceName: new FormControl('')
         });
       }
     });
@@ -276,6 +298,12 @@ export class ApproveComponent implements OnInit, OnDestroy {
       this.deposits = data.content;
       this.totalItems = data.totalElements;
       this.initializeFormGroups();
+
+      // For each deposit, request available banks for its entry time
+      this.deposits.forEach(deposit => {
+        this.loadAvailableBanks(deposit);
+      });
+
       this.cdr.detectChanges();
     });
   }
@@ -284,6 +312,74 @@ export class ApproveComponent implements OnInit, OnDestroy {
     return this.userRole === 'BANKER'
       ? ['PENDING', 'REJECTED', 'IN_PROCESS', 'FAILED', 'APPROVED']
       : ['PENDING', 'IN_PROCESS', 'FAILED', 'APPROVED'];
+  }
+
+  /**
+   * Fetch available banks for a given deposit using its entry time.
+   * Stores results in availableBanksByDeposit[deposit.id].
+   */
+  private loadAvailableBanks(deposit: any): void {
+    try {
+      const timeStr = this.getTimeStringFromTimestamp(deposit.entryTime);
+      // Call banking service to get banks available at this time
+      this.bankingService.getAvailableBanksByTimeSorted(timeStr).subscribe({
+        next: (banks: Bank[]) => {
+          this.availableBanksByDeposit[deposit.id] = banks || [];
+          // If deposit already has a bank-like field, try to set default selected bank
+          if (deposit.bankId || deposit.bankName) {
+            const match = banks?.find(b => b.id === deposit.bankId || b.bankId === deposit.bankId || b.bankName === deposit.bankName || b.displayName === deposit.bankName);
+            if (match) {
+              this.selectedBankByDeposit[deposit.id] = match;
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Error loading available banks for deposit', deposit.id, err);
+          this.availableBanksByDeposit[deposit.id] = [];
+        }
+      });
+    } catch (err) {
+      console.error('Error in loadAvailableBanks', err);
+      this.availableBanksByDeposit[deposit.id] = [];
+    }
+  }
+
+  /**
+   * Convert timestamp to a time string expected by banking API (HH:mm).
+   */
+  private getTimeStringFromTimestamp(ts: any): string {
+    try {
+      const d = new Date(ts);
+      const hh = d.getHours().toString().padStart(2, '0');
+      const mm = d.getMinutes().toString().padStart(2, '0');
+      return `${hh}:${mm}`;
+    } catch (err) {
+      console.warn('Invalid timestamp for getTimeStringFromTimestamp', ts);
+      return '';
+    }
+  }
+
+  onBankSelect(bank: Bank, depositId: number) {
+    this.selectedBankByDeposit[depositId] = bank;
+  }
+
+  /**
+   * Handler for native select change that receives bank id (string) from the template.
+   * Finds the Bank object in availableBanksByDeposit and stores it in selectedBankByDeposit.
+   */
+  onBankSelectById(bankId: any, depositId: number) {
+    if (!bankId) {
+      this.selectedBankByDeposit[depositId] = null;
+      return;
+    }
+    const banks = this.availableBanksByDeposit[depositId] || [];
+    const found = banks.find(b => (b.id != null && b.id == bankId) || (b.bankId != null && b.bankId == bankId));
+    if (found) {
+      this.selectedBankByDeposit[depositId] = found;
+    } else {
+      // If not found by id, just clear selection
+      this.selectedBankByDeposit[depositId] = null;
+    }
   }
 
   onRejectToggle(event: any): void {
@@ -317,16 +413,17 @@ export class ApproveComponent implements OnInit, OnDestroy {
   }
 
   getFormattedDate(timestamp): string {
-    // console.log(timestamp);
+    // Short format: dd/MM/yy HH:mm
+    if (!timestamp) return '';
     const date = new Date(timestamp);
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    };
-    return new Intl.DateTimeFormat(undefined, options).format(date);
+    if (isNaN(date.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1);
+    const year = date.getFullYear().toString().slice(-2);
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   }
 
   getUserId() {
@@ -363,11 +460,17 @@ export class ApproveComponent implements OnInit, OnDestroy {
       }
 
       this.loader = true;
+      // attach selected bank info (if user selected one)
+      const selectedBank = this.selectedBankByDeposit[deposite.id];
+      if (selectedBank) {
+        formValue.bankId = (selectedBank as any).id ?? (selectedBank as any).bankId;
+      }
+
       this.ApproveService
         .Approvecheck(deposite.id, 0, this.userId, formValue)
         .subscribe({
           next: (response) => {
-            console.log('Update successful', response);
+  
             this.snackbarService.snackbar('Update successfully!', 'success');
             this.loadProducts();
             this.loader = false;
@@ -617,6 +720,7 @@ export class ApproveComponent implements OnInit, OnDestroy {
   }
 
   onDrop(event: DragEvent, deposit: any) {
+
     event.preventDefault();
     if (!this.draggedNotification) return;
 
@@ -629,9 +733,35 @@ export class ApproveComponent implements OnInit, OnDestroy {
       const roundedAmount = this.roundUpToNearest10(amount);
       // Patch the amount value
       formGroup.patchValue({ amount: roundedAmount });
-      
-      // Store notification ID for later use in onSave
-      deposit.notificationId = this.draggedNotification.id;
+        // Set deviceName from draggedNotification and try to auto-select matching bank
+        if (this.draggedNotification?.deviceName) {
+          formGroup.get('deviceName')?.setValue(this.draggedNotification.deviceName);
+
+          // Attempt to auto-select a bank whose deviceName/displayName/bankMessage/upiId matches the notification's deviceName
+          const banks: Bank[] = this.availableBanksByDeposit[deposit.id] || [];
+          const notifDevice = this.normalizeDeviceName(this.draggedNotification.deviceName);
+
+          const found = banks.find(b => {
+            const bb: any = b;
+            const fields = [bb.deviceName, bb.displayName, bb.bankMessage, bb.upiId, bb.bankName];
+            return fields.some(f => {
+              if (!f) return false;
+              const norm = this.normalizeDeviceName(f);
+              return (norm && notifDevice && (norm.includes(notifDevice) || notifDevice.includes(norm)));
+            });
+          });
+
+          if (found) {
+            this.selectedBankByDeposit[deposit.id] = found;
+          } else {
+            // clear any previous selection if no match
+            this.selectedBankByDeposit[deposit.id] = null;
+          }
+          // ensure UI updates
+          this.cdr.detectChanges();
+        }
+        // Store notification ID for later use in onSave
+        deposit.notificationId = this.draggedNotification.id;
 
       // Close the notification after successful drop
       this.closeNotification(this.draggedNotification.id);
@@ -643,6 +773,18 @@ export class ApproveComponent implements OnInit, OnDestroy {
     }
 
     this.draggedNotification = null;
+  }
+
+  /**
+   * Normalize device/bank strings for matching: remove non-alphanumeric and lowercase
+   */
+  private normalizeDeviceName(s: string): string {
+    if (!s) return '';
+    try {
+      return s.replace(/[{}\-\s_\|&@,.():]/g, '').toLowerCase();
+    } catch (err) {
+      return s.toString().toLowerCase();
+    }
   }
 
   private extractAmount(notification: any): number | null {

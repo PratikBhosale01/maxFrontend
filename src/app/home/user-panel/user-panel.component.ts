@@ -6,6 +6,7 @@ import { AppUserService } from '../../services/app-user.service';
 import { UpAppvlistComponent } from '../../shared/up-appvlist/up-appvlist.component';
 import { OtpDialogComponent } from '../../shared/otp-dialog/otp-dialog.component';
 import { SnackbarService } from '../../services/snackbar.service';
+import { WatiAccountService, WatiAccount } from '../../services/wati-account.service';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -27,7 +28,16 @@ depositTableArray:any[];
   activityData: any[] = [];
   selectedUserForActivity: string = '';
   showActivityModal: boolean = false;
-constructor(public dialog: MatDialog, private appuserserv :AppUserService,  private snackBar: SnackbarService,) {}
+  // WATI dialog state
+  showWatiDialog: boolean = false;
+  watiLoading: boolean = false;
+  watiAllAccounts: WatiAccount[] = [];
+  watiSelectedIds: number[] = [];
+  watiTargetUser: any = null;
+  // Withdraw dialog state
+  showWithdrawDialog: boolean = false;
+  withdrawDialogUser: any = null;
+constructor(public dialog: MatDialog, private appuserserv :AppUserService,  private snackBar: SnackbarService, private watiService: WatiAccountService,) {}
 ngOnInit(): void {
   this.getuserID();
   this.fetchUser(); // first time: full table
@@ -212,9 +222,100 @@ closeActivityModal(): void {
   this.selectedUserForActivity = '';
 }
 
+// WATI accounts dialog handlers
+openWatiAccountsDialog(user: any): void {
+  this.watiTargetUser = user;
+  this.showWatiDialog = true;
+  this.watiLoading = true;
+  this.watiService.getAllAccounts().subscribe({
+    next: (all) => {
+      this.watiAllAccounts = all.filter(a => a.isActive);
+      this.watiService.getAccountsByZuser(user.zuserId || user.id).subscribe({
+        next: (mapped) => {
+          this.watiSelectedIds = (mapped || []).map(m => m.id).filter(id => id != null);
+          this.watiLoading = false;
+        },
+        error: () => {
+          this.watiSelectedIds = [];
+          this.watiLoading = false;
+        }
+      });
+    },
+    error: () => {
+      this.watiAllAccounts = [];
+      this.watiLoading = false;
+    }
+  });
+}
+
+closeWatiDialog(): void {
+  this.showWatiDialog = false;
+  this.watiAllAccounts = [];
+  this.watiSelectedIds = [];
+  this.watiTargetUser = null;
+}
+
+  // Withdraw dialog handlers
+  openWithdrawDialog(user: any): void {
+    this.withdrawDialogUser = user;
+    this.showWithdrawDialog = true;
+  }
+
+  closeWithdrawDialog(): void {
+    this.showWithdrawDialog = false;
+    this.withdrawDialogUser = null;
+  }
+
+toggleWatiSelection(id: number): void {
+  const idx = this.watiSelectedIds.indexOf(id);
+  if (idx >= 0) {
+    this.watiSelectedIds.splice(idx, 1);
+  } else {
+    this.watiSelectedIds.push(id);
+  }
+}
+
+submitWatiSelection(): void {
+  if (!this.watiTargetUser) return;
+  const zuserId = this.watiTargetUser.zuserId || this.watiTargetUser.id;
+  this.watiLoading = true;
+  this.watiService.updateZuserWatiAccounts(zuserId, this.watiSelectedIds).subscribe({
+    next: () => {
+      this.snackBar.snackbar('WATI accounts updated', 'success');
+      this.watiLoading = false;
+      this.closeWatiDialog();
+    },
+    error: () => {
+      this.snackBar.snackbar('Failed to update WATI accounts', 'error');
+      this.watiLoading = false;
+    }
+  });
+}
+
   formatLocalTime(timestamp: string): string {
     if (!timestamp) return '';
     const date = new Date(timestamp);
     return date.toLocaleString();
   }
+    /**
+     * Delete a user by username (calls backend by id)
+     */
+    deleteUser(id:any ,username: any ): void {
+      const confirmed = window.confirm(`Are you sure you want to delete user "${username}"? `);
+      if (confirmed) {
+        this.loader = true;
+        this.appuserserv.deleteUser(id).subscribe({
+          next: () => {
+            this.snackBar.snackbar('User deleted successfully!', 'success');
+            this.fetchUser();
+            this.loader = false;
+          },
+          error: (err) => {
+            this.snackBar.snackbar('Failed to delete user', 'error');
+            this.loader = false;
+            console.error('Delete user error:', err);
+          }
+        });
+      }
+    }
 }

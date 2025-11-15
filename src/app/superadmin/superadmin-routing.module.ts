@@ -9,7 +9,9 @@ import { UpdatePasswordComponent } from './update-password/update-password.compo
 import { UsersComponent } from './users/users.component';
 import { WithdrawComponent } from './withdraw/withdraw.component';
 import { BankingComponent } from './banking/banking.component';
+import { BankingPanelComponent } from '../home/banking-panel/banking-panel.component';
 import { ReportsComponent } from './reports/reports.component';
+import { UserPanelComponent } from '../home/user-panel/user-panel.component';
 // Components
 
 const routes: Routes = [
@@ -44,7 +46,7 @@ const routes: Routes = [
       },
       {
         path: 'users',
-        component: UsersComponent,
+        component: UserPanelComponent,
       },
       {
         path: 'withdraw',
@@ -52,7 +54,7 @@ const routes: Routes = [
       },
       {
         path: 'Banking',
-        component: BankingComponent,
+        component: BankingPanelComponent,
       },
       {
         path: 'reports',

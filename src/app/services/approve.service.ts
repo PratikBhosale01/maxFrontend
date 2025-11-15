@@ -23,7 +23,7 @@ export class ApproveService {
 
 
   deposite(deposite: DepositeWithdraw): Observable<any> {
-        return this.http.post<any>(`${this.baseUrl}/approveOperation/approveDeposit`, deposite);
+    return this.http.post<any>(`${this.baseUrl}/approveOperation/approveDeposit`, deposite);
   }
 
   depositeChatId(deposite: any): Observable<any> {
@@ -52,7 +52,7 @@ export class ApproveService {
     .set('id', Id.toString())
     .set('retry', retry.toString())
     .set('executedById', userId.toString())
-    console.log(approveDeposit);
+
     return this.http.put<any>(`${this.baseUrl}/approveOperation/approve`, approveDeposit, { params });
 
   }
@@ -253,20 +253,81 @@ sendWithdrawMsg(
   chatid: number,
   utr: string,
   neftPayment: any,
-  file?: File
+  file?: File,
+  bankName?:string,
+  deviceName?:string
 ) {
   const formData = new FormData();
   formData.append('approveId', id.toString());
-  formData.append('bankId', bankId.toString());
+  if (bankId !== null && bankId !== undefined) {
+    formData.append('bankId', bankId.toString());
+  }else{
+    formData.append('bankId', null);
+  }
   formData.append('utr', utr);
   formData.append('executedById', userId.toString());
-  formData.append('neftPayment',neftPayment.toString())
+  if (neftPayment !== null && neftPayment !== undefined) {
+    formData.append('neftPayment', neftPayment.toString());
+  }
+  // if(bankName!==null){
+  //   formData.append('bankId',bankName.toString());
+  // }
+  if(deviceName!==null){
+  formData.append('deviceName',deviceName.toString());
+}else{
+  formData.append('deviceName', null);
+}
   if (file) {
     formData.append('bankUtrImage', file);
   }
 
   return this.http.put<any>(
     `${this.baseUrl}/approveOperation/withdraw/notifyWithdrawalSuccess`,
+    formData
+  );
+}
+
+sendWMsg(
+  id: number,
+  userId: any,
+  bankId: number,
+  chatid: number,
+  utr: string,
+  neftPayment: any,
+  file?: File,
+  amount?:number,
+  bankName?:string,
+  deviceName?:string
+) {
+  const formData = new FormData();
+  formData.append('approveId', id.toString());
+  if (bankId !== null && bankId !== undefined) {
+    formData.append('bankId', bankId.toString());
+  }
+  formData.append('utr', utr);
+  formData.append('executedById', userId.toString());
+  if (neftPayment !== null && neftPayment !== undefined) {
+    formData.append('neftPayment', neftPayment.toString());
+  }
+  if (amount !== null && amount !== undefined) {
+    formData.append('amount', amount.toString());
+  }
+  if (bankName !== null && bankName !== undefined) {
+    formData.append('bankId', bankName.toString());
+  }else{
+    formData.append('bankId', null);
+  }
+  if (deviceName !== null && deviceName !== undefined) {
+    formData.append('deviceName', deviceName.toString());
+  }else{
+    formData.append('deviceName', null);
+  }
+  if (file) {
+    formData.append('bankUtrImage', file);
+  }
+
+  return this.http.put<any>(
+    `${this.baseUrl}/approveOperation/withdraw/sendMessage`,
     formData
   );
 }

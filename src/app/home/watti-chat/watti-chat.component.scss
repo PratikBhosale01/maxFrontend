@@ -25,7 +25,22 @@
   align-items: center;
   z-index: 1000;
 }
-
+.lg-text {
+  color: #b88818 !important; /* Green for active */
+  font-weight: 600;
+}
+.dg-text {
+  color: #e1b111 !important; /* Red for inactive */
+  font-weight: 600;
+}
+.gg-text {
+  color: #F2CA46 !important; /* Green for active */
+  font-weight: 600;
+}
+.tg-text {
+  color: #ffd344 !important; /* Red for inactive */
+  font-weight: 600;
+}
 .enlarged-image {
   max-width: 90vw;
   max-height: 90vh;

@@ -31,6 +31,18 @@
               </mat-form-field>
             </div>
           </div>
+          <div class="col-md-6" *ngIf="formGroup.get('role').value === 'APPROVEWITHDRAW'">
+            <div>
+              <mat-form-field appearance="fill" class="w-100">
+                <mat-label>Select Device</mat-label>
+                <mat-select formControlName="deviceNames" multiple>
+                  <mat-option *ngFor="let device of deviceNames" [value]="device">
+                    {{ device }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
         </div>
         <!-- Wati Accounts Multi-Select for DEPOSITCHAT role -->
        

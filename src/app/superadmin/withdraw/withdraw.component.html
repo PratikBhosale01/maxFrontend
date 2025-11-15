@@ -1,136 +1,97 @@
 <app-loader *ngIf="loader"></app-loader>
-<div>
-  <div class="row">
-    <div class="col-sm-4">
-      <div class="newcard">
-        <div class="card-body">
-          <h5 class="card-title">Total Withdraws</h5>
-          <p class="card-text">{{ totalwithdraw }}</p>
-        </div>
-        <div class="temp-scale" (click)="openTotalWithdrawDialog()">
-          <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
-        </div>
+
+<div class="newContainer">
+
+  <section class="dashboard-cards">
+    <div class="dashboard-card" (click)="openLastWeekDialog()">
+      <div class="dashboard-card-content">
+        <div class="dashboard-card-title">Last Week Withdraws</div>
+        <div class="dashboard-card-value">{{ lastWeekWithdrawCounts | number:'1.0-0' }}</div>
+        <div class="dashboard-card-meta">{{ lastWeekWithdraw  | currency:'INR':'symbol':'1.0-0' }}</div>
       </div>
     </div>
-    <div class="col-sm-4">
-      <div class="newcard">
-        <div class="card-body">
-          <h5 class="card-title">Today's Withdraws</h5>
-          <p class="card-text">{{ todayWithdraw }}</p>
-        </div>
-        <div class="temp-scale" (click)="openTodaysWithdrawDialog()" >
-          <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
-        </div>
+    <div class="dashboard-card" (click)="openTodaysWithdrawDialog()">
+      <div class="dashboard-card-content">
+        <div class="dashboard-card-title">Today's Withdraw</div>
+        <div class="dashboard-card-value">{{ todayWCounts | number:'1.0-0' }}</div>
+        <div class="dashboard-card-meta">{{ todayWithdraw  | currency:'INR':'symbol':'1.0-0' }}</div>
       </div>
     </div>
-    <div class="col-sm-4">
-      <button
-        class="col-sm-4 mb-3 b1"
-        id="b2"
-        style="background-color:#E2BD01"
-        (click)="openTotalWithdrawDialog()"
-      >
+    <div style="display:flex; justify-content: space-between; width:100%;">
+      <button class="btn btn--secondary action-btn" (click)="openTotalWithdrawDialog()">
+        <i class="fas fa-chart-bar"></i>
         Check Report
       </button>
-      <button
-        class="col-sm-4 mb-3 b1"
-        id="b3"
-        style="background: linear-gradient(to right, #cb9900,#ab7702);"
-        (click)="openLastWeekDialog()"
-      >
-        Last Week's Withdraw
+      <button class="btn btn--secondary action-btn" (click)="openTotalWithdrawDialog()">
+        <i class="fas fa-coins"></i>
+        Total Withdraw
       </button>
-      <button
-        class="col-sm-4 b1"
-        id="b4"
-        style="background: linear-gradient(to right, #a67102,#89580a);"
-        (click)="openDialog()"
-      >
+      <button class="btn btn--secondary action-btn" (click)="openDialog()">
+        <i class="fas fa-plus"></i>
         Add New Withdraw
       </button>
     </div>
-  </div>
-</div>
+  </section>
 
-  <div class="row">
-    <div class="col-sm-8">
-      <input
-        class=" inp "
-        matInput
-        placeholder="Username"
-        #input
-        (input)="filterData(input.value)"
-      />
     </div>
-    <div class="col-sm-4">
-      <button
-        class= "inp"
-        id="s1"
-        style="background: linear-gradient(to right, #74480f,#442504); color: #fffbfb; font-size: 500"
-        (click)="filterData(input.value)"
-      >
-        Search
-      </button>
-    </div>
-  </div>
-  
-  <div class="example-container mat-elevation-z8 tbl"  [hidden]="false">
-    <mat-table style="background-color: rgb(5, 5, 5);" #table [dataSource]="dataSource" matSort>
-      
+
+ <div class="date-filter-section">
+  <div class="search-group">
+          <input type="text" id="searchInput" class="form-control search-input" placeholder="Search by username..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+          <i class="fas fa-search search-icon"></i>
+           </div>         
+                <div class="date-inputs">
+              <div class="date-group">
+                <label for="fromDate">From Date</label>
+                <input type="date" id="fromDate" class="form-control date-input" [(ngModel)]="filterFromDate" (change)="applyDateFilter()">
+              </div>
+              <div class="date-group">
+                <label for="toDate">To Date</label>
+                <input type="date" id="toDate" class="form-control date-input" [(ngModel)]="filterToDate" (change)="applyDateFilter()">
+              </div>
+              <button id="applyFilter" class="btn btn--primary" (click)="applyDateFilter()">
+                <i class="fas fa-filter"></i>
+                Apply Filter
+              </button>
+                </div>
+        <div class="quick-filters">
+          <button class="btn btn--outline quick-filter" [class.active]="activeQuickFilter === 'today'" (click)="quickFilter('today')">Today</button>
+          <button class="btn btn--outline quick-filter" [class.active]="activeQuickFilter === 'week'" (click)="quickFilter('week')">This Week</button>
+          <button class="btn btn--outline quick-filter" [class.active]="activeQuickFilter === 'month'" (click)="quickFilter('month')">This Month</button>
+        </div>
+            </div>
+
+
+  <div class="custom-table-container" id="custom-table-container">
+    <mat-table matSort [dataSource]="filteredDataSource" class="custom-mat-table" matSortDisableClear>
+
       <ng-container matColumnDef="position">
-        <mat-header-cell
-          *matHeaderCellDef
-          style=" color: #ffd700;  "
-        >
-          No.
-        </mat-header-cell>
-        <mat-cell
-          *matCellDef="let element; let i = index"
-          style=" color: rgb(241, 237, 237)"
-        >
-          {{ i + 1 }}</mat-cell
-        >
+        <mat-header-cell *matHeaderCellDef mat-sort-header>No.</mat-header-cell>
+        <mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</mat-cell>
       </ng-container>
-  
-      <!-- Name Column -->
+
       <ng-container matColumnDef="userId">
-        <mat-header-cell
-          *matHeaderCellDef
-          style=" color: #ffd700"
-        >
-          Username
-        </mat-header-cell>
-        <mat-cell
-          *matCellDef="let element"
-          style="color: white"
-        >
-          {{ element.userId }}
-        </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Username</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.userId }}</mat-cell>
       </ng-container>
-  
-      <!-- Weight Column -->
+
+      <ng-container matColumnDef="approved">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Approved</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.approved }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="rejected">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Rejected</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.rejected }}</mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="count">
-        <mat-header-cell
-          *matHeaderCellDef
-          style=" color: #ffd700"
-        >
-          Deposites
-        </mat-header-cell>
-        <mat-cell
-          *matCellDef="let element"
-          style=" color: white"
-        >
-          {{ element.count }}
-        </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Withdraws</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.count }}</mat-cell>
       </ng-container>
-  
-      
-  
-      <mat-header-row  class="rowheader"  *matHeaderRowDef="displayedColumns" ></mat-header-row>
-      <mat-row class="rowheader" *matRowDef="let row; columns: displayedColumns"></mat-row>
-  
-     
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns" (click)="viewWithdraw(row)" class="pointer"></mat-row>
     </mat-table>
-  
-   
+
   </div>

@@ -13,6 +13,7 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
 import { PageEvent } from '@angular/material/paginator';
 import { WithDailogComponent } from '../../shared/with-dailog/with-dailog.component';
 import { DepoDailogComponent } from '../../shared/depo-dailog/depo-dailog.component';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-appv-wlist',
@@ -27,6 +28,7 @@ export class AppvWlistComponent {
   
   userId: any;
   user: any;
+  userRole: any;
 
 openEditDialog(arg0: any) {
 throw new Error('Method not implemented.');
@@ -42,30 +44,31 @@ pageSize: number = 8;
   paginator: any;
   totalElements: number = 0;
   private subscription: Subscription;
- 
+   bankNotifications: any[] = [];
+  private draggedNotification: any = null;
+  isBankNotificationsVisible: boolean = true;
+
+
 constructor(
   private searchService: SearchsuperadminService,
  
   private lastweekdata: LastweekdataService,
   private titleService: ComponettitleService,
-
+  private notificationService: NotificationService,
   public dialog: MatDialog,
   private apprvserv: ApproveService,
   private snackbarService: SnackbarService,
 ) // private webSocketService: WebsocketService
 
 {
-
+        this.getUserId();
+     this.loadBankNotifications();
   this.titleService.changeTitle('Approve Withdraw List');
   // this.dateRange = { start: null, end: null };
   
-  this.subscription = interval(10000).subscribe(() => {
-    // if (this.searchText && this.searchText.trim() !== '') {
-    //   this.pageNo = 0; // Reset to first page for a new search
-    //   this.searchDeposits();
-    // } else {
-    //   console.log('Search text is empty, no search will be performed.');
-   
+  this.subscription = interval( 2000).subscribe(() => {
+ 
+     this.loadBankNotifications();
       this.getWithdraws();
     // }
   });
@@ -73,19 +76,34 @@ constructor(
 refresh() {
 throw new Error('Method not implemented.');
 }
-selectedStatuses = new FormControl('');
- statuses: string[] = [
-  'ALL',
-  'PENDING',
-  'APPROVED',
-  'IN_PROCESS',
-  'REJECTED',
-  'DONE',
-  'FAILED',
-  'DELETED',
-  'MESSAGE_SENT',
-  'INSUFFICIENT_BALANCE',
-];
+  selectedStatuses = new FormControl('');
+ 
+  statuses: string[] = [];
+
+  private setStatusesByRole(): void {
+    const baseStatuses = [
+      'ALL',
+      'PENDING',
+      'APPROVED',
+      'IN_PROCESS',
+      'REJECTED',
+      'DONE',
+      'FAILED',
+      'MESSAGE_SENT',
+      'INSUFFICIENT_BALANCE',
+    ];
+
+    if (
+      this.userRole === 'APPROVEDEPOSIT' ||
+      this.userRole === 'ADMIN' ||
+      this.userRole === 'SUPERADMIN'
+    ) {
+      // Admin-like roles get the 'DELETED' status too
+      this.statuses = [...baseStatuses, 'DELETED'];
+    } else {
+      this.statuses = baseStatuses;
+    }
+  }
 onSearchClick() {
 throw new Error('Method not implemented.');
 }
@@ -93,12 +111,13 @@ updateSearchText($event: Event) {
 throw new Error('Method not implemented.');
 }
  
-   displayedColumns: string[] = ['Sr.no','userId', 'utrNumber', 'amount', 'entryTime', 'site', 'approveWithdrawStatus','approve', 'Operations'];
+   displayedColumns: string[] = ['Sr.no','userId', 'amount', 'entryTime',  'approveWithdrawStatus','approve', 'Operations'];
   
-   // Define the data source (replace with your real data)
+  
    dataSource ;
  
    ngOnInit(): void {
+
     if (this.compactColumns && Array.isArray(this.compactColumns) && this.compactColumns.length) {
       this.displayedColumns = this.compactColumns;
     }
@@ -106,16 +125,19 @@ throw new Error('Method not implemented.');
     if (this.embedded) {
       this.displayedColumns = this.displayedColumns.filter(c => c !== 'Sr.no');
     }
+    // make sure statuses reflect the current user's role
+    this.setStatusesByRole();
+
     this.selectedStatuses.valueChanges.subscribe((selectedStatuses) => {
       this.onStatusChange(selectedStatuses);
     });
     this.getWithdraws();
-    this.getUserId();
+  
    }
 
 
    getWithdraws(): void {
-    console.log(this.selectedStatuses.value);
+   
     const statusesToSend =
       this.selectedStatuses.value.length > 0
         ? this.selectedStatuses.value
@@ -126,7 +148,7 @@ throw new Error('Method not implemented.');
         (data) => {
           this.page = data;
           this.withdraws = data.content;
-          // console.log( this.deposits);
+     
           if (this.paginator) {
             this.paginator.length = data.totalElements; // Update paginator length with total elements
           }
@@ -162,13 +184,11 @@ throw new Error('Method not implemented.');
     data: {
       user: user,
       type: "withdraw",
-    }  // Pass the user object to the dialog
+    }  
   });
 
   dialogRef.afterClosed().subscribe(result => {
     if (result) {
-      // Handle logic after the dialog is closed, if required (e.g., refreshing data)
-      // console.log('Dialog result:', result);
       this.getWithdraws();
     }
   });
@@ -178,10 +198,10 @@ throw new Error('Method not implemented.');
 
 
  onStatusChange(newStatuses): void {
-  this.pageNo = 0; // Reset to the first page whenever the filter changes
+  this.pageNo = 0; 
   if (this.paginator) {
-    this.paginator.firstPage(); // Reset paginator to first page
-  } // Reset paginator to first page
+    this.paginator.firstPage();
+  } 
   this.getWithdraws();
 }
 
@@ -195,11 +215,11 @@ deleteReport(Id: number) {
       this.loader = true;
   this.apprvserv.deleteWithdraw(Id, this.userId).subscribe({
     next: (response) => {
-      console.log('Delete successful', response);
+   
       this.snackbarService.snackbar('Deleted successful', 'success');
       this.getWithdraws();
       this.loader = false;
-      // Handle success logic, e.g., showing a notification or refreshing the list
+     
     },
     error: (error) => {
       console.error('Delete failed', error);
@@ -221,9 +241,13 @@ getUserId(){
 
   if (userData) {
     this.user = JSON.parse(userData);
-    this.userId = this.user.user_id;  // Get the user ID from localStorage
+    this.userId = this.user.user_id;
+    this.userRole = this.user.role_user;
+  
+    this.setStatusesByRole();
+
   } else {
-    // Handle the case when user data is not available
+    
     console.error('User data not found in localStorage');
     return;
   }
@@ -253,12 +277,11 @@ searchDeposits(): void {
 
  onPageEvent(event: PageEvent): void {
     this.pageNo = event.pageIndex;
-    console.log(this.pageNo); //
+  
     this.pageSize = event.pageSize;
-    console.log(this.pageSize + 'pagesize'); //
+
     if (this.searchText && this.searchText.trim() !== '') {
-      this.pageNo = 0; // Reset to first page for a new search
-      // this.searchDeposits();
+      this.pageNo = 0;
     } else {
       console.log('Search text is empty, no search will be performed.');
       // Optionally, you can fetch the default list if search is empty
@@ -285,6 +308,43 @@ onWaNumChange(value: number): void {
   this.waNum = value; // Update the waNum property with the selected value
   this.getWithdraws(); // Call the method to fetch data based on the selected WA number
 }
+
+ onDragStart(event: DragEvent, notification: any) {
+    this.draggedNotification = notification;
+    event.dataTransfer.setData('text/plain', JSON.stringify(notification));
+  }
+
+  closeNotification(id: number) {
+    this.notificationService.closeWNotification(id).subscribe({
+      next: (response) => {
+       this.loadBankNotifications();// Refresh the notifications list
+      },
+      error: (error) => {
+   console.log(error);
+  }
+  });  
+}
+
+  loadBankNotifications() {
+   
+            this.getUserId();
+      this.notificationService.getOtpNotifications(this.userId).subscribe({
+        next: (notifications) => {
+          this.bankNotifications = notifications;
+
+          
+        },
+        error: (error) => {
+          console.error('Error loading bank notifications:', error);
+          
+        }
+      });
+   }
+ 
+
+  toggleBankNotifications() {
+    this.isBankNotificationsVisible = !this.isBankNotificationsVisible;
+  }
 
  }
 

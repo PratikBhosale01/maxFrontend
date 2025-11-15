@@ -27,9 +27,10 @@ import { UserPanelComponent } from './user-panel/user-panel.component';
 import { ApproveComponent } from './approve/approve.component';
 import { NotificationComponent } from './notification/notification.component';
 import { WattiChatComponent } from './watti-chat/watti-chat.component';
-import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
 import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
+import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
 import { OperationsPanelComponent } from './operations-panel/operations-panel.component';
+
 
 
 // Components
@@ -149,19 +150,17 @@ const routes: Routes = [
         component: WattiChatComponent,
       },
       {
-        path: "Deposite-Chat",
-        component: DepositeChatComponent,
-      }, {
         path: "wati-accounts",
         component: WatiAccountsComponent,
+      },
+      {
+        path: "Deposite-Chat",
+        component: DepositeChatComponent,
       },
       {
         path: 'operations-panel',
         component: OperationsPanelComponent,
       },
-    
-      
-
     ],
   },
 ];

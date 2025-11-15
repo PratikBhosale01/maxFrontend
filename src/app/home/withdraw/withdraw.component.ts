@@ -295,7 +295,7 @@ export class WithdrawComponent implements OnInit, OnDestroy {
     );
   }
   getuserID() {
-    let userString = localStorage.getItem('user');
+     let userString = localStorage.getItem('user');
     if (!userString) {
       userString = sessionStorage.getItem('user');
     }

@@ -285,10 +285,10 @@ export class WithDailogComponent  implements OnInit, OnDestroy {
       );
     }
     getuserID() {
-      let userString = localStorage.getItem('user');
-      if (!userString) {
-        userString = sessionStorage.getItem('user');
-      }
+        let userString = localStorage.getItem('user');
+    if (!userString) {
+      userString = sessionStorage.getItem('user');
+    }
       if (userString) {
         // Step 2: Access user_role attribute
         const user = JSON.parse(userString);

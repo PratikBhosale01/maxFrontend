@@ -123,6 +123,15 @@
       <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-danger btn-sm ms-2" (click)="logoutUser(user.username)">
         <i class="fa fa-sign-out-alt"></i> 
       </button>
+        <button *ngIf="user.role !== 'SUPERADMIN' && user.role !== 'ADMIN' && user.role !== 'APPROVEADMIN'" class="btn btn-outline-danger btn-sm ms-2" title="Delete User" (click)="deleteUser(user.id ,user.username)">
+          <i class="fa fa-trash"></i>
+        </button>
+        <button class="btn btn-sm ms-2" title="View Withdrawals" (click)="openWithdrawDialog(user)">
+      <i class="fa fa-hand-holding-dollar" style="color:gold;"></i>
+        </button>
+        <button *ngIf="user.role === 'DEPOSITCHAT'" class="btn btn-link btn-sm p-0 ms-2" title="Update WATI accounts" (click)="openWatiAccountsDialog(user)">
+          <i class="fa fa-list-check" style="color: #E2BD01;"></i>
+        </button>
     </td>
   </tr>
   <ng-container *ngIf="user.children && user.children.length > 0 && user.expanded">
@@ -170,5 +179,48 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- WATI Accounts Modal -->
+<div *ngIf="showWatiDialog" class="modal fade show d-block custom-activity-modal" tabindex="-1">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content activity-modal-content">
+      <div class="modal-header activity-modal-header">
+        <div>
+          <h5 class="modal-title mb-1">Update WATI Accounts</h5>
+          <div class="text" style="font-size: 0.9rem;color: white;">
+            User: <span style="color:#E2BD01">{{ watiTargetUser?.username }}</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeWatiDialog()"></button>
+      </div>
+      <div class="modal-body activity-modal-body">
+        <div *ngIf="watiLoading" class="text-center p-4">Loading...</div>
+        <div *ngIf="!watiLoading">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div style="color: #ffffff;">Select one or more accounts</div>
+            <span class="badge bg-secondary">{{ watiSelectedIds.length }} selected</span>
+          </div>
+          <div class="list-group" style="max-height: 360px; overflow:auto; border-radius:8px;">
+            <label class="list-group-item d-flex align-items-center" *ngFor="let acc of watiAllAccounts">
+              <input class="form-check-input me-2" type="checkbox" [checked]="watiSelectedIds.includes(acc.id)" (change)="toggleWatiSelection(acc.id)">
+              <div class="d-flex flex-column">
+                <div style="font-weight:500;">{{ acc.watiName }}</div>
+                <small class="text-muted">Team: {{ acc.teamId }}</small>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer activity-modal-footer">
+        <button type="button" class="btn btn-outline-light" (click)="closeWatiDialog()">Cancel</button>
+        <button type="button" class="btn btn-warning text-dark" [disabled]="watiLoading" (click)="submitWatiSelection()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Withdraw Dialog Component Instance -->
+<div class="withdraw-dialog-wrapper" *ngIf="showWithdrawDialog">
+  <app-withdraw-dialog [user]="withdrawDialogUser" (close)="closeWithdrawDialog()"></app-withdraw-dialog>
 </div>
  

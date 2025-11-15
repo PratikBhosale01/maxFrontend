@@ -1,24 +1,63 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { SuperAdminLandingService } from '../../services/super-admin-landing.service';
 import { Subscription } from 'rxjs';
-import { Chart } from 'chart.js';
+// @ts-ignore
+import Chart from 'chart.js/auto';
 import { ChartsService } from '../../services/charts.service';
 import { MatDialog } from '@angular/material/dialog';
 import { UsertableModalComponent } from '../usertable-modal/usertable-modal.component';
 import { ComponettitleService } from '../../services/componenttitle.service';
 
+
 @Component({
   selector: 'app-landingpage',
-
   templateUrl: './landingpage.component.html',
   styleUrl: './landingpage.component.scss',
 })
+
 export class LandingpageComponent implements OnInit {
+  // ...existing code...
+
+  showDepositBothMetrics(): void {
+    if (!this.depositChart) return;
+    this.depositChart.data.datasets[0].hidden = false;
+    this.depositChart.data.datasets[1].hidden = false;
+    // @ts-ignore
+    this.depositChart.options.scales.y.display = true;
+    // @ts-ignore
+    this.depositChart.options.scales.y1.display = true;
+    this.depositChart.update();
+  }
+
+  showDepositCountOnly(): void {
+    if (!this.depositChart) return;
+    this.depositChart.data.datasets[0].hidden = false;
+    this.depositChart.data.datasets[1].hidden = true;
+    // @ts-ignore
+    this.depositChart.options.scales.y.display = true;
+    // @ts-ignore
+    this.depositChart.options.scales.y1.display = false;
+    this.depositChart.update();
+  }
+
+  showDepositAmountOnly(): void {
+    if (!this.depositChart) return;
+    this.depositChart.data.datasets[0].hidden = true;
+    this.depositChart.data.datasets[1].hidden = false;
+    // @ts-ignore
+    this.depositChart.options.scales.y.display = false;
+    // @ts-ignore
+    this.depositChart.options.scales.y1.display = true;
+    // @ts-ignore
+    this.depositChart.options.scales.y1.position = 'left';
+    this.depositChart.update();
+  }
   todayDeposit: number = 0;
   todayWithdraw: number = 0;
   totalusers: number = 0;
-  todayClients: number= 0;
+  todayClients: number = 0;
   name = '';
   previousData: any = {};
   deposit: any;
@@ -26,16 +65,28 @@ export class LandingpageComponent implements OnInit {
   private depositSubscription: Subscription;
   chartDepositData: any[];
   charrtWithdrawData: any[];
+  @ViewChild('transactionChart') transactionChart!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('depositTransactionChart') depositTransactionChart!: ElementRef<HTMLCanvasElement>;
 
   currentdepo: number;
-  canvasDeposit: any;
-  ctxDeposit: any;
-  canvasWithdraw: any;
-  ctxWithdraw: any;
+  data: any[] = [];
+  depositData: any[] = [];
 
-  @ViewChild('depositChart') depositChart;
-  @ViewChild('withdrawChart') withdrawChart;
   loader: boolean = false;
+  todayCounts: number = 0;
+  todayWCounts: number = 0;
+  totalTransactions = 0;
+  totalAmount = '';
+  avgTransactions = 0;
+  avgAmount = '';
+
+  depositTotalTransactions = 0;
+  depositTotalAmount = '';
+  depositAvgTransactions = 0;
+  depositAvgAmount = '';
+
+  chart!: Chart;
+  depositChart!: Chart;
 
   constructor(
     private route: Router,
@@ -43,8 +94,7 @@ export class LandingpageComponent implements OnInit {
     private cdRef: ChangeDetectorRef,
     private chartDataService: ChartsService,
     public dialog: MatDialog,
-    private   titleService:ComponettitleService
-   
+    private titleService: ComponettitleService
   ) {}
 
   ngOnInit(): void {
@@ -56,15 +106,16 @@ export class LandingpageComponent implements OnInit {
     this.getUser();
     this.getDeposite();
     this.getWithdraW();
-    this.getDepositChartData();
     this.getWithdrawChartData();
+    this.getDepositChartData();
   }
 
   getDeposite() {
     this.landingservice.getTodaysDeposit().subscribe(
       (data) => {
         if (data != this.currentdepo || this.todayDeposit === 0) {
-          this.todayDeposit = data;
+          this.todayDeposit = data.amount;
+          this.todayCounts = data.count;
           this.currentdepo = this.todayDeposit;
         }
         //  else{
@@ -95,7 +146,8 @@ export class LandingpageComponent implements OnInit {
   getWithdraW() {
     this.landingservice.getTodaysWithdraw().subscribe(
       (data) => {
-        this.todayWithdraw = data;
+        this.todayWithdraw = data.amount;
+        this.todayWCounts = data.count;
       },
       (error) => {
         console.error(error);
@@ -116,260 +168,255 @@ export class LandingpageComponent implements OnInit {
     );
   }
 
-  dataChanged(newData: any): boolean {
-    // Compare new data with previous data
-    // Implement your comparison logic here based on your data structure
-    // For simplicity, assuming newData and previousData are JSON objects
-    return JSON.stringify(newData) !== JSON.stringify(this.previousData);
-  }
+  // dataChanged(newData: any): boolean {
+  //   // Compare new data with previous data
+  //   // Implement your comparison logic here based on your data structure
+  //   // For simplicity, assuming newData and previousData are JSON objects
+  //   return JSON.stringify(newData) !== JSON.stringify(this.previousData);
+  // }
+
 
   getDepositChartData() {
     this.chartDataService.getDepositChartData().subscribe(
       (data) => {
-        console.log(data);
-        //===============================================================
-        this.canvasDeposit = this.depositChart.nativeElement;
-        this.ctxDeposit = this.canvasDeposit.getContext('2d');
-
-        let depositChart = new Chart(this.ctxDeposit, {
-          type: 'line',
-          data: {
-            datasets: [
-              {
-                label: 'Deposits',
-                backgroundColor: 'rgba(255, 99, 132,0.4)',
-                borderColor: 'rgb(255, 215, 0)',
-                fill: true,
-                data: data.map(([x, y]) => ({
-                  x,
-                  y,
-                })),
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            title: {
-              display: true,
-              text: 'Deposits Over Time',
-            },
-            scales: {
-              xAxes: [
-                {
-                  type: 'time',
-                  time: {
-                    unit: 'day',
-                    displayFormats: {
-                      month: 'MMM YYYY',
-                    },
-                  },
-                  scaleLabel: {
-                    labelString: 'Date',
-                    display: true,
-                  },
-                },
-              ],
-              yAxes: [
-                {
-                  type: 'linear',
-                  ticks: {
-                    userCallback: function (tick) {
-                      return tick.toString();
-                    },
-                  },
-                  scaleLabel: {
-                    labelString: 'Deposits',
-                    display: true,
-                  },
-                },
-              ],
-            },
-          },
-        });
-
-        this.chartDepositData = data.map(([x, y]) => ({
-          x,
-          y,
-        }));
-
-        console.log(this.chartDepositData);
+        this.depositData = data;
+        this.createDepositTransactionChart();
+        this.updateDepositStats();
       },
       (error) => {
         console.error(error);
       }
     );
   }
-  getWithdrawChartData() {
-    this.chartDataService.getWithdrawalChartData().subscribe(
-      (data) => {
-        console.log(data);
-        this.canvasWithdraw = this.withdrawChart.nativeElement;
-        this.ctxWithdraw = this.canvasWithdraw.getContext('2d');
-
-        let withdrawChart = new Chart(this.ctxWithdraw, {
-          type: 'line',
-          data: {
-            datasets: [
-              {
-                label: 'Withdrawals',
-                backgroundColor: 'rgba(54, 162, 235, 0.4)',
-                borderColor: 'rgb(255, 215, 0)',
-                fill: true,
-                data: data.map(([x, y]) => ({
-                  x,
-                  y,
-                })),
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            title: {
-              display: true,
-              text: 'Withdrawals Over Time',
-            },
-            scales: {
-              xAxes: [
-                {
-                  type: 'time',
-                  time: {
-                    unit: 'day',
-                    displayFormats: {
-                      month: 'MMM YYYY',
-                    },
-                  },
-                  scaleLabel: {
-                    labelString: 'Date',
-                    display: true,
-                  },
-                },
-              ],
-              yAxes: [
-                {
-                  type: 'linear',
-                  ticks: {
-                    userCallback: function (tick) {
-                      return tick.toString();
-                    },
-                  },
-                  scaleLabel: {
-                    labelString: 'Withdrawals',
-                    display: true,
-                  },
-                },
-              ],
-            },
-          },
-        });
-
-        //   this.charrtWithdrawData=Object.entries(data).map(([date, count]) => ({
-        //     date,
-        //     count
-        // }))
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
+  private getDepositChartLabels(): string[] {
+    if (!Array.isArray(this.depositData)) {
+      return [];
+    }
+    return this.depositData.map((item: any) => {
+      const date = new Date(item.date);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
   }
 
-  //   ngOnInit(): void {
-  //    this.getDeposite();
-  //    this.getWithdraW();
-  //    this.getUser();
-  //   }
+  private getDepositCountSeries(): number[] {
+    return Array.isArray(this.depositData) ? this.depositData.map((item: any) => item.count ?? 0) : [];
+  }
 
-  // getDeposite(){
-  //   this.loaderdeposite=true;
-  //   this.landingservice.getDeposite().subscribe(
-  //     (data) => {
+  private getDepositAmountSeries(): number[] {
+    return Array.isArray(this.depositData) ? this.depositData.map((item: any) => item.totalAmount ?? 0) : [];
+  }
 
-  //       this.loaderdeposite=false;
-  //       this.todayDeposit=data;
+  createDepositTransactionChart(): void {
+    if (!this.depositTransactionChart) {
+      return;
+    }
 
-  //     },
-  //     (error) => {
-  //       console.error(error);
-  //     }
-  //   );
-  // }
+    const canvas = this.depositTransactionChart.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
 
-  // getWithdraW(){
-  //   this.loaderwithdraw=true;
-  //   this.landingservice.getWithdraw().subscribe(
-  //     (data) => {
+    // Create gradients for lines
+    const goldGradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    goldGradient.addColorStop(0, '#ffd700');
+    goldGradient.addColorStop(1, '#ffe28a');
+    const brownGradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    brownGradient.addColorStop(0, '#926108');
+    brownGradient.addColorStop(1, '#b39b33');
 
-  //       this.loaderwithdraw=false;
-  //       this.todayWithdraw=data;
-  //     },
-  //     (error) => {
-  //       console.error(error);
-  //     }
-  //   );
+    // Destroy existing instance
+    if (this.depositChart) {
+      this.depositChart.destroy();
+    }
 
-  // }
+    const labels = this.getDepositChartLabels();
+    const counts = this.getDepositCountSeries();
+    const amounts = this.getDepositAmountSeries();
 
-  // getUser(){
-  //   this.loaderusers=true;
-  //   this.landingservice.getUser().subscribe(
-  //     (data) => {
+    this.depositChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Deposit Count',
+            data: counts,
+            borderColor: goldGradient,
+            backgroundColor: 'rgba(242, 214, 55, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#ffe28a',
+            pointBorderColor: '#ffd700',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            yAxisID: 'y',
+          },
+          {
+            label: 'Total Amount (₹)',
+            data: amounts,
+            borderColor: brownGradient,
+            backgroundColor: 'rgba(146, 97, 8, 0.10)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#b39b33',
+            pointBorderColor: '#926108',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            yAxisID: 'y1',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              padding: 20,
+              font: { size: 15, weight: 'bold' },
+              color: '#7c7b7bff',
+              boxWidth: 18,
+              boxHeight: 18,
+            },
+            title: {
+              display: false,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#d9d182ff',
+            titleColor: '#464646ff',
+            bodyColor: '#926108',
+            borderColor: '#ffd700',
+            borderWidth: 2,
+            cornerRadius: 12,
+            displayColors: true,
+            callbacks: {
+              label: (context: any) => {
+                if (context.datasetIndex === 1) {
+                  return context.dataset.label + ': ' + this.formatCurrency(context.raw);
+                }
+                return context.dataset.label + ': ' + context.raw;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Date',
+              font: { size: 15, weight: 'bold' },
+              color: '#999999ff',
+            },
+            grid: { color: 'rgba(122, 122, 121, 0.08)' },
+            ticks: { color: '#989898ff', font: { weight: 'bold' } },
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Deposit Count',
+              color: '#ffd700',
+              font: { size: 15, weight: 'bold' },
+            },
+            grid: { color: 'rgba(255, 215, 0, 0.10)' },
+            ticks: { color: '#ffd700', font: { weight: 'bold' } },
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Total Amount (₹)',
+              color: '#908f8fff',
+              font: { size: 15, weight: 'bold' },
+            },
+            grid: { drawOnChartArea: false, color: 'rgba(146, 97, 8, 0.10)' },
+            ticks: {
+              color: '#929090ff',
+              font: { weight: 'bold' },
+              callback: (value: any) => this.formatCurrency(Number(value)),
+            },
+          },
+        },
+        animation: { duration: 800, easing: 'easeInOutQuart' },
+      },
+    });
+  }
 
-  //       this.loaderusers=false;
-  //       this.totalusers=data;
-  //     },
-  //     (error) => {
-  //       console.error(error);
-  //     }
-  //   );
-  // }
+  updateDepositStats(): void {
+    if (!Array.isArray(this.depositData) || this.depositData.length === 0) {
+      this.depositTotalTransactions = 0;
+      this.depositTotalAmount = this.formatCurrency(0);
+      this.depositAvgTransactions = 0;
+      this.depositAvgAmount = this.formatCurrency(0);
+      return;
+    }
+
+    const totalTransactions = this.depositData.reduce((sum: number, item: any) => sum + (item.count ?? 0), 0);
+    const totalAmountRaw = this.depositData.reduce((sum: number, item: any) => sum + (item.totalAmount ?? 0), 0);
+    const avgTransactions = Math.round(totalTransactions / this.depositData.length);
+    const avgAmountRaw = Math.round(totalAmountRaw / this.depositData.length);
+
+    this.depositTotalTransactions = totalTransactions;
+    this.depositTotalAmount = this.formatCurrency(totalAmountRaw);
+    this.depositAvgTransactions = avgTransactions;
+    this.depositAvgAmount = this.formatCurrency(avgAmountRaw);
+  }
+
+
+
+getWithdrawChartData() {
+  this.chartDataService.getWithdrawalChartData().subscribe(
+    (data) => {
+      this.data = data;
+    
+
+      // Create/refresh combined chart and stats
+      this.createTransactionChart();
+      this.updateStats();
+
+    
+    },
+    (error) => {
+      console.error(error);
+    }
+  );
+}
+
+
+
+
+
+
+
+
+
 
   navigateToPage(component: String): void {
     this.route.navigateByUrl(`SA/${component}`);
   }
 
-  // =============================chart===================================================
-  ngAfterViewInit() {}
-
-  //==================================chart pro===================================
-
-  // private createChart(canvas: HTMLCanvasElement, data: any, label: string, backgroundColor: string) {
-  //   const ctx = canvas.getContext('2d');
-  //   new Chart(ctx, {
-  //     type: 'line',
-  //     data: {
-  //       datasets: [{
-  //         label: label,
-  //         backgroundColor: backgroundColor,
-  //         borderColor: "rgb(255, 215, 0)",
-  //         fill: true,
-  //         data: data,
-  //       }]
-  //     },
-  //     options: {
-  //       Add your chart options here
-  //     }
-  //   });
-  // }
-
-  // ngAfterViewInit() {
-  //   this.chartDataService.getDepositChartData().subscribe(data => {
-  //     this.createChart(this.depositChart.nativeElement, data, 'Deposits', 'rgba(255, 99, 132,0.4)');
-  //   });
-
-  //   this.chartDataService.getWithdrawalChartData().subscribe(data => {
-  //     this.createChart(this.withdrawChart.nativeElement, data, 'Withdrawals', 'rgba(54, 162, 235, 0.4)');
-  //   });
-  // }
-
-  //************************************  usertable modal ************************* */
-
+  
+  
   fetchDataFromBackend() {
     this.loader = true;
     // Perform backend API call or any other method to fetch data
     this.landingservice.getAllUsers().subscribe(
       (data) => {
-        // Pass the fetched data to the openDialog method
-        console.log(data);
+       
         this.openDialog(data);
         this.loader = false; // Set loader to false after data is fetched
       },
@@ -387,4 +434,234 @@ export class LandingpageComponent implements OnInit {
   }
 
 
+  // ================= Combined Transaction Chart (Count + Amount) =================
+  private formatCurrency(value: number): string {
+    if (value === null || value === undefined) {
+      return '₹0.0L';
+    }
+    return '₹' + (value / 100000).toFixed(1) + 'L';
+  }
+
+  private getChartLabels(): string[] {
+    if (!Array.isArray(this.data)) {
+      return [];
+    }
+    return this.data.map((item: any) => {
+      const date = new Date(item.date);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+  }
+
+  private getCountSeries(): number[] {
+    return Array.isArray(this.data) ? this.data.map((item: any) => item.count ?? 0) : [];
+  }
+
+  private getAmountSeries(): number[] {
+    return Array.isArray(this.data) ? this.data.map((item: any) => item.totalAmount ?? 0) : [];
+  }
+
+  createTransactionChart(): void {
+    if (!this.transactionChart) {
+      return;
+    }
+
+    const canvas = this.transactionChart.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
+
+    // Create gradients for lines
+    const goldGradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    goldGradient.addColorStop(0, '#ffd700');
+    goldGradient.addColorStop(1, '#ffe28a');
+    const brownGradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    brownGradient.addColorStop(0, '#926108');
+    brownGradient.addColorStop(1, '#b39b33');
+
+    // Destroy existing instance
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    const labels = this.getChartLabels();
+    const counts = this.getCountSeries();
+    const amounts = this.getAmountSeries();
+
+    this.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Transaction Count',
+            data: counts,
+            borderColor: goldGradient,
+            backgroundColor: 'rgba(255, 215, 0, 0.10)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#ffe28a',
+            pointBorderColor: '#ffd700',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            yAxisID: 'y',
+          },
+          {
+            label: 'Total Amount ($)',
+            data: amounts,
+            borderColor: brownGradient,
+            backgroundColor: 'rgba(146, 97, 8, 0.10)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#b39b33',
+            pointBorderColor: '#926108',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            yAxisID: 'y1',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              padding: 20,
+              font: { size: 15, weight: 'bold' },
+              color: '#8d8d8dff',
+              boxWidth: 18,
+              boxHeight: 18,
+            },
+            title: {
+              display: false,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#dbd9d4ff',
+            titleColor: '#000000ff',
+            bodyColor: '#926108',
+            borderColor: '#ffd700',
+            borderWidth: 2,
+            cornerRadius: 12,
+            displayColors: true,
+            callbacks: {
+              label: (context: any) => {
+                if (context.datasetIndex === 1) {
+                  return context.dataset.label + ': ' + this.formatCurrency(context.raw);
+                }
+                return context.dataset.label + ': ' + context.raw;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Date',
+              font: { size: 15, weight: 'bold' },
+              color: '#878787ff',
+            },
+            grid: { color: 'rgba(255, 215, 0, 0.08)' },
+            ticks: { color: '#928f8bff', font: { weight: 'bold' } },
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Transaction Count',
+              color: '#ffffffff',
+              font: { size: 15, weight: 'bold' },
+            },
+            grid: { color: 'rgba(66, 66, 65, 0.1)' },
+            ticks: { color: '#414040ff', font: { weight: 'bold' } },
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Total Amount ($)',
+              color: '#888888ff',
+              font: { size: 15, weight: 'bold' },
+            },
+            grid: { drawOnChartArea: false, color: 'rgba(146, 97, 8, 0.10)' },
+            ticks: {
+              color: '#8b8b8bff',
+              font: { weight: 'bold' },
+              callback: (value: any) => this.formatCurrency(Number(value)),
+            },
+          },
+        },
+        animation: { duration: 800, easing: 'easeInOutQuart' },
+      },
+    });
+  }
+
+  showBothMetrics(): void {
+    if (!this.chart) return;
+    this.chart.data.datasets[0].hidden = false;
+    this.chart.data.datasets[1].hidden = false;
+    // @ts-ignore
+    this.chart.options.scales.y.display = true;
+    // @ts-ignore
+    this.chart.options.scales.y1.display = true;
+    this.chart.update();
+  }
+
+  showCountOnly(): void {
+    if (!this.chart) return;
+    this.chart.data.datasets[0].hidden = false;
+    this.chart.data.datasets[1].hidden = true;
+    // @ts-ignore
+    this.chart.options.scales.y.display = true;
+    // @ts-ignore
+    this.chart.options.scales.y1.display = false;
+    this.chart.update();
+  }
+
+  showAmountOnly(): void {
+    if (!this.chart) return;
+    this.chart.data.datasets[0].hidden = true;
+    this.chart.data.datasets[1].hidden = false;
+    // @ts-ignore
+    this.chart.options.scales.y.display = false;
+    // @ts-ignore
+    this.chart.options.scales.y1.display = true;
+    // @ts-ignore
+    this.chart.options.scales.y1.position = 'left';
+    this.chart.update();
+  }
+
+  updateStats(): void {
+    if (!Array.isArray(this.data) || this.data.length === 0) {
+      this.totalTransactions = 0;
+      this.totalAmount = this.formatCurrency(0);
+      this.avgTransactions = 0;
+      this.avgAmount = this.formatCurrency(0);
+      return;
+    }
+
+    const totalTransactions = this.data.reduce((sum: number, item: any) => sum + (item.count ?? 0), 0);
+    const totalAmountRaw = this.data.reduce((sum: number, item: any) => sum + (item.totalAmount ?? 0), 0);
+    const avgTransactions = Math.round(totalTransactions / this.data.length);
+    const avgAmountRaw = Math.round(totalAmountRaw / this.data.length);
+
+    this.totalTransactions = totalTransactions;
+    this.totalAmount = this.formatCurrency(totalAmountRaw);
+    this.avgTransactions = avgTransactions;
+    this.avgAmount = this.formatCurrency(avgAmountRaw);
+  }
 }

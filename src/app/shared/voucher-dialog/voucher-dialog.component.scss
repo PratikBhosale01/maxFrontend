@@ -1,0 +1,39 @@
+.voucher-dialog {
+  min-width: 320px;
+}
+
+mat-form-field { display: block; margin-bottom: 8px; }
+
+.account-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.role-select { min-width: 150px; }
+.acc-select { flex: 1; }
+
+/* Style the dialog container when opened with panelClass: 'voucher-dialog-panel' */
+::ng-deep .voucher-dialog-panel {
+  background-color: #4e4d4d !important;
+  color: white !important;
+}
+
+/* Ensure content areas also show white text */
+::ng-deep .voucher-dialog-panel .mat-dialog-content,
+::ng-deep .voucher-dialog-panel .mat-dialog-title {
+  color: white !important;
+}
+
+::ng-deep .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input {
+  color: #ffffff !important;
+   background-color: #4e4d4d !important;
+}
+::ng-deep  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: #4e4d4d !important;
+   color: #f7f3f3;
+}
+
+::ng-deep .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-floating-label {
+  color: #fffefe !important;
+   background-color: #4e4d4d !important;
+}

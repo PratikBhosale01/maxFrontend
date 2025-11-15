@@ -318,3 +318,41 @@ background-color:#2e2e2e!important;
   // align-items: center;     /* Vertical centering */
   // height: 100%;            /* Ensures full height of the cell */
 }
+
+// Toggle button styles
+.toggle-btn {
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    transform: scale(1.1);
+  }
+  
+  &:focus {
+    outline: 2px solid #4CAF50;
+    outline-offset: 2px;
+  }
+  
+  i {
+    transition: transform 0.3s ease;
+    font-size: 14px;
+  }
+}
+
+// Operations header toggle button specific styles
+::ng-deep .mat-mdc-header-cell .toggle-btn {
+  color: gold !important;
+  
+  &:hover {
+    background-color: rgba(255, 215, 0, 0.2) !important;
+  }
+}
+
+.notification-header {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: #555 !important;
+  }
+}

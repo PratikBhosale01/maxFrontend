@@ -1,4 +1,4 @@
-<app-loader *ngIf="loader"></app-loader>
+<!-- <app-loader *ngIf="loader"></app-loader> -->
 <div>
   <div class="row">
     <div class="col-sm-4">
@@ -51,18 +51,33 @@
           <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
         </div>
       </div>
+
+    <div style="display: flex; gap: 8px; align-items: center;">
       <button
-      class="inp"
-      id="s1"
-      style="
-        background: linear-gradient(to right, #74480f, #442504);
-        color: #fffbfb;
-        font-size: 500;
-      "
-      (click)="filterData(input.value)"
-    >
-      Search
-    </button>
+        class="inp"
+        id="s1"
+        style="
+          background: linear-gradient(to right, #74480f, #442504);
+          color: #fffbfb;
+          font-size: 500;
+        "
+        (click)="filterData(input.value)"
+      >
+        Search
+      </button>
+      <button
+        class="inp"
+        id="toggleMode"
+        style="
+          background: linear-gradient(to right, #442504, #74480f);
+          color: #fffbfb;
+          font-size: 500;
+        "
+        (click)="toggleBankMode()"
+      >
+        {{ showFreeze ? 'Show Active' : 'Show Freeze' }}
+      </button>
+    </div>
 
     </div>
     <div class="col-sm-4">
@@ -212,9 +227,17 @@
               style="margin-left: 10px"
             ></i>
         
-            <span class="material-symbols-outlined" style="color: #fadf70;  cursor: pointer; margin-left: 5px;"  (click)="openUpdateBank(element)" matTooltip="Edit Bank" >
+              <span class="material-symbols-outlined" style="color: #fadf70;  cursor: pointer; margin-left: 5px;"  (click)="openUpdateBank(element)" matTooltip="Edit Bank" >
               edit
               </span>
+            
+              <!-- New icon: Open Bank Statement dialog -->
+              <i
+                class="fa-solid fa-file-invoice-dollar userName"
+                style="color: #8fd3ff; cursor: pointer; margin-left: 8px"
+                matTooltip="View Statement"
+                (click)="openBankStatement(element)"
+              ></i>
       </mat-cell>
     </ng-container>
 

@@ -1,14 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 // import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { OperationsService } from '../../services/operations.service';
-import {
-  FormGroup,
-  FormBuilder,
-  Validators,
-  FormControl,
-} from '@angular/forms';
-
-
+import { FormGroup, FormBuilder, Validators, FormControl,} from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -20,7 +13,6 @@ import { DepositSuperadminService } from '../../services/deposit-superadmin.serv
 import { Operation, Operations } from '../../domain/operation';
 import { DepositTable } from '../../domain/table';
 import { ComponettitleService } from '../../services/componenttitle.service';
-// import { DialogTableComponent } from '../dialog-table/dialog-table.component';
 import { AddBankingDialogComponent } from '../../shared/add-banking-dialog/add-banking-dialog.component';
 import { BankingService } from '../../services/banking.service';
 import { DailogTABComponent } from '../../shared/dailog-tab/dailog-tab.component';
@@ -35,6 +27,7 @@ import { AttachedslotrangeComponent } from '../../shared/attachedslotrange/attac
 import { CheckAppvDailogComponent } from '../../shared/check-appv-dailog/check-appv-dailog.component';
 import { CheckbankAccountComponent } from '../../shared/checkbank-account/checkbank-account.component';
 import { SlotService } from '../../services/slot.service';
+import { BankStatementDialogComponent } from '../../shared/bank-statement-dialog/bank-statement-dialog.component';
 
 
 @Component({
@@ -43,6 +36,7 @@ import { SlotService } from '../../services/slot.service';
   styleUrl: './banking-panel.component.scss'
 })
 export class BankingPanelComponent {
+  showFreeze: boolean = false;
 
   displayedColumns = ['position', 'bankName', 'accId','status','Operation' ];
   dataSource : any[];
@@ -80,6 +74,40 @@ export class BankingPanelComponent {
     this.refreshInterval = setInterval(() => this.refreshAllData(), 10000);
   }
 
+  toggleBankMode() {
+    this.showFreeze = !this.showFreeze;
+    this.fetchBanksByMode();
+  }
+
+  fetchBanksByMode(): void {
+    this.loader = true;
+    if (this.showFreeze) {
+      this.BankingService.getAllFBankdata().subscribe(
+        data => {
+          this.dataSource = data;
+          this.bankingTableArray = data;
+          this.loader = false;
+        },
+        error => {
+          console.error('Error fetching freeze banks', error);
+          this.loader = false;
+        }
+      );
+    } else {
+      this.BankingService.getAllBankdata().subscribe(
+        data => {
+          this.dataSource = data;
+          this.bankingTableArray = data;
+          this.loader = false;
+        },
+        error => {
+          console.error('Error fetching active banks', error);
+          this.loader = false;
+        }
+      );
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
@@ -89,11 +117,10 @@ export class BankingPanelComponent {
   refreshInterval: any;
 
   refreshAllData(): void {
-    this.BankingService.getAllBankdata();
-    this.fetchBanks();
- 
-    this.fetchActiveBanksCount();
-    this.fetchAllocatedBanksByCurrentTime();
+  this.BankingService.getAllBankdata();
+  this.fetchBanksByMode();
+  this.fetchActiveBanksCount();
+  this.fetchAllocatedBanksByCurrentTime();
 
   
   }
@@ -111,7 +138,13 @@ export class BankingPanelComponent {
         this.allocatedBanks = data;
       },
       (error) => {
-        console.error('Error fetching allocated banks by time:', error);
+       
+        if (error && error.status === 400) {
+          this.snackbarService.snackbar('Bad request: Unable to fetch allocated banks for the current time.', 'error');
+        } else {
+           console.error('Detailed error object:', error);
+          this.snackbarService.snackbar('An error occurred while fetching allocated banks.', 'error');
+        }
       }
     );
   }
@@ -251,6 +284,18 @@ export class BankingPanelComponent {
       data: bank,
     });
     dialogRef.afterClosed().subscribe(result => {
+      this.refreshAllData();
+    });
+  }
+
+  openBankStatement(bank: any): void {
+    // Open dialog to show bank statement (details + transactions)
+    const dialogRef = this.dialog.open(BankStatementDialogComponent, {
+      width: '80%',
+      data: { bank }
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      // if any refresh is needed after closing the statement dialog
       this.refreshAllData();
     });
   }

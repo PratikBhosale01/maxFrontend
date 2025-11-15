@@ -66,7 +66,7 @@ export class SiteMasterComponent {
 
 
   patchDtoZuserId() {
-    let userString = localStorage.getItem('user');
+     let userString = localStorage.getItem('user');
     if (!userString) {
       userString = sessionStorage.getItem('user');
     }
@@ -75,8 +75,10 @@ export class SiteMasterComponent {
       const user = JSON.parse(userString);
       // console.log('in patchDtouserId', user.user_id);
       this.siteMasterForm.patchValue({
+      
         dtoZuserId: user.user_id // Replace 1234 with the actual value you want to set
       });
+     
     }
   }
   fetchSites(): void {

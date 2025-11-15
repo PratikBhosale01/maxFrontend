@@ -9,6 +9,12 @@ import { catchError, map, tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AppUserService {
+  /**
+   * Delete a user by id
+   */
+  deleteUser(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/auth/delete/${id}`);
+  }
 
 constructor(public http: HttpClient, private config: AppConfigService) {}
   baseUrl: String = this.config.getBaseurl();
@@ -35,12 +41,15 @@ constructor(public http: HttpClient, private config: AppConfigService) {}
      {}
    );
   }
-
 getOtpByUsername(username: string): Observable<any> {
-  return this.http.get<any>(`${this.baseUrl}/auth/show-otp/${encodeURIComponent(username)}`).pipe(
-    tap((res) => console.log('OTP API response:', res))
-  );
+  if (!username) {
+    return throwError(() => new Error('Username is missing')); // ✅ return an Observable
+  }
+
+  const url = `https://api.zeerosports.com/auth/show-otp/${username}`;
+  return this.http.get<any>(url); 
 }
+
 
 logoutUser(superadmin: string, username: string): Observable<any> {
   return this.http.post(`${this.baseUrl}/auth/admin/force-logout`, { superadmin, username });

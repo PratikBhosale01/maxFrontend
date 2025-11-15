@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, ViewChild, OnDestroy } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { ImageDialogComponent } from '../image-dialog/image-dialog.component';
 import { RejectconfirmationComponent } from '../rejectconfirmation/rejectconfirmation.component';
 import { interval, map, Observable, of, Subscription } from 'rxjs';
@@ -18,7 +18,7 @@ import { AppvDeposit } from '../../domain/Deposite';
   templateUrl: './create-user-dailog.component.html',
   styleUrl: './create-user-dailog.component.scss'
 })
-export class CreateUserDailogComponent implements OnDestroy {
+export class CreateUserDailogComponent {
   formGroup: FormGroup;
   bankIdControl!: FormControl;
   banksList: Bank[];

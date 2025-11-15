@@ -52,8 +52,11 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
     this.getrole();
     this.setRoleData();
     // this.initializeNotifications();
-    // Start notifications after user data is loaded
-    // this.sseNotificationService.startNotificationsForUser();
+    
+    // Start notifications after user data is loaded and role is set
+    // setTimeout(() => {
+    //   this.sseNotificationService.startNotificationsForUser();
+    // }, 100);
   }
 
   ngAfterViewInit() {
@@ -156,8 +159,14 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
     if (userString) {
       // Step 2: Access user_role attribute
       const user = JSON.parse(userString);
+      const previousRole = this.userRole;
       this.userRole = user.role_user;
       this.userName = user.user_email;
+      
+      // Refresh notifications if role changed
+      if (previousRole && previousRole !== this.userRole) {
+        this.sseNotificationService.refreshConnections();
+      }
     }
   }
 

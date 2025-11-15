@@ -64,6 +64,17 @@ export class NotificationService {
     });
   }
 
+    getOtpNotifications(ZuserId : any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/otp-notifications/device/${ZuserId}` )
+    }
+  /**
+   * Fetch unique device names from otp-notifications service
+   * Endpoint: /otp-notifications/devices/unique
+   */
+  getUniqueDeviceNames(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/otp/devices/unique-otp`);
+  }
+
   getBankNotificationsByDevice(deviceName: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/bankWebhook/by-device`, {
       params: new HttpParams().set('deviceName', deviceName)
@@ -75,5 +86,10 @@ export class NotificationService {
       params: new HttpParams().set('status',"ARCHIVED")
     });
   }
+    closeWNotification( id: any): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/otp-notifications/delete/${id}`);
+  }
+
+  
 
 }

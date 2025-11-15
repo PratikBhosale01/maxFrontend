@@ -1,0 +1,76 @@
+<div class="modal fade show d-block custom-activity-modal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content activity-modal-content">
+      <div class="modal-header activity-modal-header">
+        <div>
+          <h5 class="modal-title mb-1">Withdrawals for <span style="color:#E2BD01">{{ user?.username || user?.userId || '—' }}</span></h5>
+          <div class="text" style="font-size: 0.9rem;color: white;">
+            Count: <strong style="color:#E2BD01">{{ withdrawCount }}</strong> &nbsp;|&nbsp; Total Amount: <strong style="color:#E2BD01">{{ withdrawTotal }}</strong>
+          </div>
+        </div>
+        <button type="button" class="btn-close" aria-label="Close" (click)="onClose()"></button>
+      </div>
+      <div class="modal-body activity-modal-body">
+        <div *ngIf="loading" class="text-center p-4">Loading...</div>
+        <div *ngIf="!loading">
+          <div class="d-flex mb-3 gap-2">
+            <input #searchInput class="form-control table-filter-input search-input" placeholder="Search" (input)="onSearch(searchInput.value)" />
+            <!-- Bind the input values to component properties so they persist when loading toggles -->
+            <input #fromDateInput type="date" class="form-control table-filter-input date-input" placeholder="From" [value]="fromDate || ''" (change)="onDateChange(fromDateInput.value, toDateInput.value)" />
+            <input #toDateInput type="date" class="form-control table-filter-input date-input" placeholder="To" [value]="toDate || ''" (change)="onDateChange(fromDateInput.value, toDateInput.value)" />
+          </div>
+
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 withdraw-table" style="width:100%; color: #fff;">
+
+            <!-- Sr No Column -->
+            <ng-container matColumnDef="srNo">
+              <th mat-header-cell *matHeaderCellDef> Sr.no </th>
+              <td mat-cell *matCellDef="let element; let i = index"> {{ i + 1 }} </td>
+            </ng-container>
+
+            <!-- userId Column -->
+            <ng-container matColumnDef="userId">
+              <th mat-header-cell *matHeaderCellDef> userId </th>
+              <td mat-cell *matCellDef="let element"> {{ element.userId }} </td>
+            </ng-container>
+
+            <!-- amount Column -->
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef> amount </th>
+              <td mat-cell *matCellDef="let element"> {{ element.amount }} </td>
+            </ng-container>
+
+            <!-- entryTime Column -->
+            <ng-container matColumnDef="entryTime">
+              <th mat-header-cell *matHeaderCellDef> entryTime </th>
+              <td mat-cell *matCellDef="let element"> {{ formatLocalTime(element.entryTime) }} </td>
+            </ng-container>
+
+            <!-- approveWithdrawStatus Column -->
+            <ng-container matColumnDef="approveWithdrawStatus">
+              <th mat-header-cell *matHeaderCellDef> approveWithdrawStatus </th>
+              <td mat-cell *matCellDef="let element"> {{ element.approveWithdrawStatus }} </td>
+            </ng-container>
+
+            <!-- approve Column -->
+            <!-- <ng-container matColumnDef="approve">
+              <th mat-header-cell *matHeaderCellDef> approve </th>
+              <td mat-cell *matCellDef="let element">
+                <button class="btn btn-sm btn-outline-success" (click)="approve(element)">Toggle</button>
+              </td>
+            </ng-container> -->
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns" style="background:  #272727; color: #fffbfb; "></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="background:  #272727;color: #fffbfb; "></tr>
+          </table>
+
+          <mat-paginator style="background:  #272727;color: #fffbfb; " [length]="withdrawCount" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons (page)="onPageChange($event)"></mat-paginator>
+        </div>
+      </div>
+      <div class="modal-footer activity-modal-footer">
+        <button type="button" class="btn btn-outline-light" (click)="onClose()">Cancel</button>
+        <button type="button" class="btn btn-warning text-dark" (click)="onClose()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

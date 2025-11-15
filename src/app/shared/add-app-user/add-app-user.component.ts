@@ -8,6 +8,7 @@ import { SiteService } from '../../services/site.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UtrService } from '../../services/utr.service';
 import { SuperAdminService } from '../../services/super-admin.service';
+import { NotificationService } from '../../services/notification.service';
 import { DepositeWithdraw } from '../../domain/Deposite';
 import { SITE, sites } from '../../domain/Site';
 import { SiteMaster } from '../../domain/SiteMaster';
@@ -42,6 +43,7 @@ export class AddAppUserComponent {
   Operator: any;
   loggedInRole :string;
   watiAccountsList: WatiAccount[] = [];
+  deviceNames: string[] =[]; 
 
   constructor(
     private site: SiteService,
@@ -55,6 +57,8 @@ export class AddAppUserComponent {
     private snackbarService: SnackbarService,
     private titleService: ComponettitleService,
     private watiAccountService: WatiAccountService // <-- Inject service
+    ,
+    private notificationService: NotificationService
   ) {
     this.getuserID();
   
@@ -79,6 +83,7 @@ export class AddAppUserComponent {
     this.titleService.changeTitle('Add user panel');
     this.myFormValues();
     this.fetchWatiAccounts();
+    this.fetchDeviceNames();
     // Listen for role changes to reset watiAccounts if needed
     this.formGroup?.get('role')?.valueChanges?.subscribe(role => {
       if (role !== 'DEPOSITCHAT') {
@@ -112,8 +117,21 @@ export class AddAppUserComponent {
       // site_id: ['', Validators.required],
        id: ['0'],
       zuserId: [''],
-      watiAccountIds: [[]], // <-- Add this line
+      watiAccountIds: [[]],
+      deviceNames: [[]], // selected device names
       // date: [new Date()],
+    });
+  }
+
+  fetchDeviceNames(): void {
+    this.notificationService.getUniqueDeviceNames().subscribe({
+      next: (names: string[]) => {
+        // ensure only non-empty unique names
+        this.deviceNames = Array.isArray(names) ? names.filter(n => !!n) : [];
+      },
+      error: (err) => {
+        this.snackbarService.snackbar('Failed to load device names', 'error');
+      }
     });
   }
 

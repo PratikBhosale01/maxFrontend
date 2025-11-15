@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Operation, Operations } from '../../domain/operation';
 import { ReportService } from '../../services/report.service';
 import { Subscription, debounceTime, fromEvent, interval } from 'rxjs';
@@ -11,7 +11,7 @@ import { ComponettitleService } from '../../services/componenttitle.service';
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss'
 })
-export class ReportsComponent implements OnInit, OnDestroy {
+export class ReportsComponent implements OnInit {
   loader:boolean = false;
   operations:Operation[] ;
   displayedColumns: string[] = ['serialNumber','userName','operation', 'status','amount',];
@@ -61,11 +61,5 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
   refreshData(){
     this.getDeposite();
-  }
-
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
   }
 }

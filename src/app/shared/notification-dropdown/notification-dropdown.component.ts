@@ -15,11 +15,11 @@ export class NotificationDropdownComponent {
   @Output() markAsRead = new EventEmitter<string>();
   @Output() markAllAsRead = new EventEmitter<void>();
   @Output() clearAll = new EventEmitter<void>();
-    @Output() closeDropdown = new EventEmitter<void>();
+  @Output() closeDropdown = new EventEmitter<void>();
 
   constructor(private router: Router) {}
 
-    getNotificationIcon(type: string): string {
+  getNotificationIcon(type: string): string {
     switch (type) {
       case 'withdrawChat':
         return 'chat';
@@ -42,6 +42,11 @@ export class NotificationDropdownComponent {
 
   getNotificationClass(type: string): string {
     switch (type) {
+      case 'withdrawChat':
+      case 'depositChat':
+        return 'notification-chat';
+      case 'approveDeposit':
+      case 'approveWithdraw':
       case 'success':
         return 'notification-success';
       case 'warning':
@@ -77,17 +82,17 @@ export class NotificationDropdownComponent {
   onClearAll(): void {
     this.clearAll.emit();
   }
-   onNotificationClick(notification: any): void {
+
+  onNotificationClick(notification: any): void {
     // Mark as read first
-    debugger
     this.onMarkAsRead(notification.id);
     
     // Route based on notification title
     const title = notification.title;
     
-    if (title === "ApproveDeposit Chat Received") {
+    if (title === "ApproveDeposit request Received") {
       this.router.navigate(['/home/approve']);
-    } else if (title === "ApproveWithdraw Chat Received") {
+    } else if (title === "ApproveWithdraw request Received") {
       this.router.navigate(['/home/AppvWlist']);
     } else if (title === "Withdraw Chat Received") {
       this.router.navigate(['/home/watti-chat']);

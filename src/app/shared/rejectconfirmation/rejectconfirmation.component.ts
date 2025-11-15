@@ -57,7 +57,10 @@ export class RejectconfirmationComponent {
     reasonsAsString=this.customReason;
    }else{ reasonsAsString = this.selectedReasons.join(', ');}
         
-    const userData = localStorage.getItem('user');
+   let userData = localStorage.getItem('user');
+   if (!userData) {
+     userData = sessionStorage.getItem('user');
+   }
  
 
     if (userData) {

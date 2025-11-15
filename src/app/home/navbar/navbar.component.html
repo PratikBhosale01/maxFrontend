@@ -40,7 +40,7 @@
                 </span>
               </button>
               
-        
+            
               <div class="notification-badge" *ngIf="unreadCount > 0" (click)="toggleNotificationDropdown(); $event.stopPropagation()">
                 <span class="badge-count">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
               </div>
@@ -53,7 +53,7 @@
                 (markAsRead)="markNotificationAsRead($event)"
                 (markAllAsRead)="markAllNotificationsAsRead()"
                 (clearAll)="clearAllNotifications()"
-                 (closeDropdown)="closeNotificationDropdown()"
+                (closeDropdown)="closeNotificationDropdown()"
               ></app-notification-dropdown>
             </div> -->
           </div>

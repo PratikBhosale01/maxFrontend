@@ -16,9 +16,6 @@
         <mat-option *ngFor="let status of (userRole === 'BANKER' ? bankerStatus : statuses)" [value]="status">{{ status }}</mat-option>
       </mat-select>
     </mat-form-field>
-  
-  
-  
     <button 
       (click)="depositeDialog()" 
       style="margin-left: 5px;  height: 55px; min-width: 120px; padding: 0 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; line-height: 48px; display: flex; align-items: center; justify-content: center;"
@@ -83,10 +80,14 @@
               />
             </div>
           </div>
-          <a href="javascript:void(0)" (click)="copyToClipboard(deposit.bankUtrImageLink)">Click To Copy</a>
+          <!-- <a href="javascript:void(0)" (click)="copyToClipboard(deposit.bankUtrImageLink)">Click To Copy</a> -->
           <mat-card-content>
-            <p style="text-align: left;"><span style="font-weight: bold;">Date :-</span> {{ getFormattedDate(deposit.entryTime) }}</p>
-            <p style="text-align: left;"><span style="font-weight: bold;">UserName :-</span> {{ deposit.userId }}</p>
+            <p style="display:flex; justify-content: space-between; align-items: center; margin:0;">
+              <span style="font-weight: bold; margin-right:8px;">Date :</span>
+              <span>{{ getFormattedDate(deposit.entryTime) }}</span>
+              <span style="margin-left:auto; font-weight: bold; margin-right:8px;">UserID :</span>
+              <span>{{ deposit.userId }}</span>
+            </p>
             <!-- <p *ngIf="deposit.approveStatus !== 'PENDING'" class="price">Amount :- {{ deposit.amount }}</p> -->
             <!-- <p *ngIf="deposit.approveStatus !== 'PENDING'"><span style="font-weight: bold;">UTR Number :-</span> {{ deposit.utrNumber || 'Not Provided' }}</p> -->
             <div class="input-container" >
@@ -158,6 +159,19 @@
   
   
           </mat-card-content>
+          <!-- Bank selector for this deposit -->
+          <div style="padding: 0 16px 8px 16px;"  *ngIf="deposit.approveStatus == 'PENDING' || deposit.approveStatus =='REJECTED'">
+          
+            <select id="bankSelect-{{deposit.id}}" class="form-select"
+                    (change)="onBankSelectById($any($event.target).value, deposit.id)"
+                    (focus)="onSelectFocus()" (blur)="onSelectBlur()">
+              <option value="">-- Select Bank --</option>
+              <option *ngFor="let bank of (availableBanksByDeposit[deposit.id] || [])" [value]="bank.id" [selected]="selectedBankByDeposit[deposit.id]?.id == bank.id">
+                {{ bank.bankName || bank.displayName || bank.bankId || ('Bank ' + (bank.id || '')) }}
+              </option>
+              <option *ngIf="!(availableBanksByDeposit[deposit.id] || []).length" disabled>No banks available</option>
+            </select>
+          </div>
           <mat-card-actions>
              @if (userRole==="BANKER") {
   
@@ -274,14 +288,15 @@
         </mat-form-field>
       </div>
       <div class="card mb-3" *ngFor="let notification of bankNotifications" draggable="true" (dragstart)="onDragStart($event, notification)">
-        <div class="card-body" style="background-color:  #333; color: white; border-radius: 6px;">
+        <div class="card-body" style="background-color:  #333; color: whi
+        te; border-radius: 6px;">
           <div class="d-flex justify-content-between align-items-start">
-            <h5 class="card-title">{{notification.title}}</h5>
+            <h5 class="card-title" style="color: white;">{{notification.title}}</h5>
             <button class="btn-close custom-red-close" (click)="closeNotification(notification.id)" aria-label="Close"></button>
   
           </div>
           <p class="card-text" style="color: white;">{{notification.text}}</p>
-          <h6 class="card-subtitle mb-2 ">{{notification.appName}} - {{notification.deviceName}}</h6>
+          <h6 class="card-subtitle mb-2 " style="color: white;">{{notification.appName}} - {{notification.deviceName}}</h6>
         
           <div class="d-flex justify-content-between align-items-center">
             <small style="color: white;" >{{notification.timestamp | utcToLocal}}</small>

@@ -16,7 +16,7 @@ export class DepositSuperadminService {
 
   getDepositdata(): Observable<DepositTable[]> {
     return this.http.get<DepositTable[]>(
-      `${this.baseUrl}/operation/superadmin/deposit/userCounts`
+      `${this.baseUrl}/approveOperation/superAdmin/apDeposit/todayApprovedCountsByZUser`
       
     )//subscribe to;
   }
@@ -29,9 +29,21 @@ export class DepositSuperadminService {
     
     
     return this.http.get<any>(
-      `${this.baseUrl}/operation/superadmin/depositsbetweenDates/${startDate}/${endDate}`,{ params }
+      // `${this.baseUrl}/operation/superadmin/depositsbetweenDates/${startDate}/${endDate}`,{ params }
+      `${this.baseUrl}/approveOperation/superAdmin/apDeposit/dateWiseApprovedList/${startDate}/${endDate}`,{ params }
       
     )
+  }
+
+  getApprovedRejectedCountsByZUserAndDateRange(startDate: string, endDate: string): Observable<any> {
+    // API expects startDate and endDate as request params
+    let params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+    return this.http.get<any>(
+      `${this.baseUrl}/approveOperation/superAdmin/apDeposit/approvedAndRejectedCountsByZUserAndDateRange`, { params }
+    );
   }
 
   getDateWithdrawdata(startDate: string, endDate: string, pageSize: number , pageNumber: number): Observable<any> {
@@ -40,8 +52,8 @@ export class DepositSuperadminService {
     .set('pageSize', pageSize.toString())
     .set('pageNumber', pageNumber.toString());
     return this.http.get<any>(
-      `${this.baseUrl}/operation/superadmin/withdrawsbetweenDates/${startDate}/${endDate}`,{ params } //changed here
-      
+      // `${this.baseUrl}/approveOperation/superAdmin/apWithdraw/dateWiseApprovedList/${startDate}/${endDate}`,{ params } //changed here
+      `${this.baseUrl}/approveOperation/superAdmin/apWithdraw/dateWiseApprovedList/${endDate}/${startDate}`,{ params } 
     )
   }
 
@@ -53,7 +65,7 @@ export class DepositSuperadminService {
     
     
     return this.http.get<any>(
-      `${this.baseUrl}/operation/superadmin/getAllDepositsPageable`,{ params }
+      `${this.baseUrl}/approveOperation/superAdmin/getAllDepositsPageable`,{ params }
       
     )
   }
@@ -65,7 +77,7 @@ export class DepositSuperadminService {
     
     
     return this.http.get<any>(
-      `${this.baseUrl}/operation/superadmin/getAllWithdrawsPageable`,{ params }
+      `${this.baseUrl}/approveOperation/superAdmin/getAllWithdrawsPageable`,{ params }
       
     )
   }

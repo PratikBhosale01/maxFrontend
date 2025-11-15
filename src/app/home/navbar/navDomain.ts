@@ -68,8 +68,8 @@ export const admin: navDomain[] = [
     icon: "payments",
     title: "Manual",
     children: [
-      { routerLink: 'deposit', icon: "download", title: "Deposit" },
-      { routerLink: 'withdraw', icon: "upload", title: "Withdraw" },
+      // { routerLink: 'deposit', icon: "download", title: "Deposit" },
+      // { routerLink: 'withdraw', icon: "upload", title: "Withdraw" },
       { routerLink: 'add', icon: "person_add", title: "Add Client" },
       { routerLink: 'Add-Old', icon: "add", title: "Add Old Client" },
       { routerLink: 'update', icon: "key", title: "Update Password" }
@@ -134,46 +134,46 @@ export const APPROVEDEPOSIT: navDomain[] = [
 ]
 
 export const SUPPORT: navDomain[] = [
-  {
-    routerLink: '',
-    icon: "payments",
-    title: "Manual",
-    children: [
-      { routerLink: 'deposit', icon: "download", title: "Deposit" },
-      { routerLink: 'withdraw', icon: "upload", title: "Withdraw" },
-      { routerLink: 'add', icon: "person_add", title: "Add Client" },
-      { routerLink: 'Add-Old', icon: "add", title: "Add Old Client" },
-      { routerLink: 'update', icon: "key", title: "Update Password" }
-    ]
-  }, {
-    routerLink: '',
-    icon: "check_circle",
-    title: "Approve",
-    children: [
-      { routerLink: 'approve', icon: "List", title: "Approve" },
-      { routerLink: 'AppvDList', icon: "List", title: "A-DList" },
-      { routerLink: 'AppvWlist', icon: "List", title: "A-WList" }
-    ]
-  }, {
-    routerLink: '',
-    icon: "group",
-    title: "chat",
-    children: [
-      { routerLink: 'notification', icon: "notifications", title: "Notify" },
-      { routerLink: 'watti-chat', icon: "group", title: "Chat" },
-      { routerLink: 'Deposite-Chat', icon: "group", title: "D_Chat" },
+  // {
+  //   routerLink: '',
+  //   icon: "payments",
+  //   title: "Manual",
+  //   children: [
+  //     { routerLink: 'deposit', icon: "download", title: "Deposit" },
+  //     { routerLink: 'withdraw', icon: "upload", title: "Withdraw" },
+  //     { routerLink: 'add', icon: "person_add", title: "Add Client" },
+  //     { routerLink: 'Add-Old', icon: "add", title: "Add Old Client" },
+  //     { routerLink: 'update', icon: "key", title: "Update Password" }
+  //   ]
+  // }, {
+  //   routerLink: '',
+  //   icon: "check_circle",
+  //   title: "Approve",
+  //   children: [
+  //     { routerLink: 'approve', icon: "List", title: "Approve" },
+  //     { routerLink: 'AppvDList', icon: "List", title: "A-DList" },
+  //     { routerLink: 'AppvWlist', icon: "List", title: "A-WList" }
+  //   ]
+  // }, {
+  //   routerLink: '',
+  //   icon: "group",
+  //   title: "chat",
+  //   children: [
+  //     { routerLink: 'notification', icon: "notifications", title: "Notify" },
+  //     { routerLink: 'watti-chat', icon: "group", title: "Chat" },
+  //     { routerLink: 'Deposite-Chat', icon: "group", title: "D_Chat" },
     
-    ]
-  },{
-    routerLink: '',
-    icon: "Money",
-    title: "Banker",
-    children: [
-      { routerLink: 'Banking Panel', icon: "group", title: "Banking Panel" },
-      { routerLink: 'AppvDList', icon: "List", title: "A-DList" },
-      // { routerLink: 'approve', icon: "List", title: "Approve" },
-    ]
-  },
+  //   ]
+  // },{
+  //   routerLink: '',
+  //   icon: "Money",
+  //   title: "Banker",
+  //   children: [
+  //     { routerLink: 'Banking Panel', icon: "group", title: "Banking Panel" },
+  //     { routerLink: 'AppvDList', icon: "List", title: "A-DList" },
+  //     // { routerLink: 'approve', icon: "List", title: "Approve" },
+  //   ]
+  // },
   { routerLink: 'notification', icon: "notifications", title: "Notify" },
 
 
@@ -188,7 +188,7 @@ export const BANKER: navDomain[] = [
 
 export const DEPOSIT: navDomain[] = [
   { routerLink: 'AppvDeposit', icon: "cloud_upload", title: "A-Deposit" },
-  { routerLink: 'deposit', icon: "download", title: "Deposit" },
+  // { routerLink: 'deposit', icon: "download", title: "Deposit" },
   { routerLink: 'Bank', icon: "Money", title: "Add-Bank" },
   { routerLink: 'users', icon: "group", title: "Users" },
   { routerLink: 'add', icon: "person_add", title: "Add New Client" },
@@ -211,8 +211,8 @@ export const APPROVEADMIN: navDomain[] = [
     icon: "payments",
     title: "Manual",
     children: [
-      { routerLink: 'deposit', icon: "download", title: "Deposit" },
-      { routerLink: 'withdraw', icon: "upload", title: "Withdraw" },
+      // { routerLink: 'deposit', icon: "download", title: "Deposit" },
+      // { routerLink: 'withdraw', icon: "upload", title: "Withdraw" },
       { routerLink: 'add', icon: "person_add", title: "Add Client" },
       { routerLink: 'Add-Old', icon: "add", title: "Add Old Client" },
       { routerLink: 'update', icon: "key", title: "Update Password" }

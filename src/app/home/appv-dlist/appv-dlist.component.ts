@@ -1,5 +1,5 @@
 import { DatePipe, formatDate } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SearchsuperadminService } from '../../services/searchsuperadmin.service';
 import { DepositSuperadminService } from '../../services/deposit-superadmin.service';
@@ -29,7 +29,7 @@ import { DepoDailogComponent } from '../../shared/depo-dailog/depo-dailog.compon
   templateUrl: './appv-dlist.component.html',
   styleUrl: './appv-dlist.component.scss',
 })
-export class AppvDListComponent implements OnDestroy {
+export class AppvDListComponent {
 
 editReport(arg0: number) {
 throw new Error('Method not implemented.');
@@ -107,7 +107,7 @@ throw new Error('Method not implemented.');
         this.pageNo = 0; // Reset to first page for a new search
         this.searchDeposits();
       } else {
-        // console.log('Search text is empty, no search will be performed.');
+        console.log('Search text is empty, no search will be performed.');
         // Optionally, you can fetch the default list if search is empty
         this.getDeposits();
       }
@@ -300,12 +300,12 @@ throw new Error('Method not implemented.');
       // totalAmount:deposits.amount,
     };
 
-    // console.log('inside approval');
+    console.log('inside approval');
   }
 
   
   getDeposits(): void {
-    // console.log(this.selectedStatuses.value);
+    console.log(this.selectedStatuses.value);
     const statusesToSend =
       this.selectedStatuses.value.length > 0
         ? this.selectedStatuses.value
@@ -410,16 +410,18 @@ throw new Error('Method not implemented.');
 
 
   getUserId(){
-    let userData = localStorage.getItem('user');
+ let userData = localStorage.getItem('user');
     if (!userData) {
       userData = sessionStorage.getItem('user');
     }
+ 
+
     if (userData) {
       this.user = JSON.parse(userData);
-      this.userId = this.user.user_id;  // Get the user ID from storage
+      this.userId = this.user.user_id;  // Get the user ID from localStorage
     } else {
       // Handle the case when user data is not available
-      console.error('User data not found in localStorage or sessionStorage');
+      console.error('User data not found in localStorage');
       return;
     }
   }

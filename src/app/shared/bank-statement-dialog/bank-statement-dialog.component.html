@@ -1,0 +1,72 @@
+<div class="bank-statement-dialog" style="background-color:  #4e4d4d; color: white;">
+  <h2>Bank Statement</h2>
+
+  <div class="bank-details" *ngIf="bank">
+    <div class="bank-details-left">
+      <div><strong>Display:</strong> {{ bank.displayName }}</div>
+      <!-- <div><strong>UPI / Acc:</strong> {{ bank.upiId || bank.accId || '-' }}</div> -->
+      <div *ngIf="bank.bankHolderName"><strong>Holder:</strong> {{ bank.bankHolderName }}</div>
+      <div *ngIf="bank.ifscode"><strong>IFSC:</strong> {{ bank.ifscode }}</div>
+      <div *ngIf="bank.balance"><strong>Balance:</strong> {{ bank.balance }}</div>
+      <div style="margin-top:8px;" *ngIf="bank">
+        <button mat-flat-button color="accent" (click)="openVoucher()">Add Voucher</button>
+      </div>
+    </div>
+
+    <!-- Right side: show QR image if available. Click opens image in new tab -->
+    <div class="bank-details-right" *ngIf="bank.qrImageLink">
+      <a [href]="bank.qrImageLink" target="_blank" rel="noopener noreferrer" title="Open QR image">
+        <img [src]="bank.qrImageLink" alt="QR code" />
+      </a>
+    </div>
+  </div>
+ <hr>
+  <div class="transactions">
+    <div *ngIf="loading">Loading transactions...</div>
+    <div *ngIf="error" class="text-danger">{{ error }}</div>
+
+    <!-- Scrollable wrapper: only this area scrolls. The table head will be made sticky via CSS. -->
+    <div class="table-wrapper" *ngIf="!loading && transactions && transactions.length > 0">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Trx.Type</th>
+            <th>Amount</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of transactions; let i = index">
+            <td>{{ i + 1 + (pageNo * pageSize) }}</td>
+            <td>{{ getFormattedDate(t.executedTime) }}</td>
+            <td>{{ t.transactionType  }}</td>
+            <td>{{ t.flowType }}</td>
+            <td>{{ t.amount }}</td>
+            <td>{{ t.transactionNote || t.remarks || t.description || t.remark || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!loading && transactions && transactions.length === 0">
+      No transactions found for this bank.
+    </div>
+
+  </div>
+
+  <!-- Pagination controls moved outside the scrollable .transactions so paginator stays fixed -->
+  <div class="pagination" *ngIf="totalPages && totalPages > 1">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button mat-button (click)="prevPage()" [disabled]="isFirst">Prev</button>
+      <div>Page {{ pageNo + 1 }} of {{ totalPages }} — {{ numberOfElements }} items on this page — {{ totalElements }} total</div>
+      <button mat-button (click)="nextPage()" [disabled]="isLast">Next</button>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button mat-button color="primary" (click)="close()">Close</button>
+  </div>
+</div>

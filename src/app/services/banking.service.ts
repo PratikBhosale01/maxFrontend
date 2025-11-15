@@ -149,6 +149,10 @@ getAllBankdata(): Observable<Bank[]> {
   return this.http.get<Bank[]>(`${this.baseUrl}/Bank/getAllBanks`);
 } 
 
+getAllFBankdata(): Observable<Bank[]> {
+  return this.http.get<Bank[]>(`${this.baseUrl}/Bank/getFrozenBanks`);
+} 
+
 getAllBankStaticdata()
 {
    this.getAllBankdata().subscribe((data) =>  {
@@ -158,6 +162,21 @@ getAllBankStaticdata()
       // this.formGroup.get('bankId').updateValueAndValidity() // Trigger valueChanges after banksList is loaded
   });
   
+}
+
+/**
+ * Fetch device names for a zuser (used as a device-specific bank list for withdraw flow)
+ * Endpoint: GET /zusers/{zuserId}/deviceNames
+ * Returns an array (raw) — caller can map/transform as needed.
+ */
+getDeviceNamesForZuser(zuserId: string | number): Observable<any[]> {
+
+  return this.http.get<any[]>(`${this.baseUrl}/zusers/${zuserId}/deviceNames`).pipe(
+    catchError((error: HttpErrorResponse) => {
+      // Let the caller handle fallback; return an observable error
+      return throwError(() => error);
+    })
+  );
 }
 
 
@@ -175,8 +194,49 @@ getAvailableBanksByTimeSorted(time: string): Observable<any[]> {
   return this.http.post<any[]>(
     `${this.baseUrl}/Bank/getAvailableBanksByTimeSorted`,
     { time }
+  ).pipe(
+    catchError((error) => {
+      // Pass the error to the component, do not propagate to global error handler
+      return throwError(() => error);
+    })
   );
 }
+
+  /**
+   * Fetch transactions (statement) for a bank account / bank id.
+   * Assumption: backend has endpoint at /operation/bank/transactions/{bankId}
+   */
+  /**
+   * Fetch paginated transactions for a bank.
+   * Endpoint provided by user: GET /Bank/bankTransaction/getTransactionsByBankId/{bankId}?pageNo={pageNo}&pageSize={pageSize}
+   * Returns a paginated response (content, pageable, totalElements, totalPages, etc.)
+   */
+  getBankTransactions(bankId: number, pageNo: number = 0, pageSize: number = 10): Observable<any> {
+    const params = new HttpParams()
+      .set('pageNo', String(pageNo))
+      .set('pageSize', String(pageSize));
+    return this.http.get<any>(`${this.baseUrl}/Bank/bankTransaction/getTransactionsByBankId/${bankId}`, { params });
+  }
+
+  /**
+   * Fetch bank details by id
+   * Endpoint provided by user: GET /Bank/getBankById/{id}
+   */
+  getBankById(bankId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/Bank/getBankById/${bankId}`);
+  }
+
+  /**
+   * Process a bank transaction (add voucher).
+   * Endpoint: POST /Bank/bankTransaction/processTransaction/{bankId}/{flowType}
+   * All other fields should be sent in the request body.
+   */
+  processTransaction(bankId: number, flowType: string, body: any): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/Bank/bankTransaction/processTransaction/${bankId}/${flowType}`,
+      body
+    );
+  }
 
 }
 

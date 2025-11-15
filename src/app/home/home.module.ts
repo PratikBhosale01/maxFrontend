@@ -61,13 +61,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LineBreaksPipe } from '../services/line-breaks.pipe';
 import { WattiChatComponent } from './watti-chat/watti-chat.component';
 import { WattiService } from '../services/watti.service';
-import { MatListModule } from '@angular/material/list';
-import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { WatiAccountsComponent } from './wati-accounts/wati-accounts.component';
+import { WithdrawDialogComponent } from './user-panel/withdraw-dialog/withdraw-dialog.component';
+import { MatListModule } from '@angular/material/list';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { DepositeChatComponent } from './deposite-chat/deposite-chat.component';
+import { MatChipsModule } from '@angular/material/chips';
 import { OperationsPanelComponent } from './operations-panel/operations-panel.component';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatChipsModule } from '@angular/material/chips';
+
 @NgModule({
   declarations: [
     LayoutComponent,
@@ -105,8 +107,9 @@ import { MatChipsModule } from '@angular/material/chips';
     UtcToLocalPipe,
     LineBreaksPipe,
     WattiChatComponent,
-    DepositeChatComponent,
     WatiAccountsComponent,
+  WithdrawDialogComponent,
+    DepositeChatComponent,
     OperationsPanelComponent,
   ],
   imports: [
@@ -136,11 +139,13 @@ import { MatChipsModule } from '@angular/material/chips';
     MatCardModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatListModule,
     MatGridListModule,
+    MatListModule, // For mat-nav-list and mat-list-item
+    MatIconModule,
     MatCheckboxModule,
+    MatChipsModule,
+    ReactiveFormsModule,
     MatMenuModule,
-    MatChipsModule
   ],
   providers: [WattiService]
 })

@@ -1,4 +1,5 @@
-import { Component, ElementRef, Inject, ViewChild, OnDestroy } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import {
   FormBuilder,
   FormControl,
@@ -30,7 +31,7 @@ import Tesseract from 'tesseract.js';
   templateUrl: './check-appv-dailog.component.html',
   styleUrl: './check-appv-dailog.component.scss',
 })
-export class CheckAppvDailogComponent implements OnDestroy {
+export class CheckAppvDailogComponent {
   formGroup: FormGroup;
   bankIdControl!: FormControl;
   banksList: Bank[];
@@ -53,6 +54,10 @@ export class CheckAppvDailogComponent implements OnDestroy {
   selectedFile: File | null = null;
   banks: Bank[] = [];
   isNeftPayment: boolean = false;
+  useOtherBanks: boolean = false; // toggled by checkbox to use full bank list
+  private deviceBanksCache: Bank[] = [];
+  devicedata: boolean;
+  deviceNames: any[];
   
   constructor(
     private fb: FormBuilder,
@@ -63,7 +68,8 @@ export class CheckAppvDailogComponent implements OnDestroy {
     public dialog: MatDialog,
     private snackbarService: SnackbarService,
     private utrservice: UtrService,
-    private apprvserv: ApproveService
+    private apprvserv: ApproveService,
+    private http: HttpClient
   ) {
     this.user = data.user;
     this.type = data.type;
@@ -98,6 +104,7 @@ export class CheckAppvDailogComponent implements OnDestroy {
 
     //   map(value => this._filterBanks(value || ''))
     // );
+   
     this.loadBanks();
   }
 
@@ -115,10 +122,10 @@ export class CheckAppvDailogComponent implements OnDestroy {
     }
     const utrNumberControl = this.formGroup.get('utrNumber');
 
-    console.log('Add :' + this.type + 'Add :' + this.status);
+    // console.log('Add :' + this.type + 'Add :' + this.status);
     if (this.type === 'withdraw' && this.status === 'DONE') {
       // Add required validator if type is withdraw
-      console.log('Add required validator');
+      // console.log('Add required validator');
       utrNumberControl.setValidators([Validators.required]);
     } else {
       // Remove required validator if type is not withdraw
@@ -132,22 +139,23 @@ export class CheckAppvDailogComponent implements OnDestroy {
   }
 
   getUserId() {
-    let userData = localStorage.getItem('user');
-    if (!userData) {
-      userData = sessionStorage.getItem('user');
-    }
+    const userData = localStorage.getItem('user');
+   
+
     if (userData) {
       const zuser = JSON.parse(userData);
-      this.userId = zuser.user_id; // Get the user ID from storage
+      this.userId = zuser.user_id;
+    
     } else {
-      // Handle the case when user data is not available
-      console.error('User data not found in localStorage or sessionStorage');
-      return;
+       const userData = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+       this.userId = userData.user_id;
+    
+      
     }
   }
 
   onSave(): void {
-    debugger;
+  
     if (this.type === 'Deposit') {
       if (this.formGroup.valid) {
         const updatedData = this.formGroup.value;
@@ -158,7 +166,7 @@ export class CheckAppvDailogComponent implements OnDestroy {
           .Approvecheck(this.user.id, 0, this.userId, updatedData)
           .subscribe({
             next: (response) => {
-              console.log('Update successful', response);
+       
               this.snackbarService.snackbar('Update successfully!', 'success');
               this.dialogRef.close(response);
               this.isApproved = true;
@@ -185,12 +193,12 @@ export class CheckAppvDailogComponent implements OnDestroy {
           .ApproveCheckWithdraw(this.user.id, this.userId, updatedData)
           .subscribe({
             next: (response) => {
-              console.log('Update successful', response);
+              // console.log('Update successful', response);
               this.snackbarService.snackbar('Update successfully!', 'success');
               this.getwithdrawApproveStatus();
               // this.loadBanks();
               const utrNumberControl = this.formGroup.get('utrNumber');
-              console.log('Add required validator');
+              // console.log('Add required validator');
               utrNumberControl.setValidators([Validators.required]);
               this.loader = false;
             },
@@ -208,23 +216,61 @@ export class CheckAppvDailogComponent implements OnDestroy {
     }
   }
   private loadBanks() {
-    // this.loader=true;
+
+    // If user explicitly wants the full bank list, honor that immediately
+    if (this.useOtherBanks) {
+      this.fetchFullBankList();
+      return;
+    }
+    
+    if (this.type === 'withdraw') {
+  
+      this.bank.getDeviceNamesForZuser(this.userId).subscribe(
+        (response: any) => {
+         debugger;
+          const devices = response?.devices;
+          
+          if (!Array.isArray(devices) || devices.length === 0) {
+            this.fetchFullBankList();
+            return;
+          }
+         
+          this.deviceNames = devices.map((d: string) =>
+            typeof d === 'string' ? d.replace(/^\{|\}$/g, '') : d
+          );
+          this.devicedata = true;
+          this.loader = false;
+        },
+        (error) => {
+          // on error fallback to full bank list
+          this.fetchFullBankList();
+        }
+      );
+    } else {
+      // default behaviour for non-withdraw types
+      this.fetchFullBankList();
+    }
+
+  }
+
+  private fetchFullBankList() {
     this.bank.getBankListdata().subscribe(
       (data) => {
+        
         this.banksList = data;
+        this.devicedata = false;
         this.banks = data;
-        console.log(data);
         this.loader = false;
-        // this.dataSource.shift();
       },
       (error) => {
-        console.error('Error fetching banks', error);
         this.loader = false;
       }
     );
+  }
 
-    // this.banksList = this.bank.banksList;
-    // console.log(this.banksList);
+  onOtherBankToggle(checked: boolean) {
+    this.useOtherBanks = checked;
+    this.loadBanks();
   }
 
   onBankSelected(bankId: number) {
@@ -349,7 +395,7 @@ export class CheckAppvDailogComponent implements OnDestroy {
       const bankMatch = result.data.text.match(bankNameRegex);
       const bankName = bankMatch ? bankMatch[1].trim() : null;
 
-      console.log(bankName);
+      // console.log(bankName);
 
       clearInterval(intervalId); // Clear interval when operation completes
 
@@ -409,7 +455,15 @@ export class CheckAppvDailogComponent implements OnDestroy {
   onSendMessage() {
     if (this.formGroup.valid) {
       const userId = this.userId;
-      const bankId = this.formGroup.get('bank')?.value;
+      let deviceName = "";
+      let bankId;
+      if(this.devicedata){
+        deviceName =this.formGroup.get('bank')?.value;
+        bankId = null;
+      }else{
+       bankId = this.formGroup.get('bank')?.value;
+       deviceName = "";
+      }
       const id = this.user.id;
       const chatId = this.user.chatID;
       const utr = this.formGroup.get('utrNumber')?.value;
@@ -417,20 +471,62 @@ export class CheckAppvDailogComponent implements OnDestroy {
       const neftPayment=this.isNeftPayment;
       
       this.loader = true;
-      console.log(fileData);
+      // console.log(fileData);
+      // derive bankName from selected bankId (fall back to previously loaded bankName or empty string)
+      const selectedBank = this.banksList?.find((b) => b.id === bankId as number);
+      const bankName = selectedBank?.bankName || this.bankName || '';
 
       this.apprvservice
-        .sendWithdrawMsg(id, userId, bankId, chatId, utr,neftPayment, fileData)
+        .sendWithdrawMsg(id, userId, bankId, chatId, utr, neftPayment, fileData, bankName, deviceName)
         .subscribe(
           (data) => {
             console.log(data);
             this.loader = false;
-            this.snackbarService.snackbar(
-              'send message successfully!',
-              'success'
-            );
+            this.snackbarService.snackbar('send message successfully!', 'success');
             this.getwithdrawApproveStatus();
             this.dialogRef.close();
+          },
+          (error) => {
+            console.error(error);
+            this.loader = false;
+          }
+        );
+    }
+  }
+
+    sendMessage() {
+    if (this.formGroup.valid) {
+      const userId = this.userId;
+      let deviceName = "";
+      let bankId;
+      if(this.devicedata){
+        deviceName =this.formGroup.get('bank')?.value;
+        bankId = null;
+      }else{
+       bankId = this.formGroup.get('bank')?.value;
+       deviceName = "";
+      }
+      const id = this.user.id;
+      const chatId = this.user.chatID;
+      const utr = this.formGroup.get('utrNumber')?.value;
+      const fileData = this.formGroup.get('utrImage')?.value;
+      const neftPayment=this.isNeftPayment;
+      const amount = this.formGroup.get('amount')?.value;
+      
+      this.loader = true;
+      console.log(fileData);
+      // derive bankName from selected bankId (fall back to previously loaded bankName or empty string)
+      const selectedBank = this.banksList?.find((b) => b.id === bankId as number);
+      const bankName = selectedBank?.bankName || this.bankName || '';
+
+      this.apprvservice
+        .sendWMsg(id, userId, bankId, chatId, utr, neftPayment, fileData, amount, bankName, deviceName)
+        .subscribe(
+          (data) => {
+            console.log(data);
+            this.loader = false;
+            this.snackbarService.snackbar('send message successfully!', 'success');
+            this.getwithdrawApproveStatus();
           },
           (error) => {
             console.error(error);

@@ -54,7 +54,7 @@
             <div *ngIf="!conversation.isRead" class="notification-badge"></div>
           </div>
           <div class="conversation-details">
-            <h3 *ngIf="conversation.clientName " >{{ conversation.clientName  }}</h3>
+            <h3 *ngIf="conversation.clientName  "  [ngClass]="{'lg-text': conversation.watiService === 1, 'dg-text': conversation.watiService === 2 , 'gg-text':conversation.watiService === 3,'tg-text':conversation.watiService === 3 }" >{{ conversation.clientName  }} <Span >{{conversation.watiService}}</Span></h3>
             <h3 *ngIf="!conversation.clientName "> USER </h3>
             <p class="lastmsg" [innerHTML]="getlastMessage(conversation.data) | lineBreaks"></p>
             <p class="timestamp">{{ conversation.lastMessageTime | utcToLocal }}</p>

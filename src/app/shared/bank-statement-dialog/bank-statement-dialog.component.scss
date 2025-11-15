@@ -1,0 +1,113 @@
+.bank-statement-dialog {
+  padding: 16px;
+  min-height: 600px; /* fixed minimum height as requested */
+  max-height: 80vh; /* keep dialog from growing off-screen */
+  display: flex;
+  flex-direction: column;
+  /* do not allow the outer dialog to scroll; inner transactions area will scroll */
+  overflow: visible;
+}
+
+.bank-details {
+  margin-bottom: 12px;
+  background: #4e4d4d;
+  padding: 10px;
+  border-radius: 6px;
+  flex: 0 0 auto; /* keep header area fixed size */
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bank-details-left {
+  flex: 1 1 auto;
+}
+
+.bank-details-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start; /* align QR image to top */
+}
+
+.bank-details-right img {
+  max-width: 120px;
+  max-height: 120px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+/* Make QR stack under details on narrow screens */
+@media (max-width: 600px) {
+  .bank-details {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bank-details-right {
+    margin-top: 8px;
+    justify-content: flex-start;
+  }
+}
+
+.transactions {
+  margin-top: 8px;
+  flex: 1 1 auto; /* let this area grow/shrink to fill available space */
+  overflow: auto; /* only this section will scroll */
+}
+
+/* scrollable wrapper contains the table; keep header sticky inside this container */
+.table-wrapper {
+  width: 100%;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0; /* stick to top of the scroll container (.transactions) */
+  z-index: 3;
+  background: #4e4d4d; /* match dialog background so it overlays rows when sticky */
+  color: #ffd900bb;
+}
+
+.pagination {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto; /* keep paginator outside scroll */
+}
+
+.table th, .bank-statement-dialog strong {
+  color: #ffd900bb;
+  background-color: #4e4d4d;
+}
+
+/* Table colors: text and background for table, header and cells */
+.table, .table td {
+  color: #b5b3b3;
+  background-color: #4e4d4d;
+}
+
+h2, h3 {
+  color: #ffd700;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #4e4d4d;
+  text-align: left;
+}
+
+.actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  flex: 0 0 auto; /* keep actions visible and not part of the scrollable area */
+}

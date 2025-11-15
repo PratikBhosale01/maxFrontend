@@ -22,6 +22,7 @@ data: any;
     clientName?:String;
     isManual?: boolean;
     isBlocked?: boolean;
+    watiService?:number;
 }
 
 export interface PagedResponse<T> {

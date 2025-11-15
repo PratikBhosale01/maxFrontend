@@ -217,9 +217,7 @@
 .user-tree-table tr:hover {
   background-color: #222 !important;
 }
-.user-tree-table .btn-link, .user-tree-table .fa {
-  // color: #ffd700 !important;
-}
+
 .user-tree-table .btn-warning {
   background-color: #ffd700 !important;
   color: #111 !important;
@@ -259,4 +257,33 @@
 }
 .fa-eye:hover {
   color: #ab7702 !important;
+}
+
+/* Withdraw dialog wrapper styles - controls size of embedded withdraw dialog component */
+.withdraw-dialog-wrapper {
+  width: 900px; /* desired fixed width (adjust as needed) */
+  min-width: 1000px; /* responsive cap for small screens */
+  height: 600px; /* fixed height */
+  margin: 0 auto; /* center horizontally */
+  overflow: auto; /* scroll if content exceeds fixed height */
+  display: block;
+}
+
+.withdraw-dialog-wrapper app-withdraw-dialog {
+  display: block;
+  height: 100%;
+}
+
+/* If the withdraw dialog uses a .modal-content inside, force it to fill the wrapper
+   so the dialog header/body respect the fixed height and body scrolls. */
+.withdraw-dialog-wrapper ::ng-deep .modal-content {
+   min-width: 1000px; 
+  height: 100% !important;
+  min-height: 600px !important;
+  overflow: hidden;
+}
+
+.withdraw-dialog-wrapper ::ng-deep .modal-body {
+  overflow: auto;
+  height: calc(100% - 56px); /* leave space for header/footer; adjust if necessary */
 }

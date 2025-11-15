@@ -1,63 +1,90 @@
+
 <app-loader *ngIf="loader"></app-loader>
 
-<div>
-  <div class="row">
-    <div class="col-md-3">
-      <div class="newcard">
-        <div class="card-body">
-          <h5 class="card-title">Today's Deposited</h5>
-          <p class="card-text">{{ todayDeposit }}</p>
-        </div>
-        <div class="temp-scale" (click)="navigateToPage('deposit')">
-          <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
-        </div>
+<div class="superadmin-landing-container">
+  <!-- <header class="dashboard-header">
+    <div class="header-content">
+      <img src="assets/logo.png" alt="Logo" class="dashboard-logo" />
+      <div>
+        <h1>Superadmin Dashboard</h1>
+        <p class="dashboard-subtitle">Welcome! Here’s your business overview at a glance.</p>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="newcard">
-        <div class="card-body">
-          <h5 class="card-title">Today's Withdraw</h5>
-          <p class="card-text">{{ todayWithdraw }}</p>
-        </div>
-        <div class="temp-scale" (click)="navigateToPage('withdraw')" >
-          <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="newcard">
-        <div class="card-body ">
-          <h5 class="card-title">Today's New Client</h5>
-          <p class="card-text">{{ todayClients }}</p>
-        </div>
-        <div class="temp-scale"  (click)="navigateToPage('users')">
-          <i class="fa-solid fa-arrow-right" style="color: #926108;"></i>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="newcard">
-        <div class="card-body">
-          <h5 class="card-title">Total Bot Users</h5>
-          <p class="card-text">{{ totalusers }}</p>
-        </div>
-        <div class="temp-scale" (click)="fetchDataFromBackend()">
-          <i class="fa-solid fa-arrow-right" style="color: #926108"></i>
-        </div>
-      </div>
-    </div> 
-  </div>
-</div>
+  </header> -->
 
-<div>
-  <div class="row">
-    <div class="col-lg-6">
-      <h1>Deposit Chart</h1>
-      <canvas #depositChart width="550" height="230"></canvas>
+  <section class="dashboard-cards">
+    <div class="dashboard-card" (click)="navigateToPage('deposit')">
+    
+      <div class="dashboard-card-content">
+        <div class="dashboard-card-title">Today's Deposited</div>
+        <div class="dashboard-card-value">{{ todayCounts | number:'1.0-0'}}</div>
+        <div class="dashboard-card-meta">{{  todayDeposit | currency:'$':'symbol':'1.0-0'  }}</div>
+      </div>
     </div>
-    <div class="col-lg-6">
-      <h1>Withdrawal Chart</h1>
-      <canvas #withdrawChart width="550" height="230"></canvas>
+    <div class="dashboard-card" (click)="navigateToPage('withdraw')">
+    
+      <div class="dashboard-card-content">
+        <div class="dashboard-card-title">Today's Withdraw</div>
+        <div class="dashboard-card-value">{{todayWCounts | number:'1.0-0'  }}</div>
+        <div class="dashboard-card-meta">{{  todayWithdraw | currency:'$':'symbol':'1.0-0' }}</div>
+      </div>
     </div>
-  </div>
+    <div class="dashboard-card" (click)="navigateToPage('users')">
+     
+      <div class="dashboard-card-content">
+        <div class="dashboard-card-title">Today's New Client</div>
+        <div class="dashboard-card-value">{{ todayClients }}</div>
+        <div class="dashboard-card-meta">New Registrations</div>
+      </div>
+    </div>
+    <div class="dashboard-card" (click)="fetchDataFromBackend()">
+      
+      <div class="dashboard-card-content">
+        <div class="dashboard-card-title">Total Bot Users</div>
+        <div class="dashboard-card-value">{{ totalusers }}</div>
+        <div class="dashboard-card-meta">All Time</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-charts">
+    <div class="dashboard-chart-panel">
+      <div class="dashboard-chart-header">
+        <h2>Deposits Overview</h2>
+        <div>
+          <button class="toggle-btn deposit-btn" (click)="showDepositBothMetrics()">Both</button>
+          <button class="toggle-btn deposit-btn" (click)="showDepositCountOnly()">Count</button>
+          <button class="toggle-btn deposit-btn" (click)="showDepositAmountOnly()">Amount</button>
+        </div>
+      </div>
+      <div class="dashboard-chart-canvas">
+        <canvas #depositTransactionChart></canvas>
+      </div>
+      <div class="dashboard-chart-stats">
+        <div><strong>Total Txns:</strong> {{ depositTotalTransactions | number:'1.0-0' }}</div>
+        <div><strong>Total Amount:</strong> {{ depositTotalAmount }}</div>
+        <div><strong>Avg Txns/Day:</strong> {{ depositAvgTransactions | number:'1.0-0' }}</div>
+        <div><strong>Avg Amount/Day:</strong> {{ depositAvgAmount }}</div>
+      </div>
+    </div>
+    <div class="dashboard-chart-panel">
+      <div class="dashboard-chart-header">
+        <h2>Withdrawals Overview</h2>
+        <div>
+          <button class="toggle-btn" (click)="showBothMetrics()">Both</button>
+          <button class="toggle-btn" (click)="showCountOnly()">Count</button>
+          <button class="toggle-btn" (click)="showAmountOnly()">Amount</button>
+        </div>
+      </div>
+      <div class="dashboard-chart-canvas">
+        <canvas #transactionChart></canvas>
+      </div>
+      <div class="dashboard-chart-stats">
+        <div><strong>Total Txns:</strong> {{ totalTransactions | number:'1.0-0' }}</div>
+        <div><strong>Total Amount:</strong> {{ totalAmount }}</div>
+        <div><strong>Avg Txns/Day:</strong> {{ avgTransactions | number:'1.0-0' }}</div>
+        <div><strong>Avg Amount/Day:</strong> {{ avgAmount }}</div>
+      </div>
+    </div>
+  </section>
 </div>

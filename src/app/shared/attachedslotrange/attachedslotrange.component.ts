@@ -39,8 +39,8 @@ export class AttachedslotrangeComponent {
 
   onAddOrUpdate(): void {
     // Handle the add or update logic here
-    console.log('Selected Slot:', this.selectedSlot);
-    console.log('Selected Amount Range:', this.selectedAmountRange);
+    // console.log('Selected Slot:', this.selectedSlot);
+    // console.log('Selected Amount Range:', this.selectedAmountRange);
 
 
     

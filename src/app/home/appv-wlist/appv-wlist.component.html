@@ -52,7 +52,7 @@
         </mat-select>
       </mat-form-field>
     
-      <button *ngIf="!embedded"
+      <!-- <button *ngIf="!embedded"
         (click)="depositeDialog()" 
         style="margin-left: 5px;  height: 55px; min-width: 120px; padding: 0 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; line-height: 48px; display: flex; align-items: center; justify-content: center;"
       >
@@ -63,7 +63,7 @@
       style="margin-left: 5px;  height: 55px; min-width: 120px; padding: 0 16px; background-color:#f44336; color: white; border: none; border-radius: 4px; cursor: pointer; line-height: 48px; display: flex; align-items: center; justify-content: center;"
     >
       Withdraw -
-    </button>
+    </button> -->
     
       <!-- <button 
         style="height: 48px; min-width: 120px; padding: 0 16px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; line-height: 48px; display: flex; align-items: center; justify-content: center;"
@@ -103,7 +103,9 @@
    </div>
 </div>
 
-<div class="mat-elevation-z8">
+<div class="mat-elevation">
+  <div class="row">
+    <div [ngClass]="embedded || !isBankNotificationsVisible || ! bankNotifications?.length  ? 'col-lg-12' : 'col-lg-9'">
   <table mat-table [dataSource]="withdraws" class="mat-table">
   
 
@@ -120,10 +122,10 @@
     </ng-container>
 
     <!-- UtrNumber Column -->
-    <ng-container matColumnDef="utrNumber">
+    <!-- <ng-container matColumnDef="utrNumber">
       <th mat-header-cell *matHeaderCellDef>UTR Number</th>
       <td mat-cell *matCellDef="let element">{{ element.utrNumber }}</td>
-    </ng-container>
+    </ng-container> -->
 
     <!-- Amount Column -->
     <ng-container matColumnDef="amount">
@@ -139,11 +141,11 @@
       </td>
     </ng-container>
 
-    <!-- Site Column -->
+    <!-- Site Column
     <ng-container matColumnDef="site">
       <th mat-header-cell *matHeaderCellDef>Vendors Name</th>
       <td mat-cell *matCellDef="let element">{{ element.site.name }}</td>
-    </ng-container>
+    </ng-container> -->
 
     <!-- RequestBy Column -->
     <!-- <ng-container matColumnDef="requestBy">
@@ -250,7 +252,20 @@
 
     <!-- Operations Column -->
     <ng-container matColumnDef="Operations">
-      <th mat-header-cell *matHeaderCellDef>Operations</th>
+      <th mat-header-cell *matHeaderCellDef>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Operations</span>
+          <button 
+            *ngIf="!embedded && bankNotifications?.length"
+            class="toggle-btn" 
+            (click)="toggleBankNotifications()"
+            style="background: none; border: none; color: white; cursor: pointer; padding: 5px; margin-left: 10px;"
+            [attr.aria-label]="isBankNotificationsVisible ? 'Hide notifications' : 'Show notifications'"
+          >
+            <i class="fa-solid" [ngClass]="isBankNotificationsVisible ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+          </button>
+        </div>
+      </th>
       <td mat-cell *matCellDef="let user">
         <i *ngIf="embedded"
           matTooltip="Check Approve"
@@ -264,6 +279,7 @@
           style="color: #f90808; margin-left: 10px"
         ></i>
       </td>
+    
     </ng-container>
 
     <!-- Header Row -->
@@ -280,4 +296,36 @@
   [pageSizeOptions]="[5, 10, 20]"
   (page)="onPageEvent($event)"
   ></mat-paginator>
+  </div>
+   <div class="col-lg-3" *ngIf="!embedded &&  bankNotifications?.length">
+     &nbsp;
+     <div class="notification-container" *ngIf="isBankNotificationsVisible" style="max-height: 80vh; overflow-y: auto; ">
+   
+      <div class="card mb-3" *ngFor="let notification of bankNotifications" draggable="true" >
+        <div class="card-body" style="background-color:  #333; color: white; border-radius: 6px;">
+          <div class="d-flex justify-content-between align-items-start">
+            <h5 class="card-title">{{notification.title}}</h5>
+            <button class="btn-close custom-red-close" (click)="closeNotification(notification.id)" aria-label="Close"></button>
+  
+          </div>
+          <p class="card-text" style="color: white;">{{notification.text}}</p>
+          <h6 class="card-subtitle mb-2 ">Bank Name - {{notification.appName}}</h6>
+        
+          <div class="d-flex justify-content-between align-items-center">
+            <small style="color: white;" >{{notification.timestamp | utcToLocal}}</small>
+            <!-- <span class="badge" [ngClass]="{
+              'bg-success': notification.status === 'RECEIVED',
+              'bg-warning': notification.status === 'PENDING',
+              'bg-danger': notification.status === 'FAILED'
+            }">{{notification.status}}</span> -->
+          </div>
+        </div>
+      </div>
+      <!-- <div *ngIf="isLoading" class="text-center my-3">
+        <mat-spinner diameter="30"></mat-spinner>
+      </div> -->
+    </div>
+
+  </div>
+  </div>
 </div>

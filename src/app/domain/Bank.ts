@@ -17,6 +17,7 @@ export interface BankAccount{
   }
 
   export interface Bank{
+displayName?: string;
     accountHolder?: string;
     bankId?: string;
     id?:Number;

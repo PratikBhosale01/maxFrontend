@@ -93,7 +93,7 @@ export class DialogTableComponent  implements OnInit  {
     this.page = event.pageIndex;
     this.size = event.pageSize;
     this.inputPage = this.page + 1;
-    console.log("onPageChange");
+
    if(this.searchTerm){
     this.onEnter(this.searchTerm);
 

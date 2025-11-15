@@ -102,7 +102,7 @@ export class AddNewUserComponent implements OnDestroy {
   }
   myFormValues(): void {
     this.formGroup = this.fb.group({
-      userId: ['', [Validators.required, Validators.minLength(4)]],
+      userId: ['', [Validators.required, Validators.minLength(5)]],
       password: ['', []],
       name: [''],
       balance: ['0'],

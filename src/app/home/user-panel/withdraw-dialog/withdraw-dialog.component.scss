@@ -1,0 +1,116 @@
+.activity-modal-content {
+  background: #2c2c2c;
+  color: #fff;
+}
+.activity-modal-header {
+  background: #1f1f1f;
+}
+.activity-modal-body {
+  background: #2c2c2c;
+}
+.activity-modal-footer {
+  background: #1f1f1f;
+}
+
+/* small responsive tweaks */
+@media (max-width: 600px) {
+  .modal-dialog { max-width: 95%; }
+}
+
+/* Styling for table filter inputs (search + date range) */
+.table-filter-input {
+  background: #1f1f1f; /* match header/darker modal tone */
+  color: #fff; /* readable on dark bg */
+  border: 1px solid #3a3a3a;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.table-filter-input::placeholder {
+  color: #bfbfbf;
+  opacity: 1;
+}
+
+/* Slightly different tint for date inputs to visually separate them if desired */
+.table-filter-input.date-input {
+  background: #272727;
+}
+
+/* Search can be slightly lighter for contrast */
+.table-filter-input.search-input {
+  background: #232323;
+}
+
+/* Focus state uses the same accent used elsewhere in the modal */
+.table-filter-input:focus {
+  outline: none;
+  border-color: #E2BD01;
+  box-shadow: 0 0 0 0.15rem rgba(226,189,1,0.15);
+  background: #1b1b1b;
+  color: #fff;
+}
+
+/* Ensure date inputs' text is visible in browsers that render internal date UI */
+.table-filter-input.date-input::-webkit-datetime-edit-text,
+.table-filter-input.date-input::-webkit-datetime-edit-month-field,
+.table-filter-input.date-input::-webkit-datetime-edit-day-field,
+.table-filter-input.date-input::-webkit-datetime-edit-year-field {
+  color: #fff;
+}
+
+/* Table styling for withdraw list */
+.withdraw-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #fff; /* fallback */
+}
+
+ ::ng-deep .mat-header-row {
+  background: #171717; /* darker header */
+  color: #E2BD01; /* golden accent for headers */
+  font-weight: 600;
+  border-bottom: 1px solid #333;
+}
+
+:ng-deep .withdraw-table td.mat-cell {
+  background: transparent; /* let row background show */
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: #fff;
+}
+
+/* Zebra striping */
+:ng-deep .withdraw-table tr.mat-row:nth-child(even) td.mat-cell {
+  background: rgba(255,255,255,0.02);
+}
+
+/* Row hover uses golden tint */
+.withdraw-table tr.mat-row:hover td.mat-cell {
+  background: rgba(226,189,1,0.06);
+  color: #fff;
+}
+
+/* Smaller sr no column width */
+.withdraw-table td.mat-cell:nth-child(1) {
+  width: 64px;
+}
+
+/* Paginator styling scoped to this component */
+:host ::ng-deep .mat-paginator {
+  background: transparent;
+  color: #fff;
+}
+
+:host ::ng-deep .mat-paginator .mat-paginator-range-label,
+:host ::ng-deep .mat-paginator .mat-icon-button {
+  color: #fff;
+}
+
+:host ::ng-deep .mat-paginator .mat-button.mat-icon-button {
+  color: #E2BD01;
+}
+
+/* Make paginator controls stand out on dark footer */
+:host ::ng-deep .mat-paginator .mat-select-trigger {
+  color: #fff;
+}

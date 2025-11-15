@@ -48,10 +48,12 @@ import { WithdrawConfirmComponent } from './withdraw-confirm/withdraw-confirm.co
 import { DepoDailogComponent } from './depo-dailog/depo-dailog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { WithDailogComponent } from './with-dailog/with-dailog.component';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 import { OtpDialogComponent } from './otp-dialog/otp-dialog.component';
 import { NotificationDropdownComponent } from './notification-dropdown/notification-dropdown.component';
-
+import { BankStatementDialogComponent } from './bank-statement-dialog/bank-statement-dialog.component';
+import { VoucherDialogComponent } from './voucher-dialog/voucher-dialog.component';
+import { UtcToLocalPipe } from '../services/utc-to-local.pipe';
 
 @NgModule({
   declarations: [
@@ -86,6 +88,12 @@ import { NotificationDropdownComponent } from './notification-dropdown/notificat
     WithDailogComponent,
     OtpDialogComponent,
     NotificationDropdownComponent
+  ,
+    //  UtcToLocalPipe,
+  BankStatementDialogComponent
+  ,
+  VoucherDialogComponent
+   
   ],
   imports: [
     CommonModule,
@@ -116,6 +124,34 @@ import { NotificationDropdownComponent } from './notification-dropdown/notificat
     MatTooltipModule,
     MatCheckboxModule,
 
-  ],exports:[LoaderComponent,DialogComponent,OtpDialogComponent,NotificationDropdownComponent]
+  ],
+  exports:[
+    LoaderComponent,
+    DialogComponent,
+    NotificationDropdownComponent,
+  BankStatementDialogComponent,
+  VoucherDialogComponent,
+    MatSelectModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatDialogModule,
+    MatCardModule,
+    MatGridListModule,
+    MatSortModule,
+    MatTableModule,
+    MatProgressBarModule,
+    ReactiveFormsModule,
+    MatSlideToggleModule,
+    HttpClientModule,
+    MatChipsModule,
+    FormsModule,
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTooltipModule,
+    MatCheckboxModule
+  ]
 })
 export class SharedModule { }

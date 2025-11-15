@@ -1,0 +1,51 @@
+<h2 style="  background: #4e4d4d;" mat-dialog-title>Add Voucher</h2>
+<div mat-dialog-content style="background: #4e4d4d;">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <mat-form-field appearance="fill" style="width:100%">
+      <mat-label>Flow Type</mat-label>
+      <mat-select formControlName="flowType">
+        <mat-option value="CREDIT"> CREDIT</mat-option>
+        <mat-option value="DEBIT">DEBIT</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+      <mat-form-field *ngIf="form.get('flowType')?.value === 'CREDIT'" appearance="fill" style="width:100%">
+        <mat-label>From Account</mat-label>
+        <input matInput type="text" formControlName="fromAccount" placeholder="Enter from account" />
+        <mat-error *ngIf="form.get('fromAccount')?.hasError('required')">From account is required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="form.get('flowType')?.value === 'DEBIT'" appearance="fill" style="width:100%">
+        <mat-label>To Account</mat-label>
+        <input matInput type="text" formControlName="toAccount" placeholder="Enter to account" />
+        <mat-error *ngIf="form.get('toAccount')?.hasError('required')">To account is required</mat-error>
+      </mat-form-field>
+
+   
+     
+
+
+    <mat-form-field appearance="fill" style="width:100%">
+      <mat-label>Amount</mat-label>
+      <input matInput type="number" formControlName="amount" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" style="width:100%">
+      <mat-label>Transaction Note</mat-label>
+      <input matInput formControlName="transactionNote" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" style="width:100%">
+      <mat-label>Remark</mat-label>
+      <input matInput formControlName="remark" />
+    </mat-form-field>
+
+  
+
+    <div mat-dialog-actions style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+      <button mat-button type="button" (click)="cancel()">Cancel</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">Create</button>
+    </div>
+  </form>
+</div>

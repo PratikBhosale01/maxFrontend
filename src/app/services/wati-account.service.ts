@@ -5,6 +5,7 @@ import { AppConfigService } from './app-config.service';
 import { map } from 'rxjs/operators';
 
 export interface WatiAccount {
+watiAccount: any;
   id?: number;
   watiName: string;
   apiToken: string;
@@ -19,12 +20,14 @@ export interface WatiAccount {
 })
 export class WatiAccountService {
   private apiUrl: string;
+  private zusersApiUrl: string;
 
   constructor(
     private http: HttpClient,
     private configService: AppConfigService
   ) {
     this.apiUrl = `${this.configService.getBaseurl()}/api/wati-accounts`;
+    this.zusersApiUrl = `${this.configService.getBaseurl()}/api/zusers`;
   }
 
   getAllAccounts(): Observable<WatiAccount[]> {
@@ -101,5 +104,24 @@ export class WatiAccountService {
 
   getWebhookUrl(id: number): Observable<{ webhookUrl: string }> {
     return this.http.get<{ webhookUrl: string }>(`${this.apiUrl}/${id}/webhook`);
+  }
+
+  /**
+   * Fetch WATI accounts mapped to a specific zuser
+   */
+  getAccountsByZuser(zuserId: number | string): Observable<WatiAccount[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/by-zuser/${zuserId}`).pipe(
+      map(accounts => accounts.map(account => ({
+        ...account,
+        isActive: Boolean(account.active)
+      })))
+    );
+  }
+
+  /**
+   * Update WATI accounts mapping for a specific zuser
+   */
+  updateZuserWatiAccounts(zuserId: number | string, watiAccountIds: number[]): Observable<void> {
+    return this.http.put<void>(`${this.zusersApiUrl}/${zuserId}/wati-accounts`, { watiAccountIds });
   }
 } 
