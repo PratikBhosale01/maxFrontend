@@ -46,7 +46,7 @@ getOtpByUsername(username: string): Observable<any> {
     return throwError(() => new Error('Username is missing')); // ✅ return an Observable
   }
 
-  const url = `https://api.zeerosports.com/auth/show-otp/${username}`;
+  const url = `${this.baseUrl}/auth/show-otp/${username}`;
   return this.http.get<any>(url); 
 }
 
